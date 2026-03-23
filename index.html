@@ -3,261 +3,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yönetim Paneli | Veri Akışı</title>
-    
-    <!-- Tailwind CSS (Tasarım Framework) -->
+    <title>Yönetim Paneli v2</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!-- İkon Seti -->
     <script src="https://unpkg.com/lucide@latest"></script>
-
     <style>
         body { font-family: 'Inter', sans-serif; }
-        /* Yumuşak geçiş efektleri ve cam görünümü */
-        .glass-header {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(8px);
-        }
-        .fade-in {
-            animation: fadeIn 0.5s ease-in-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        /* Sol menü için stil */
+        .sidebar { min-height: 100vh; transition: all 0.3s; }
+        /* Scrollbar özelleştirme */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        pre { white-space: pre-wrap; word-wrap: break-word; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased">
+<body class="bg-slate-100 text-slate-800 flex">
 
-    <!-- Navbar -->
-    <nav class="sticky top-0 z-50 glass-header border-b border-slate-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
-                <div class="flex items-center gap-2">
-                    <div class="bg-indigo-600 p-1.5 rounded-lg">
-                        <i data-lucide="layout-grid" class="text-white w-5 h-5"></i>
-                    </div>
-                    <span class="font-bold text-xl tracking-tight text-slate-900">AdminPanel</span>
-                </div>
-                <div class="flex items-center gap-4">
-                    <div class="hidden md:flex flex-col items-end mr-2">
-                        <span class="text-xs text-slate-400">Veri Kaynağı</span>
-                        <span class="text-sm font-medium text-slate-700">Supabase & Excel</span>
-                    </div>
-                    <button onclick="fetchData()" class="p-2 text-slate-500 hover:text-indigo-600 transition-colors" title="Yenile">
-                        <i data-lucide="refresh-cw" class="w-5 h-5"></i>
-                    </button>
+    <!-- SOL MENÜ (SIDEBAR) -->
+    <aside class="sidebar w-64 bg-slate-900 text-white hidden md:flex flex-col fixed h-full z-10">
+        <div class="h-16 flex items-center px-6 border-b border-slate-800">
+            <i data-lucide="layout-dashboard" class="text-indigo-400 mr-2"></i>
+            <span class="font-bold text-lg tracking-wide">AdminPanel</span>
+        </div>
+
+        <nav class="flex-1 px-4 py-6 space-y-2">
+            <a href="#" class="flex items-center px-4 py-3 bg-indigo-600 rounded-lg text-white shadow-lg shadow-indigo-500/30">
+                <i data-lucide="table-2" class="w-5 h-5 mr-3"></i>
+                <span class="font-medium">Veri Listesi</span>
+            </a>
+            <a href="#" class="flex items-center px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors">
+                <i data-lucide="bar-chart-3" class="w-5 h-5 mr-3"></i>
+                <span class="font-medium">Raporlar</span>
+            </a>
+            <a href="#" class="flex items-center px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors">
+                <i data-lucide="settings" class="w-5 h-5 mr-3"></i>
+                <span class="font-medium">Ayarlar</span>
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-slate-800">
+            <div class="bg-slate-800 rounded p-3 text-xs text-slate-400">
+                <p class="font-semibold text-slate-200 mb-1">Durum:</p>
+                <div id="connection-dot" class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-red-500"></span> Bağlantı Bekleniyor
                 </div>
             </div>
         </div>
-    </nav>
+    </aside>
 
-    <!-- Ana İçerik -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 fade-in">
+    <!-- ANA İÇERİK -->
+    <main class="flex-1 md:ml-64 p-4 md:p-8 overflow-y-auto h-screen">
         
-        <!-- İstatistik Kartları -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <!-- Kart 1: Toplam Kayıt -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 relative overflow-hidden group">
-                <div class="absolute right-0 top-0 h-full w-1 bg-indigo-600"></div>
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-sm font-medium text-slate-500 mb-1">Toplam Kayıt</p>
-                        <h3 class="text-3xl font-bold text-slate-900" id="stat-total">-</h3>
-                    </div>
-                    <div class="p-2 bg-indigo-50 rounded-lg text-indigo-600">
-                        <i data-lucide="database" class="w-6 h-6"></i>
-                    </div>
-                </div>
+        <!-- Üst Başlık ve Ayar -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">Veri Yönetimi</h1>
+                <p class="text-slate-500 text-sm">Supabase veritabanı bağlantı kontrolü ve listeleme.</p>
             </div>
-
-            <!-- Kart 2: Son Eklenen -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 relative overflow-hidden">
-                <div class="absolute right-0 top-0 h-full w-1 bg-emerald-500"></div>
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-sm font-medium text-slate-500 mb-1">Son Veri Girişi</p>
-                        <h3 class="text-xl font-bold text-slate-900" id="stat-last-date">-</h3>
-                    </div>
-                    <div class="p-2 bg-emerald-50 rounded-lg text-emerald-600">
-                        <i data-lucide="calendar-check" class="w-6 h-6"></i>
-                    </div>
-                </div>
+            
+            <!-- Tablo Adı Giriş Alanı (Hata Ayıklama İçin) -->
+            <div class="bg-white p-2 rounded-lg shadow-sm border border-slate-200 flex items-center gap-2">
+                <i data-lucide="database" class="text-slate-400 w-4 h-4 ml-2"></i>
+                <input type="text" id="tableNameInput" placeholder="Tablo adını yazın (örn: sayfa1)" class="outline-none text-sm text-slate-700 w-48" value="sayfa1">
+                <button onclick="fetchData()" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-1.5 rounded text-sm font-medium transition-colors">
+                    Getir
+                </button>
             </div>
+        </header>
 
-            <!-- Kart 3: Sistem Durumu -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 relative overflow-hidden">
-                <div class="absolute right-0 top-0 h-full w-1 bg-blue-500"></div>
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-sm font-medium text-slate-500 mb-1">Bağlantı Durumu</p>
-                        <h3 class="text-xl font-bold text-slate-900" id="connection-status">Kontrol Ediliyor...</h3>
-                    </div>
-                    <div class="p-2 bg-blue-50 rounded-lg text-blue-600">
-                        <i data-lucide="wifi" class="w-6 h-6"></i>
-                    </div>
-                </div>
+        <!-- Hata Mesajı Kutusu (Varsa görünür) -->
+        <div id="error-box" class="hidden mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm flex items-start gap-3">
+            <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+            <div>
+                <p class="font-bold">Bir hata oluştu!</p>
+                <p id="error-message">Hata detayı buraya gelecek.</p>
+                <p class="mt-2 text-xs text-red-500">İpucu: Tablo adının doğru olduğundan ve Supabase'de RLS (Row Level Security) ayarlarının kapalı olduğundan emin olun.</p>
             </div>
         </div>
 
-        <!-- Tablo Alanı -->
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col">
-            <div class="p-5 border-b border-slate-200 flex justify-between items-center">
-                <h2 class="text-lg font-semibold text-slate-800">Veri Listesi</h2>
-                <div class="text-sm text-slate-500" id="last-updated-text"></div>
-            </div>
+        <!-- Yükleniyor Göstergesi -->
+        <div id="loader" class="hidden flex flex-col items-center justify-center py-20">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+            <p class="mt-4 text-slate-500 font-medium">Veriler Çekiliyor...</p>
+        </div>
 
+        <!-- Tablo Kartı -->
+        <div id="data-container" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
-                            <!-- NOT: Buradaki başlıkları verilerinize göre değiştirebilirsiniz -->
-                            <th class="px-6 py-4 font-semibold">ID</th>
-                            <th class="px-6 py-4 font-semibold">Tarih</th>
-                            <th class="px-6 py-4 font-semibold">Detay / İçerik</th>
-                            <th class="px-6 py-4 font-semibold">Durum</th> <!-- Opsiyonel -->
-                            <th class="px-6 py-4 font-semibold text-right">Tutar / Değer</th> <!-- Opsiyonel -->
+                    <thead class="bg-slate-50 border-b border-slate-200">
+                        <tr id="table-head">
+                            <!-- JS ile doldurulacak -->
                         </tr>
                     </thead>
                     <tbody id="table-body" class="divide-y divide-slate-100 text-sm text-slate-700">
-                        <!-- Yükleniyor Animasyonu -->
-                        <tr>
-                            <td colspan="5" class="px-6 py-12 text-center">
-                                <div class="flex flex-col items-center justify-center gap-3">
-                                    <div class="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
-                                    <span class="text-slate-500 font-medium">Supabase'den veriler çekiliyor...</span>
-                                </div>
-                            </td>
-                        </tr>
+                        <!-- JS ile doldurulacak -->
                     </tbody>
                 </table>
             </div>
-            
-            <!-- Basit Footer -->
-            <div class="p-4 border-t border-slate-200 bg-slate-50 rounded-b-xl text-center text-xs text-slate-400">
-                Veriler Google Sheets entegrasyonu ile sağlanmaktadır.
+            <div class="p-4 bg-slate-50 border-t border-slate-200 text-xs text-slate-400 flex justify-between">
+                <span id="record-count">0 kayıt listelendi</span>
+                <span>Otomatik Tablo Algılama Modu</span>
             </div>
         </div>
+
     </main>
 
-    <!-- JAVASCRIPT MANTIĞI -->
     <script>
-        // --- AYARLAR ---
-        // SİZİN SAĞLADIĞINIZ BİLGİLER:
-        const SUPABASE_URL = 'https://xtikjrtxowjcpvbmsgxh.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0aWtqcnR4b3dqY3B2Ym1zZ3hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDYxMDUsImV4cCI6MjA4OTc4MjEwNX0.VWOBROBGR52E9gzxx-whsJZ0J8yBn_tPBb838dYxaHU';
-        
-        // !!! ÖNEMLİ: Supabase'deki tablo adınızı buraya yazın (Örn: 'veriler', 'siparisler' vb.)
-        const TABLO_ADI = 'tablo_adiniz'; 
-        
-        // Supabase Başlatma
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        // İkonları oluştur
         lucide.createIcons();
 
-        // Verileri Çekme Fonksiyonu
+        // SUPABASE AYARLARI
+        const SUPABASE_URL = 'https://xtikjrtxowjcpvbmsgxh.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0aWtqcnR4b3dqY3B2Ym1zZ3hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDYxMDUsImV4cCI6MjA4OTc4MjEwNX0.VWOBROBGR52E9gzxx-whsJZ0J8yBn_tPBb838dYxaHU';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
         async function fetchData() {
-            const tbody = document.getElementById('table-body');
-            const statusText = document.getElementById('connection-status');
-            
+            // UI Elementleri
+            const tableName = document.getElementById('tableNameInput').value.trim();
+            const loader = document.getElementById('loader');
+            const dataContainer = document.getElementById('data-container');
+            const errorBox = document.getElementById('error-box');
+            const errorMessage = document.getElementById('error-message');
+            const tableHead = document.getElementById('table-head');
+            const tableBody = document.getElementById('table-body');
+            const connectionDot = document.getElementById('connection-dot');
+
+            // Reset
+            loader.classList.remove('hidden');
+            dataContainer.classList.add('hidden');
+            errorBox.classList.add('hidden');
+            tableHead.innerHTML = '';
+            tableBody.innerHTML = '';
+
+            if (!tableName) {
+                showError("Lütfen bir tablo adı giriniz.");
+                return;
+            }
+
             try {
-                // 1. Supabase'den veriyi iste
-                // Not: Excel'den gelen verilerde sütun isimleri neyse onu kullanacağız.
-                // .order('id', { ascending: false }) -> ID'ye göre tersten sıralar (en yeni en üstte)
-                const { data, error } = await supabase
-                    .from(TABLO_ADI)
-                    .select('*')
-                    .limit(100); // Son 100 veriyi getirir (Performans için)
+                console.log(`'${tableName}' tablosundan veri isteniyor...`);
+                
+                // Supabase Sorgusu
+                let { data, error } = await supabase
+                    .from(tableName)
+                    .select('*');
 
                 if (error) throw error;
 
-                // Bağlantı başarılıysa
-                statusText.innerText = 'Çevrimiçi';
-                statusText.classList.add('text-green-600');
-                
-                // İstatistikleri Güncelle
-                if(data && data.length > 0) {
-                    document.getElementById('stat-total').innerText = data.length;
-                    
-                    // Son veri tarihini bulmaya çalış (created_at veya tarih sütunu varsa)
-                    const lastItem = data[data.length - 1]; // Veya sıralamaya göre ilk eleman
-                    // Tarih alanı varsa formatla, yoksa şimdiki zamanı yaz
-                    const dateVal = lastItem.created_at || lastItem.tarih || new Date(); 
-                    document.getElementById('stat-last-date').innerText = new Date(dateVal).toLocaleDateString('tr-TR');
-                } else {
-                    document.getElementById('stat-total').innerText = '0';
-                    tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">Henüz veri bulunamadı.</td></tr>';
+                // Bağlantı Başarılı
+                connectionDot.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Bağlı';
+                loader.classList.add('hidden');
+
+                if (data.length === 0) {
+                    showError("Tablo bulundu ancak içinde veri yok (Boş Tablo).");
                     return;
                 }
 
-                // Tabloyu Temizle
-                tbody.innerHTML = '';
+                dataContainer.classList.remove('hidden');
+                document.getElementById('record-count').innerText = data.length + ' kayıt listelendi';
 
-                // 2. Verileri Döngüye Sok ve Tabloya Yaz
-                data.forEach(item => {
-                    // SÜTUN EŞLEŞTİRME (Mapping)
-                    // Excel/Supabase sütun isimleriniz farklıysa aşağıdaki 'item.X' kısımlarını değiştirin.
-                    // Örnek: item.musteri_adi, item.Tarih, item.fiyat vb.
-                    
-                    // Güvenli veri okuma (Veri yoksa tire koy)
-                    const id = item.id || '-';
-                    // created_at Supabase'in otomatik tarih alanıdır, yoksa 'tarih' kolonuna bakar
-                    const tarihHam = item.created_at || item.tarih; 
-                    const tarih = tarihHam ? new Date(tarihHam).toLocaleDateString('tr-TR') + ' ' + new Date(tarihHam).toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'}) : '-';
-                    
-                    // Generic alanlar (Kendi sütun adlarınıza göre burayı düzenleyin)
-                    const detay = item.baslik || item.aciklama || item.isim || item.ad || 'İsimsiz Veri'; 
-                    const durum = item.durum || item.status || 'Aktif';
-                    const tutar = item.tutar || item.fiyat || item.miktar || '0';
-
-                    // Durum rengini belirle
-                    let badgeColor = 'bg-gray-100 text-gray-700';
-                    const durumKucuk = String(durum).toLowerCase();
-                    if(durumKucuk.includes('aktif') || durumKucuk.includes('tamam')) badgeColor = 'bg-green-100 text-green-700';
-                    if(durumKucuk.includes('iptal') || durumKucuk.includes('red')) badgeColor = 'bg-red-100 text-red-700';
-                    if(durumKucuk.includes('bekle')) badgeColor = 'bg-yellow-100 text-yellow-800';
-
-                    const row = `
-                        <tr class="hover:bg-slate-50 transition-colors group">
-                            <td class="px-6 py-4 font-medium text-indigo-600">#${id}</td>
-                            <td class="px-6 py-4 text-slate-500">${tarih}</td>
-                            <td class="px-6 py-4 font-medium text-slate-800">${detay}</td>
-                            <td class="px-6 py-4">
-                                <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${badgeColor}">
-                                    ${durum}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 font-medium text-slate-700 text-right">${tutar}</td>
-                        </tr>
-                    `;
-                    tbody.innerHTML += row;
+                // --- SÜTUNLARI OTOMATİK OLUŞTUR ---
+                // İlk veri satırını alıp anahtarlarını (başlıklarını) çıkarıyoruz
+                const columns = Object.keys(data[0]);
+                
+                // Başlıkları yaz
+                columns.forEach(col => {
+                    const th = document.createElement('th');
+                    th.className = 'px-6 py-4 font-semibold text-slate-600 uppercase text-xs tracking-wider';
+                    th.innerText = col;
+                    tableHead.appendChild(th);
                 });
 
-                document.getElementById('last-updated-text').innerText = 'Son Güncelleme: ' + new Date().toLocaleTimeString();
+                // Verileri yaz
+                data.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-50 transition-colors';
+                    
+                    columns.forEach(col => {
+                        const td = document.createElement('td');
+                        td.className = 'px-6 py-4 whitespace-nowrap';
+                        
+                        // Veri kontrolü (Null veya Object ise düzgün göster)
+                        let cellData = row[col];
+                        
+                        // Tarih ise formatla
+                        if (String(cellData).includes('T') && String(cellData).includes('Z') && !isNaN(Date.parse(cellData))) {
+                           cellData = new Date(cellData).toLocaleDateString('tr-TR') + ' ' + new Date(cellData).toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
+                        }
+
+                        if (cellData === null) cellData = '-';
+                        if (typeof cellData === 'object') cellData = JSON.stringify(cellData);
+
+                        td.innerText = cellData;
+                        tr.appendChild(td);
+                    });
+                    tableBody.appendChild(tr);
+                });
 
             } catch (err) {
                 console.error('Hata:', err);
-                statusText.innerText = 'Hata Oluştu';
-                statusText.classList.add('text-red-600');
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="px-6 py-8 text-center text-red-500">
-                            Veriler çekilemedi. Lütfen Tablo Adını kontrol edin.<br>
-                            <span class="text-xs text-slate-400 font-mono mt-2 block">${err.message}</span>
-                        </td>
-                    </tr>`;
+                showError(err.message || "Bilinmeyen bir hata oluştu.");
             }
         }
 
-        // Sayfa yüklendiğinde çalıştır
-        document.addEventListener('DOMContentLoaded', fetchData);
+        function showError(msg) {
+            const loader = document.getElementById('loader');
+            const errorBox = document.getElementById('error-box');
+            const errorMessage = document.getElementById('error-message');
+            const connectionDot = document.getElementById('connection-dot');
+
+            loader.classList.add('hidden');
+            errorBox.classList.remove('hidden');
+            errorMessage.innerText = msg;
+            connectionDot.innerHTML = '<span class="w-2 h-2 rounded-full bg-red-500"></span> Hata';
+        }
+
+        // Sayfa açılınca inputtaki varsayılan tabloyu dene
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchData();
+        });
     </script>
 </body>
 </html>
