@@ -3,228 +3,289 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yönetim Paneli v2</title>
+    <title>Performans Paneli</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        /* Sol menü için stil */
-        .sidebar { min-height: 100vh; transition: all 0.3s; }
-        /* Scrollbar özelleştirme */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        pre { white-space: pre-wrap; word-wrap: break-word; }
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 flex">
+<body class="text-gray-800">
 
-    <!-- SOL MENÜ (SIDEBAR) -->
-    <aside class="sidebar w-64 bg-slate-900 text-white hidden md:flex flex-col fixed h-full z-10">
-        <div class="h-16 flex items-center px-6 border-b border-slate-800">
-            <i data-lucide="layout-dashboard" class="text-indigo-400 mr-2"></i>
-            <span class="font-bold text-lg tracking-wide">AdminPanel</span>
-        </div>
-
-        <nav class="flex-1 px-4 py-6 space-y-2">
-            <a href="#" class="flex items-center px-4 py-3 bg-indigo-600 rounded-lg text-white shadow-lg shadow-indigo-500/30">
-                <i data-lucide="table-2" class="w-5 h-5 mr-3"></i>
-                <span class="font-medium">Veri Listesi</span>
-            </a>
-            <a href="#" class="flex items-center px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors">
-                <i data-lucide="bar-chart-3" class="w-5 h-5 mr-3"></i>
-                <span class="font-medium">Raporlar</span>
-            </a>
-            <a href="#" class="flex items-center px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors">
-                <i data-lucide="settings" class="w-5 h-5 mr-3"></i>
-                <span class="font-medium">Ayarlar</span>
-            </a>
-        </nav>
-
-        <div class="p-4 border-t border-slate-800">
-            <div class="bg-slate-800 rounded p-3 text-xs text-slate-400">
-                <p class="font-semibold text-slate-200 mb-1">Durum:</p>
-                <div id="connection-dot" class="flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-red-500"></span> Bağlantı Bekleniyor
-                </div>
-            </div>
-        </div>
-    </aside>
-
-    <!-- ANA İÇERİK -->
-    <main class="flex-1 md:ml-64 p-4 md:p-8 overflow-y-auto h-screen">
+    <!-- Sidebar & Layout -->
+    <div class="flex h-screen overflow-hidden">
         
-        <!-- Üst Başlık ve Ayar -->
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-            <div>
-                <h1 class="text-2xl font-bold text-slate-900">Veri Yönetimi</h1>
-                <p class="text-slate-500 text-sm">Supabase veritabanı bağlantı kontrolü ve listeleme.</p>
+        <!-- Sidebar -->
+        <aside class="w-64 bg-slate-900 text-white flex flex-col shadow-xl z-20">
+            <div class="p-6 border-b border-slate-700 font-bold text-xl tracking-wide">
+                🚀 Dashboard
             </div>
+            <nav class="flex-1 p-4 space-y-2">
+                <a href="#" onclick="loadView('dashboard')" class="block px-4 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 transition">Genel Bakış</a>
+                <a href="#" onclick="loadView('team')" class="block px-4 py-3 rounded-lg hover:bg-slate-800 transition text-slate-300">Takım Detayı</a>
+            </nav>
+            <div class="p-4 border-t border-slate-700 text-xs text-slate-400">
+                v2.0 • Supabase Connected
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col overflow-hidden relative">
             
-            <!-- Tablo Adı Giriş Alanı (Hata Ayıklama İçin) -->
-            <div class="bg-white p-2 rounded-lg shadow-sm border border-slate-200 flex items-center gap-2">
-                <i data-lucide="database" class="text-slate-400 w-4 h-4 ml-2"></i>
-                <input type="text" id="tableNameInput" placeholder="Tablo adını yazın (örn: sayfa1)" class="outline-none text-sm text-slate-700 w-48" value="sayfa1">
-                <button onclick="fetchData()" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-1.5 rounded text-sm font-medium transition-colors">
-                    Getir
-                </button>
-            </div>
-        </header>
+            <!-- Topbar -->
+            <header class="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-8 shadow-sm z-10">
+                <h1 class="text-xl font-bold text-gray-700">Operasyon Özeti</h1>
+                <div class="flex items-center gap-4">
+                    <select id="periodFilter" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2">
+                        <option>Dönem Yükleniyor...</option>
+                    </select>
+                    <button onclick="fetchData()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition shadow-lg shadow-blue-500/30">
+                        Yenile
+                    </button>
+                </div>
+            </header>
 
-        <!-- Hata Mesajı Kutusu (Varsa görünür) -->
-        <div id="error-box" class="hidden mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm flex items-start gap-3">
-            <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
-            <div>
-                <p class="font-bold">Bir hata oluştu!</p>
-                <p id="error-message">Hata detayı buraya gelecek.</p>
-                <p class="mt-2 text-xs text-red-500">İpucu: Tablo adının doğru olduğundan ve Supabase'de RLS (Row Level Security) ayarlarının kapalı olduğundan emin olun.</p>
-            </div>
-        </div>
+            <!-- Scrollable Content -->
+            <div class="flex-1 overflow-auto p-8">
+                
+                <!-- KPI Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <!-- Card 1 -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden group">
+                        <div class="absolute right-0 top-0 h-full w-1 bg-blue-500"></div>
+                        <p class="text-sm font-semibold text-gray-400 uppercase">Toplam CWT (Saat)</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-2" id="kpi-cwt">-</h3>
+                    </div>
+                    <!-- Card 2 -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden group">
+                        <div class="absolute right-0 top-0 h-full w-1 bg-green-500"></div>
+                        <p class="text-sm font-semibold text-gray-400 uppercase">Toplam FTE</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-2" id="kpi-fte">-</h3>
+                    </div>
+                    <!-- Card 3 -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden group">
+                        <div class="absolute right-0 top-0 h-full w-1 bg-purple-500"></div>
+                        <p class="text-sm font-semibold text-gray-400 uppercase">Verimlilik %</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-2" id="kpi-eff">-</h3>
+                    </div>
+                     <!-- Card 4 -->
+                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden group">
+                        <div class="absolute right-0 top-0 h-full w-1 bg-orange-500"></div>
+                        <p class="text-sm font-semibold text-gray-400 uppercase">Mola Oranı %</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-2" id="kpi-break">-</h3>
+                    </div>
+                </div>
 
-        <!-- Yükleniyor Göstergesi -->
-        <div id="loader" class="hidden flex flex-col items-center justify-center py-20">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-            <p class="mt-4 text-slate-500 font-medium">Veriler Çekiliyor...</p>
-        </div>
+                <!-- Charts Area -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <h4 class="font-bold text-gray-700 mb-4">Günlük CWT Trendi</h4>
+                        <canvas id="chartTrend" height="250"></canvas>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <h4 class="font-bold text-gray-700 mb-4">Takım Bazlı Dağılım</h4>
+                        <canvas id="chartTeam" height="250"></canvas>
+                    </div>
+                </div>
 
-        <!-- Tablo Kartı -->
-        <div id="data-container" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-200">
-                        <tr id="table-head">
-                            <!-- JS ile doldurulacak -->
-                        </tr>
-                    </thead>
-                    <tbody id="table-body" class="divide-y divide-slate-100 text-sm text-slate-700">
-                        <!-- JS ile doldurulacak -->
-                    </tbody>
-                </table>
-            </div>
-            <div class="p-4 bg-slate-50 border-t border-slate-200 text-xs text-slate-400 flex justify-between">
-                <span id="record-count">0 kayıt listelendi</span>
-                <span>Otomatik Tablo Algılama Modu</span>
-            </div>
-        </div>
+                <!-- Data Table -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                        <h3 class="font-bold text-gray-700">Personel Detayları</h3>
+                        <input type="text" id="searchInput" placeholder="Personel Ara..." class="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+                                <tr>
+                                    <th class="px-6 py-4">Personel</th>
+                                    <th class="px-6 py-4">Takım Lideri</th>
+                                    <th class="px-6 py-4">Toplam CWT (Saat)</th>
+                                    <th class="px-6 py-4">FTE</th>
+                                    <th class="px-6 py-4 text-center">Durum</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dataTableBody" class="divide-y divide-gray-100 text-sm">
+                                <!-- Data inject via JS -->
+                                <tr><td colspan="5" class="px-6 py-8 text-center text-gray-400">Veri yükleniyor...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-    </main>
+            </div>
+        </main>
+    </div>
 
     <script>
-        lucide.createIcons();
-
-        // SUPABASE AYARLARI
+        // --- SUPABASE CONF ---
+        // Buraya kendi URL ve Anon Key bilgilerini gir
         const SUPABASE_URL = 'https://xtikjrtxowjcpvbmsgxh.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0aWtqcnR4b3dqY3B2Ym1zZ3hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDYxMDUsImV4cCI6MjA4OTc4MjEwNX0.VWOBROBGR52E9gzxx-whsJZ0J8yBn_tPBb838dYxaHU';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const SUPABASE_KEY = 'Senin_Anon_Key'; 
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let globalData = [];
+        let trendChart, teamChart;
+
+        // --- INIT ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadPeriods();
+            fetchData();
+        });
+
+        async function loadPeriods() {
+            // Distinct periodları çekelim (Bu tablo yapına göre değişebilir, daily_data'dan distinct çekiyoruz)
+            const { data, error } = await _supabase
+                .from('daily_data')
+                .select('period')
+                .order('period', { ascending: false }); // Limit koymuyoruz, distinct JS tarafında
+
+            if(data) {
+                const uniquePeriods = [...new Set(data.map(item => item.period))];
+                const select = document.getElementById('periodFilter');
+                select.innerHTML = uniquePeriods.map(p => `<option value="${p}">${p}</option>`).join('');
+            }
+        }
 
         async function fetchData() {
-            // UI Elementleri
-            const tableName = document.getElementById('tableNameInput').value.trim();
-            const loader = document.getElementById('loader');
-            const dataContainer = document.getElementById('data-container');
-            const errorBox = document.getElementById('error-box');
-            const errorMessage = document.getElementById('error-message');
-            const tableHead = document.getElementById('table-head');
-            const tableBody = document.getElementById('table-body');
-            const connectionDot = document.getElementById('connection-dot');
+            const period = document.getElementById('periodFilter').value;
+            const tbody = document.getElementById('dataTableBody');
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">Yükleniyor...</td></tr>';
 
-            // Reset
-            loader.classList.remove('hidden');
-            dataContainer.classList.add('hidden');
-            errorBox.classList.add('hidden');
-            tableHead.innerHTML = '';
-            tableBody.innerHTML = '';
+            const { data, error } = await _supabase
+                .from('daily_data')
+                .select('*')
+                .eq('period', period);
 
-            if (!tableName) {
-                showError("Lütfen bir tablo adı giriniz.");
+            if (error) {
+                console.error(error);
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-red-500">Veri çekilemedi.</td></tr>';
                 return;
             }
 
-            try {
-                console.log(`'${tableName}' tablosundan veri isteniyor...`);
-                
-                // Supabase Sorgusu
-                let { data, error } = await supabase
-                    .from(tableName)
-                    .select('*');
+            globalData = data;
+            renderDashboard(data);
+        }
 
-                if (error) throw error;
+        function renderDashboard(data) {
+            // 1. Calculate Aggregates
+            // Bu örnekte CWT dakika olarak geldiğini varsayıyorum. Saate çevirelim.
+            const totalCWTMinutes = data.reduce((acc, curr) => acc + (curr.cwt_time || 0), 0);
+            const totalCWTHours = (totalCWTMinutes / 60).toFixed(1);
+            
+            // FTE Hesabı: (Toplam CWT Dakika) / (Gün Sayısı * Günlük Çalışma Dakikası) gibi karmaşık olabilir.
+            // Basitlik için: Toplam CWT Saat / 180 (Örnek aylık hedef) diyelim.
+            // Senin logic'ine göre FTE'yi script'ten de alabiliriz.
+            const totalFTE = (totalCWTHours / 180).toFixed(2); // ÖRNEK
 
-                // Bağlantı Başarılı
-                connectionDot.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Bağlı';
-                loader.classList.add('hidden');
-
-                if (data.length === 0) {
-                    showError("Tablo bulundu ancak içinde veri yok (Boş Tablo).");
-                    return;
+            document.getElementById('kpi-cwt').innerText = totalCWTHours;
+            document.getElementById('kpi-fte').innerText = totalFTE;
+            
+            // 2. Tabloyu Doldur (Özetleyerek)
+            // Kullanıcı bazında gruplayalım
+            const userGroups = {};
+            data.forEach(row => {
+                if(!userGroups[row.user_name]) {
+                    userGroups[row.user_name] = { 
+                        name: row.user_name, 
+                        leader: row.team_leader, 
+                        cwt: 0 
+                    };
                 }
+                userGroups[row.user_name].cwt += (row.cwt_time || 0);
+            });
 
-                dataContainer.classList.remove('hidden');
-                document.getElementById('record-count').innerText = data.length + ' kayıt listelendi';
-
-                // --- SÜTUNLARI OTOMATİK OLUŞTUR ---
-                // İlk veri satırını alıp anahtarlarını (başlıklarını) çıkarıyoruz
-                const columns = Object.keys(data[0]);
+            const tbody = document.getElementById('dataTableBody');
+            tbody.innerHTML = '';
+            
+            Object.values(userGroups).forEach(user => {
+                const hours = (user.cwt / 60).toFixed(1);
+                const userFte = (hours / 180).toFixed(2); // Örnek hedef
                 
-                // Başlıkları yaz
-                columns.forEach(col => {
-                    const th = document.createElement('th');
-                    th.className = 'px-6 py-4 font-semibold text-slate-600 uppercase text-xs tracking-wider';
-                    th.innerText = col;
-                    tableHead.appendChild(th);
-                });
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 transition";
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-medium text-gray-900">${user.name}</td>
+                    <td class="px-6 py-4 text-gray-500">${user.leader || '-'}</td>
+                    <td class="px-6 py-4 text-blue-600 font-bold">${hours}</td>
+                    <td class="px-6 py-4">${userFte}</td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">Aktif</span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
 
-                // Verileri yaz
-                data.forEach(row => {
-                    const tr = document.createElement('tr');
-                    tr.className = 'hover:bg-slate-50 transition-colors';
-                    
-                    columns.forEach(col => {
-                        const td = document.createElement('td');
-                        td.className = 'px-6 py-4 whitespace-nowrap';
-                        
-                        // Veri kontrolü (Null veya Object ise düzgün göster)
-                        let cellData = row[col];
-                        
-                        // Tarih ise formatla
-                        if (String(cellData).includes('T') && String(cellData).includes('Z') && !isNaN(Date.parse(cellData))) {
-                           cellData = new Date(cellData).toLocaleDateString('tr-TR') + ' ' + new Date(cellData).toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
-                        }
-
-                        if (cellData === null) cellData = '-';
-                        if (typeof cellData === 'object') cellData = JSON.stringify(cellData);
-
-                        td.innerText = cellData;
-                        tr.appendChild(td);
-                    });
-                    tableBody.appendChild(tr);
-                });
-
-            } catch (err) {
-                console.error('Hata:', err);
-                showError(err.message || "Bilinmeyen bir hata oluştu.");
-            }
+            // 3. Charts
+            updateCharts(data);
         }
 
-        function showError(msg) {
-            const loader = document.getElementById('loader');
-            const errorBox = document.getElementById('error-box');
-            const errorMessage = document.getElementById('error-message');
-            const connectionDot = document.getElementById('connection-dot');
+        function updateCharts(data) {
+            // Günlük Trend Chart
+            // Tarihe göre grupla
+            const dateMap = {};
+            data.forEach(d => {
+                if(!dateMap[d.date]) dateMap[d.date] = 0;
+                dateMap[d.date] += (d.cwt_time || 0) / 60; // Saat
+            });
+            
+            const labels = Object.keys(dateMap).sort();
+            const values = labels.map(l => dateMap[l]);
 
-            loader.classList.add('hidden');
-            errorBox.classList.remove('hidden');
-            errorMessage.innerText = msg;
-            connectionDot.innerHTML = '<span class="w-2 h-2 rounded-full bg-red-500"></span> Hata';
+            const ctx1 = document.getElementById('chartTrend').getContext('2d');
+            if(trendChart) trendChart.destroy();
+            trendChart = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Günlük Toplam Saat',
+                        data: values,
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } } }
+            });
+
+            // Takım Chart (Doughnut)
+            // Lidere göre grupla
+            const teamMap = {};
+            data.forEach(d => {
+                const tl = d.team_leader || 'Tanımsız';
+                if(!teamMap[tl]) teamMap[tl] = 0;
+                teamMap[tl] += (d.cwt_time || 0);
+            });
+
+            const ctx2 = document.getElementById('chartTeam').getContext('2d');
+            if(teamChart) teamChart.destroy();
+            teamChart = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(teamMap),
+                    datasets: [{
+                        data: Object.values(teamMap),
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
+                    }]
+                }
+            });
         }
-
-        // Sayfa açılınca inputtaki varsayılan tabloyu dene
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchData();
+        
+        // Basit Arama
+        document.getElementById('searchInput').addEventListener('keyup', (e) => {
+            const val = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#dataTableBody tr');
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(val) ? '' : 'none';
+            });
         });
+
     </script>
 </body>
 </html>
