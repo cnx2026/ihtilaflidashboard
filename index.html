@@ -1,291 +1,289 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Performans Paneli</title>
+    <title>Finansal Performans Paneli</title>
+    
+    <link rel="icon" href="https://appexchange.salesforce.com/image_host/0f3dad29-4a38-468b-8fb9-cbabe4acb8f1.png" type="image/png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        body { font-family: 'Inter', sans-serif; }
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .kpi-card { transition: all 0.3s ease; border-left-width: 4px; }
+        .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1); }
+        .dark .kpi-card:hover { box-shadow: 0 10px 25px -5px rgba(0,0,0,0.4), 0 8px 10px -6px rgba(0,0,0,0.4); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+        .dark ::-webkit-scrollbar-thumb { background: #4a5568; }
     </style>
 </head>
-<body class="text-gray-800">
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200">
 
-    <!-- Sidebar & Layout -->
+    <div id="loading-overlay" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center">
+        <i class="fa-solid fa-circle-notch fa-spin fa-3x text-blue-500"></i>
+    </div>
+
     <div class="flex h-screen overflow-hidden">
-        
         <!-- Sidebar -->
-        <aside class="w-64 bg-slate-900 text-white flex flex-col shadow-xl z-20">
-            <div class="p-6 border-b border-slate-700 font-bold text-xl tracking-wide">
-                🚀 Dashboard
+        <aside class="w-64 bg-slate-800 dark:bg-slate-950 text-white flex-col hidden md:flex shadow-2xl z-20">
+            <div class="p-6 border-b border-slate-700/50 flex items-center gap-4">
+                <div class="bg-white/10 p-2 rounded-lg">
+                    <img src="https://appexchange.salesforce.com/image_host/0f3dad29-4a38-468b-8fb9-cbabe4acb8f1.png" class="h-7 w-auto">
+                </div>
+                <span class="text-lg font-bold tracking-tight">Performans</span>
             </div>
-            <nav class="flex-1 p-4 space-y-2">
-                <a href="#" onclick="loadView('dashboard')" class="block px-4 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 transition">Genel Bakış</a>
-                <a href="#" onclick="loadView('team')" class="block px-4 py-3 rounded-lg hover:bg-slate-800 transition text-slate-300">Takım Detayı</a>
+            <nav class="flex-1 p-4 space-y-1">
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-600 font-semibold">
+                    <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+                    <span>Genel Bakış</span>
+                </a>
             </nav>
-            <div class="p-4 border-t border-slate-700 text-xs text-slate-400">
-                v2.0 • Supabase Connected
+            <div class="p-4 border-t border-slate-700/50">
+                <button onclick="toggleTheme()" class="w-full flex items-center justify-center gap-2 text-sm text-slate-400 hover:text-white hover:bg-slate-700/50 py-2 rounded-lg transition-colors">
+                    <i id="theme-icon" class="fa-solid fa-moon"></i>
+                    <span id="theme-text">Karanlık Mod</span>
+                </button>
             </div>
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 flex flex-col overflow-hidden relative">
-            
-            <!-- Topbar -->
-            <header class="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-8 shadow-sm z-10">
-                <h1 class="text-xl font-bold text-gray-700">Operasyon Özeti</h1>
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <header class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700 h-20 flex items-center justify-between px-8 z-10">
+                <h1 class="text-2xl font-bold text-slate-800 dark:text-white">Dönem Özeti</h1>
                 <div class="flex items-center gap-4">
-                    <select id="periodFilter" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2">
-                        <option>Dönem Yükleniyor...</option>
-                    </select>
-                    <button onclick="fetchData()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition shadow-lg shadow-blue-500/30">
-                        Yenile
-                    </button>
+                    <div class="relative">
+                        <i class="fa-solid fa-calendar-days absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <select id="periodFilter" onchange="fetchAndRender()" class="pl-9 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-sm rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 appearance-none">
+                            <option>Dönem Yükleniyor...</option>
+                        </select>
+                    </div>
                 </div>
             </header>
 
-            <!-- Scrollable Content -->
-            <div class="flex-1 overflow-auto p-8">
-                
+            <div class="flex-1 overflow-y-auto p-8">
                 <!-- KPI Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <!-- Card 1 -->
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden group">
-                        <div class="absolute right-0 top-0 h-full w-1 bg-blue-500"></div>
-                        <p class="text-sm font-semibold text-gray-400 uppercase">Toplam CWT (Saat)</p>
-                        <h3 class="text-3xl font-bold text-gray-800 mt-2" id="kpi-cwt">-</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="kpi-card bg-white dark:bg-slate-800 p-6 rounded-xl shadow-md border-blue-500 fade-in">
+                        <div class="flex justify-between items-start">
+                            <p class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase">Toplam Net Çalışma</p>
+                            <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400"><i class="fa-solid fa-stopwatch"></i></div>
+                        </div>
+                        <h3 id="kpi-cwt" class="text-4xl font-extrabold text-slate-800 dark:text-white mt-2">-</h3>
+                        <p class="text-xs text-slate-400 mt-1">Saat Cinsinden</p>
                     </div>
-                    <!-- Card 2 -->
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden group">
-                        <div class="absolute right-0 top-0 h-full w-1 bg-green-500"></div>
-                        <p class="text-sm font-semibold text-gray-400 uppercase">Toplam FTE</p>
-                        <h3 class="text-3xl font-bold text-gray-800 mt-2" id="kpi-fte">-</h3>
+                    <div class="kpi-card bg-white dark:bg-slate-800 p-6 rounded-xl shadow-md border-purple-500 fade-in" style="animation-delay: 0.1s;">
+                        <div class="flex justify-between items-start">
+                            <p class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase">Kümülatif FTE</p>
+                            <div class="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg text-purple-600 dark:text-purple-400"><i class="fa-solid fa-users"></i></div>
+                        </div>
+                        <h3 id="kpi-fte" class="text-4xl font-extrabold text-slate-800 dark:text-white mt-2">-</h3>
+                        <p class="text-xs text-slate-400 mt-1">Toplam Gerçekleşen</p>
                     </div>
-                    <!-- Card 3 -->
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden group">
-                        <div class="absolute right-0 top-0 h-full w-1 bg-purple-500"></div>
-                        <p class="text-sm font-semibold text-gray-400 uppercase">Verimlilik %</p>
-                        <h3 class="text-3xl font-bold text-gray-800 mt-2" id="kpi-eff">-</h3>
+                    <div class="kpi-card bg-white dark:bg-slate-800 p-6 rounded-xl shadow-md border-amber-500 fade-in" style="animation-delay: 0.2s;">
+                        <div class="flex justify-between items-start">
+                            <p class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase">Kümülatif Mola Oranı</p>
+                            <div class="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg text-amber-600 dark:text-amber-400"><i class="fa-solid fa-mug-hot"></i></div>
+                        </div>
+                        <h3 id="kpi-break-rate" class="text-4xl font-extrabold text-slate-800 dark:text-white mt-2">-</h3>
+                        <p class="text-xs text-slate-400 mt-1">Login Süresine Oranla</p>
                     </div>
-                     <!-- Card 4 -->
-                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden group">
-                        <div class="absolute right-0 top-0 h-full w-1 bg-orange-500"></div>
-                        <p class="text-sm font-semibold text-gray-400 uppercase">Mola Oranı %</p>
-                        <h3 class="text-3xl font-bold text-gray-800 mt-2" id="kpi-break">-</h3>
-                    </div>
-                </div>
-
-                <!-- Charts Area -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                        <h4 class="font-bold text-gray-700 mb-4">Günlük CWT Trendi</h4>
-                        <canvas id="chartTrend" height="250"></canvas>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                        <h4 class="font-bold text-gray-700 mb-4">Takım Bazlı Dağılım</h4>
-                        <canvas id="chartTeam" height="250"></canvas>
+                    <div class="kpi-card bg-white dark:bg-slate-800 p-6 rounded-xl shadow-md border-rose-500 fade-in" style="animation-delay: 0.3s;">
+                        <div class="flex justify-between items-start">
+                            <p class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase">Kümülatif Eksik Süre</p>
+                            <div class="p-2 bg-rose-100 dark:bg-rose-900/30 rounded-lg text-rose-600 dark:text-rose-400"><i class="fa-solid fa-hourglass-half"></i></div>
+                        </div>
+                        <h3 id="kpi-missing-time" class="text-4xl font-extrabold text-slate-800 dark:text-white mt-2">-</h3>
+                        <p class="text-xs text-slate-400 mt-1">Saat Cinsinden</p>
                     </div>
                 </div>
 
                 <!-- Data Table -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="p-6 border-b border-gray-100 flex justify-between items-center">
-                        <h3 class="font-bold text-gray-700">Personel Detayları</h3>
-                        <input type="text" id="searchInput" placeholder="Personel Ara..." class="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg overflow-hidden fade-in" style="animation-delay: 0.4s;">
+                    <div class="p-5 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                        <h3 class="font-bold text-slate-700 dark:text-slate-200">Temsilci Performans Özeti</h3>
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Temsilci ara..." class="pl-9 w-64 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-sm rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block p-2.5">
+                        </div>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 uppercase text-xs font-semibold">
                                 <tr>
-                                    <th class="px-6 py-4">Personel</th>
-                                    <th class="px-6 py-4">Takım Lideri</th>
-                                    <th class="px-6 py-4">Toplam CWT (Saat)</th>
+                                    <th class="px-6 py-4">Temsilci</th>
                                     <th class="px-6 py-4">FTE</th>
+                                    <th class="px-6 py-4">Mola Oranı</th>
+                                    <th class="px-6 py-4">Eksik Süre (Saat)</th>
                                     <th class="px-6 py-4 text-center">Durum</th>
                                 </tr>
                             </thead>
-                            <tbody id="dataTableBody" class="divide-y divide-gray-100 text-sm">
-                                <!-- Data inject via JS -->
-                                <tr><td colspan="5" class="px-6 py-8 text-center text-gray-400">Veri yükleniyor...</td></tr>
+                            <tbody id="dataTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 text-sm">
+                                <!-- Data will be injected here by JavaScript -->
                             </tbody>
                         </table>
                     </div>
                 </div>
-
             </div>
         </main>
     </div>
 
     <script>
-        // --- SUPABASE CONF ---
-        // Buraya kendi URL ve Anon Key bilgilerini gir
+        // --- SUPABASE & GLOBAL CONFIG ---
         const SUPABASE_URL = 'https://xtikjrtxowjcpvbmsgxh.supabase.co';
-        const SUPABASE_KEY = 'Senin_Anon_Key'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0aWtqcnR4b3dqY3B2Ym1zZ3hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDYxMDUsImV4cCI6MjA4OTc4MjEwNX0.VWOBROBGR52E9gzxx-whsJZ0J8yBn_tPBb838dYxaHU';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        let globalData = [];
-        let trendChart, teamChart;
-
-        // --- INIT ---
-        document.addEventListener('DOMContentLoaded', async () => {
-            await loadPeriods();
-            fetchData();
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            loadPeriods();
         });
 
-        async function loadPeriods() {
-            // Distinct periodları çekelim (Bu tablo yapına göre değişebilir, daily_data'dan distinct çekiyoruz)
-            const { data, error } = await _supabase
-                .from('daily_data')
-                .select('period')
-                .order('period', { ascending: false }); // Limit koymuyoruz, distinct JS tarafında
-
-            if(data) {
-                const uniquePeriods = [...new Set(data.map(item => item.period))];
-                const select = document.getElementById('periodFilter');
-                select.innerHTML = uniquePeriods.map(p => `<option value="${p}">${p}</option>`).join('');
+        // --- THEME ---
+        function initTheme() {
+            if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
             }
+            updateThemeUI();
         }
 
-        async function fetchData() {
-            const period = document.getElementById('periodFilter').value;
-            const tbody = document.getElementById('dataTableBody');
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">Yükleniyor...</td></tr>';
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+            updateThemeUI();
+        }
 
-            const { data, error } = await _supabase
-                .from('daily_data')
-                .select('*')
-                .eq('period', period);
+        function updateThemeUI() {
+            const isDark = document.documentElement.classList.contains('dark');
+            document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            document.getElementById('theme-text').textContent = isDark ? 'Aydınlık Mod' : 'Karanlık Mod';
+        }
 
+        // --- DATA FETCHING & RENDERING ---
+        async function loadPeriods() {
+            const { data, error } = await _supabase.from('period_summary').select('period').order('period', { ascending: false });
             if (error) {
-                console.error(error);
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-red-500">Veri çekilemedi.</td></tr>';
+                console.error("Dönemler yüklenemedi:", error);
+                return;
+            }
+            const uniquePeriods = [...new Set(data.map(item => item.period))];
+            const select = document.getElementById('periodFilter');
+            select.innerHTML = uniquePeriods.map(p => `<option value="${p}">${p}</option>`).join('');
+            fetchAndRender(); // İlk dönemi yükle
+        }
+
+        async function fetchAndRender() {
+            const loadingOverlay = document.getElementById('loading-overlay');
+            loadingOverlay.style.display = 'flex';
+
+            const selectedPeriod = document.getElementById('periodFilter').value;
+            if (!selectedPeriod) {
+                loadingOverlay.style.display = 'none';
                 return;
             }
 
-            globalData = data;
-            renderDashboard(data);
+            try {
+                // İki tabloyu aynı anda çek
+                const [dailyRes, summaryRes] = await Promise.all([
+                    _supabase.from('daily_data').select('login, break_total, cwt').eq('period', selectedPeriod),
+                    _supabase.from('period_summary').select('*').eq('period', selectedPeriod)
+                ]);
+
+                if (dailyRes.error || summaryRes.error) {
+                    throw new Error(`Veri çekme hatası: ${dailyRes.error?.message || summaryRes.error?.message}`);
+                }
+
+                renderKpiCards(dailyRes.data, summaryRes.data);
+                renderAdvisorTable(summaryRes.data);
+
+            } catch (err) {
+                console.error(err);
+                alert("Veriler yüklenirken bir hata oluştu. Lütfen konsolu kontrol edin.");
+            } finally {
+                loadingOverlay.style.display = 'none';
+            }
         }
 
-        function renderDashboard(data) {
-            // 1. Calculate Aggregates
-            // Bu örnekte CWT dakika olarak geldiğini varsayıyorum. Saate çevirelim.
-            const totalCWTMinutes = data.reduce((acc, curr) => acc + (curr.cwt_time || 0), 0);
-            const totalCWTHours = (totalCWTMinutes / 60).toFixed(1);
-            
-            // FTE Hesabı: (Toplam CWT Dakika) / (Gün Sayısı * Günlük Çalışma Dakikası) gibi karmaşık olabilir.
-            // Basitlik için: Toplam CWT Saat / 180 (Örnek aylık hedef) diyelim.
-            // Senin logic'ine göre FTE'yi script'ten de alabiliriz.
-            const totalFTE = (totalCWTHours / 180).toFixed(2); // ÖRNEK
+        // --- KPI CARDS ---
+        function renderKpiCards(dailyData, summaryData) {
+            // 1. Toplam Net Çalışma (CWT)
+            const totalCwtMinutes = dailyData.reduce((sum, row) => sum + (row.cwt || 0), 0);
+            document.getElementById('kpi-cwt').textContent = (totalCwtMinutes / 60).toFixed(1);
 
-            document.getElementById('kpi-cwt').innerText = totalCWTHours;
-            document.getElementById('kpi-fte').innerText = totalFTE;
-            
-            // 2. Tabloyu Doldur (Özetleyerek)
-            // Kullanıcı bazında gruplayalım
-            const userGroups = {};
-            data.forEach(row => {
-                if(!userGroups[row.user_name]) {
-                    userGroups[row.user_name] = { 
-                        name: row.user_name, 
-                        leader: row.team_leader, 
-                        cwt: 0 
-                    };
-                }
-                userGroups[row.user_name].cwt += (row.cwt_time || 0);
-            });
+            // 2. Kümülatif FTE
+            const totalFte = summaryData.reduce((sum, row) => sum + (row.fte || 0), 0);
+            document.getElementById('kpi-fte').textContent = totalFte.toFixed(2);
 
+            // 3. Kümülatif Mola Oranı
+            const totalLogin = dailyData.reduce((sum, row) => sum + (row.login || 0), 0);
+            const totalBreak = dailyData.reduce((sum, row) => sum + (row.break_total || 0), 0);
+            const breakRate = totalLogin > 0 ? (totalBreak / totalLogin) * 100 : 0;
+            document.getElementById('kpi-break-rate').textContent = `%${breakRate.toFixed(2)}`;
+
+            // 4. Kümülatif Eksik Süre
+            // 'missing_time' formatı '21,45' gibi string ise sayıya çevirmeliyiz.
+            const totalMissingMinutes = summaryData.reduce((sum, row) => {
+                const timeStr = String(row.missing_time || '0').replace(',', '.');
+                return sum + parseFloat(timeStr);
+            }, 0);
+            document.getElementById('kpi-missing-time').textContent = (totalMissingMinutes / 60).toFixed(1);
+        }
+
+        // --- ADVISOR TABLE ---
+        function renderAdvisorTable(summaryData) {
             const tbody = document.getElementById('dataTableBody');
             tbody.innerHTML = '';
-            
-            Object.values(userGroups).forEach(user => {
-                const hours = (user.cwt / 60).toFixed(1);
-                const userFte = (hours / 180).toFixed(2); // Örnek hedef
-                
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-gray-50 transition";
-                tr.innerHTML = `
-                    <td class="px-6 py-4 font-medium text-gray-900">${user.name}</td>
-                    <td class="px-6 py-4 text-gray-500">${user.leader || '-'}</td>
-                    <td class="px-6 py-4 text-blue-600 font-bold">${hours}</td>
-                    <td class="px-6 py-4">${userFte}</td>
-                    <td class="px-6 py-4 text-center">
-                        <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">Aktif</span>
-                    </td>
+
+            if (!summaryData || summaryData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-slate-400">Bu dönem için özet veri bulunamadı.</td></tr>`;
+                return;
+            }
+
+            summaryData.sort((a, b) => (b.fte || 0) - (a.fte || 0)); // FTE'ye göre büyükten küçüğe sırala
+
+            summaryData.forEach(user => {
+                const fte = user.fte || 0;
+                const breakRate = user.break_rate || 0;
+                const missingTime = parseFloat(String(user.missing_time || '0').replace(',', '.')) / 60;
+
+                let statusColor = 'bg-amber-400'; // Orta
+                if (fte > 0.95 && breakRate < 18) statusColor = 'bg-green-400'; // İyi
+                if (fte < 0.85 || breakRate > 22) statusColor = 'bg-rose-500'; // Kötü
+
+                const rowHtml = `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                        <td class="px-6 py-4 font-semibold text-slate-800 dark:text-slate-100">${user.user_name}</td>
+                        <td class="px-6 py-4 font-bold ${fte > 0.9 ? 'text-green-500' : 'text-amber-500'}">${fte.toFixed(3)}</td>
+                        <td class="px-6 py-4 ${breakRate > 20 ? 'text-rose-500' : 'text-slate-500 dark:text-slate-400'}">${breakRate.toFixed(2)}%</td>
+                        <td class="px-6 py-4 font-medium ${missingTime > 5 ? 'text-rose-500' : 'text-slate-500 dark:text-slate-400'}">${missingTime.toFixed(1)}</td>
+                        <td class="px-6 py-4 text-center">
+                            <div class="w-3 h-3 ${statusColor} rounded-full mx-auto" title="Performans Durumu"></div>
+                        </td>
+                    </tr>
                 `;
-                tbody.appendChild(tr);
-            });
-
-            // 3. Charts
-            updateCharts(data);
-        }
-
-        function updateCharts(data) {
-            // Günlük Trend Chart
-            // Tarihe göre grupla
-            const dateMap = {};
-            data.forEach(d => {
-                if(!dateMap[d.date]) dateMap[d.date] = 0;
-                dateMap[d.date] += (d.cwt_time || 0) / 60; // Saat
-            });
-            
-            const labels = Object.keys(dateMap).sort();
-            const values = labels.map(l => dateMap[l]);
-
-            const ctx1 = document.getElementById('chartTrend').getContext('2d');
-            if(trendChart) trendChart.destroy();
-            trendChart = new Chart(ctx1, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Günlük Toplam Saat',
-                        data: values,
-                        borderColor: '#2563eb',
-                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: { responsive: true, plugins: { legend: { display: false } } }
-            });
-
-            // Takım Chart (Doughnut)
-            // Lidere göre grupla
-            const teamMap = {};
-            data.forEach(d => {
-                const tl = d.team_leader || 'Tanımsız';
-                if(!teamMap[tl]) teamMap[tl] = 0;
-                teamMap[tl] += (d.cwt_time || 0);
-            });
-
-            const ctx2 = document.getElementById('chartTeam').getContext('2d');
-            if(teamChart) teamChart.destroy();
-            teamChart = new Chart(ctx2, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(teamMap),
-                    datasets: [{
-                        data: Object.values(teamMap),
-                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
-                    }]
-                }
+                tbody.innerHTML += rowHtml;
             });
         }
-        
-        // Basit Arama
-        document.getElementById('searchInput').addEventListener('keyup', (e) => {
-            const val = e.target.value.toLowerCase();
+
+        // --- UTILITIES ---
+        function filterTable() {
+            const filter = document.getElementById('searchInput').value.toLowerCase();
             const rows = document.querySelectorAll('#dataTableBody tr');
             rows.forEach(row => {
-                const text = row.innerText.toLowerCase();
-                row.style.display = text.includes(val) ? '' : 'none';
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
             });
-        });
-
+        }
     </script>
 </body>
 </html>
