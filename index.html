@@ -64,10 +64,8 @@
 
             <div class="flex-1 overflow-y-auto p-8">
 
-                <!-- Operasyonel KPI Kartları -->
                 <p class="text-xs font-bold uppercase text-slate-400 dark:text-slate-500 mb-3 tracking-widest">Operasyonel & Finansal</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <!-- Toplam Net Çalışma -->
                     <div class="kpi-card bg-white dark:bg-slate-800 p-6 rounded-xl shadow-md border-blue-500 fade-in">
                         <div class="flex justify-between items-start">
                             <p class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase">Toplam Net Çalışma</p>
@@ -76,7 +74,6 @@
                         <h3 id="kpi-cwt" class="text-4xl font-extrabold text-slate-800 dark:text-white mt-2">-</h3>
                         <p class="text-xs text-slate-400 mt-1">Saat Cinsinden (Fatura Dönemi)</p>
                     </div>
-                    <!-- Kümülatif FTE -->
                     <div class="kpi-card bg-white dark:bg-slate-800 p-6 rounded-xl shadow-md border-purple-500 fade-in" style="animation-delay:0.1s">
                         <div class="flex justify-between items-start">
                             <p class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase">Kümülatif FTE</p>
@@ -85,16 +82,14 @@
                         <h3 id="kpi-fte" class="text-4xl font-extrabold text-slate-800 dark:text-white mt-2">-</h3>
                         <p class="text-xs text-slate-400 mt-1">Toplam Gerçekleşen (Fatura Dönemi)</p>
                     </div>
-                    <!-- Kümülatif Mola Oranı -->
                     <div class="kpi-card bg-white dark:bg-slate-800 p-6 rounded-xl shadow-md border-amber-500 fade-in" style="animation-delay:0.2s">
                         <div class="flex justify-between items-start">
-                            <p class="text-sm font-semibond text-slate-500 dark:text-slate-400 uppercase">Kümülatif Mola Oranı</p>
+                            <p class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase">Kümülatif Mola Oranı</p>
                             <div class="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg text-amber-600 dark:text-amber-400"><i class="fa-solid fa-mug-hot"></i></div>
                         </div>
                         <h3 id="kpi-break-rate" class="text-4xl font-extrabold text-slate-800 dark:text-white mt-2">-</h3>
                         <p class="text-xs text-slate-400 mt-1">Login Süresine Oranla (Ay)</p>
                     </div>
-                    <!-- Kümülatif Eksik Süre -->
                     <div class="kpi-card bg-white dark:bg-slate-800 p-6 rounded-xl shadow-md border-rose-500 fade-in" style="animation-delay:0.3s">
                         <div class="flex justify-between items-start">
                             <p class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase">Kümülatif Eksik Süre</p>
@@ -105,7 +100,6 @@
                     </div>
                 </div>
 
-                <!-- Temsilci Tablosu -->
                 <p class="text-xs font-bold uppercase text-slate-400 dark:text-slate-500 mb-3 tracking-widest">Temsilci Performans Özeti</p>
                 <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg overflow-hidden fade-in" style="animation-delay:0.4s">
                     <div class="p-5 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
@@ -140,9 +134,12 @@
     <script>
         const SUPABASE_URL = 'https://xtikjrtxowjcpvbmsgxh.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0aWtqcnR4b3dqY3B2Ym1zZ3hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDYxMDUsImV4cCI6MjA4OTc4MjEwNX0.VWOBROBGR52E9gzxx-whsJZ0J8yBn_tPBb838dYxaHU';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // ── Supabase DOMContentLoaded sonrası initialize edilir ──────
+        let _supabase;
 
         document.addEventListener('DOMContentLoaded', () => {
+            _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             initTheme();
             loadPeriods();
         });
@@ -162,7 +159,7 @@
         function updateThemeUI() {
             const isDark = document.documentElement.classList.contains('dark');
             document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-            document.getElementById('theme-text').textContent  = isDark ? 'Aydınlık Mod' : 'Karanlık Mod';
+            document.getElementById('theme-text').textContent = isDark ? 'Aydınlık Mod' : 'Karanlık Mod';
         }
 
         // ── PERIODS ──────────────────────────────────────────────────
