@@ -64,7 +64,8 @@
 
             <div class="flex-1 overflow-y-auto p-8">
 
-                <!-- KPI Cards -->
+                <!-- Operasyonel KPI Kartları -->
+                <p class="text-xs font-bold uppercase text-slate-400 dark:text-slate-500 mb-3 tracking-widest">Operasyonel & Finansal</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <!-- Toplam Net Çalışma -->
                     <div class="kpi-card bg-white dark:bg-slate-800 p-6 rounded-xl shadow-md border-blue-500 fade-in">
@@ -73,7 +74,7 @@
                             <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400"><i class="fa-solid fa-stopwatch"></i></div>
                         </div>
                         <h3 id="kpi-cwt" class="text-4xl font-extrabold text-slate-800 dark:text-white mt-2">-</h3>
-                        <p class="text-xs text-slate-400 mt-1">Saat Cinsinden</p>
+                        <p class="text-xs text-slate-400 mt-1">Saat Cinsinden (Fatura Dönemi)</p>
                     </div>
                     <!-- Kümülatif FTE -->
                     <div class="kpi-card bg-white dark:bg-slate-800 p-6 rounded-xl shadow-md border-purple-500 fade-in" style="animation-delay:0.1s">
@@ -82,16 +83,16 @@
                             <div class="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg text-purple-600 dark:text-purple-400"><i class="fa-solid fa-users"></i></div>
                         </div>
                         <h3 id="kpi-fte" class="text-4xl font-extrabold text-slate-800 dark:text-white mt-2">-</h3>
-                        <p class="text-xs text-slate-400 mt-1">Toplam Gerçekleşen</p>
+                        <p class="text-xs text-slate-400 mt-1">Toplam Gerçekleşen (Fatura Dönemi)</p>
                     </div>
                     <!-- Kümülatif Mola Oranı -->
                     <div class="kpi-card bg-white dark:bg-slate-800 p-6 rounded-xl shadow-md border-amber-500 fade-in" style="animation-delay:0.2s">
                         <div class="flex justify-between items-start">
-                            <p class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase">Kümülatif Mola Oranı</p>
+                            <p class="text-sm font-semibond text-slate-500 dark:text-slate-400 uppercase">Kümülatif Mola Oranı</p>
                             <div class="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg text-amber-600 dark:text-amber-400"><i class="fa-solid fa-mug-hot"></i></div>
                         </div>
                         <h3 id="kpi-break-rate" class="text-4xl font-extrabold text-slate-800 dark:text-white mt-2">-</h3>
-                        <p class="text-xs text-slate-400 mt-1">Login Süresine Oranla</p>
+                        <p class="text-xs text-slate-400 mt-1">Login Süresine Oranla (Ay)</p>
                     </div>
                     <!-- Kümülatif Eksik Süre -->
                     <div class="kpi-card bg-white dark:bg-slate-800 p-6 rounded-xl shadow-md border-rose-500 fade-in" style="animation-delay:0.3s">
@@ -100,14 +101,15 @@
                             <div class="p-2 bg-rose-100 dark:bg-rose-900/30 rounded-lg text-rose-600 dark:text-rose-400"><i class="fa-solid fa-hourglass-half"></i></div>
                         </div>
                         <h3 id="kpi-missing-time" class="text-4xl font-extrabold text-slate-800 dark:text-white mt-2">-</h3>
-                        <p class="text-xs text-slate-400 mt-1">Saat Cinsinden</p>
+                        <p class="text-xs text-slate-400 mt-1">Dakika Cinsinden (Ay)</p>
                     </div>
                 </div>
 
-                <!-- Data Table -->
+                <!-- Temsilci Tablosu -->
+                <p class="text-xs font-bold uppercase text-slate-400 dark:text-slate-500 mb-3 tracking-widest">Temsilci Performans Özeti</p>
                 <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg overflow-hidden fade-in" style="animation-delay:0.4s">
                     <div class="p-5 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
-                        <h3 class="font-bold text-slate-700 dark:text-slate-200">Temsilci Performans Özeti</h3>
+                        <h3 class="font-bold text-slate-700 dark:text-slate-200">Temsilci Detayı</h3>
                         <div class="relative">
                             <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
                             <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Temsilci ara..."
@@ -119,6 +121,7 @@
                             <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 uppercase text-xs font-semibold">
                                 <tr>
                                     <th class="px-6 py-4">Temsilci</th>
+                                    <th class="px-6 py-4">Takım Lideri</th>
                                     <th class="px-6 py-4">FTE</th>
                                     <th class="px-6 py-4">Mola Oranı</th>
                                     <th class="px-6 py-4">Eksik Süre (Dk)</th>
@@ -169,7 +172,6 @@
                 .select('period')
                 .order('period', { ascending: false });
             if (error) { console.error(error); return; }
-
             const unique = [...new Set(data.map(d => d.period))];
             const sel = document.getElementById('periodFilter');
             sel.innerHTML = unique.map(p => `<option value="${p}">${formatPeriod(p)}</option>`).join('');
@@ -191,14 +193,20 @@
             if (!period) { document.getElementById('loading-overlay').style.display = 'none'; return; }
 
             try {
-                const [dailyRes, summaryRes] = await Promise.all([
-                    _supabase.from('daily_data').select('login, break_total, cwt').eq('period', period),
-                    _supabase.from('period_summary').select('*').eq('period', period)
+                const [dailyRes, cwtRes, summaryRes, usersRes] = await Promise.all([
+                    _supabase.from('daily_data').select('login, break_total').eq('period', period),
+                    _supabase.from('cwt_data').select('cwt').eq('period', period),
+                    _supabase.from('period_summary').select('*').eq('period', period),
+                    _supabase.from('users').select('user_name, team_leader')
                 ]);
-                if (dailyRes.error || summaryRes.error) throw new Error('Veri çekme hatası');
 
-                renderKpiCards(dailyRes.data, summaryRes.data);
-                renderAdvisorTable(summaryRes.data);
+                if (dailyRes.error || cwtRes.error || summaryRes.error || usersRes.error) {
+                    throw new Error('Veri çekme hatası');
+                }
+
+                renderKpiCards(dailyRes.data, cwtRes.data, summaryRes.data);
+                renderAdvisorTable(summaryRes.data, usersRes.data);
+
             } catch (err) {
                 console.error(err);
             } finally {
@@ -207,52 +215,52 @@
         }
 
         // ── KPI CARDS ────────────────────────────────────────────────
-        function renderKpiCards(dailyData, summaryData) {
+        function renderKpiCards(dailyData, cwtData, summaryData) {
 
-            // 1. Toplam Net Çalışma → dakikayı saate çevir
-            const totalCwtMin = dailyData.reduce((s, r) => s + (r.cwt || 0), 0);
+            // 1. Toplam Net Çalışma → cwt_data toplamı → saate çevir
+            const totalCwtMin = cwtData.reduce((s, r) => s + (r.cwt || 0), 0);
             document.getElementById('kpi-cwt').textContent = (totalCwtMin / 60).toFixed(1) + ' sa';
 
-            // 2. Kümülatif FTE
+            // 2. Kümülatif FTE → period_summary toplamı
             const totalFte = summaryData.reduce((s, r) => s + (r.fte || 0), 0);
             document.getElementById('kpi-fte').textContent = totalFte.toFixed(2);
 
-            // 3. Kümülatif Mola Oranı → break_total / login * 100, %xx,yy formatı
+            // 3. Kümülatif Mola Oranı → daily_data break/login → %xx,yy
             const totalLogin = dailyData.reduce((s, r) => s + (r.login || 0), 0);
             const totalBreak = dailyData.reduce((s, r) => s + (r.break_total || 0), 0);
             const breakRate  = totalLogin > 0 ? (totalBreak / totalLogin) * 100 : 0;
             document.getElementById('kpi-break-rate').textContent = '%' + breakRate.toFixed(2).replace('.', ',');
 
-            // 4. Kümülatif Eksik Süre → missing_time zaten dakika (tam sayı), topla → saate çevir
-            const totalMissingMin = summaryData.reduce((s, r) => {
+            // 4. Kümülatif Eksik Süre → period_summary missing_time toplamı (dakika)
+            const totalMissing = summaryData.reduce((s, r) => {
                 return s + (parseFloat(String(r.missing_time || '0').replace(',', '.')) || 0);
             }, 0);
-            document.getElementById('kpi-missing-time').textContent = (totalMissingMin / 60).toFixed(1) + ' sa';
+            document.getElementById('kpi-missing-time').textContent = Math.round(totalMissing) + ' dk';
         }
 
         // ── ADVISOR TABLE ────────────────────────────────────────────
-        function renderAdvisorTable(summaryData) {
+        function renderAdvisorTable(summaryData, usersData) {
             const tbody = document.getElementById('dataTableBody');
             tbody.innerHTML = '';
 
             if (!summaryData || summaryData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-slate-400">Bu dönem için özet veri bulunamadı.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-400">Bu dönem için özet veri bulunamadı.</td></tr>`;
                 return;
             }
 
             summaryData.sort((a, b) => (b.fte || 0) - (a.fte || 0));
 
             summaryData.forEach(user => {
+                const userInfo   = usersData.find(u => u.user_name === user.user_name);
+                const teamLeader = userInfo?.team_leader || '-';
                 const fte        = user.fte || 0;
 
-                // Mola oranı: Supabase'den gelen break_rate zaten % değeri (0-100 arası)
-                // Eğer 0-1 arası geliyorsa * 100 yaparız, kontrol için ikisi de handle edildi
-                const rawRate    = user.break_rate || 0;
-                const breakRate  = rawRate < 2 ? rawRate * 100 : rawRate; // 0.15 gelirse → 15
+                // break_rate Supabase'de 0.15 formatında → ×100
+                const breakRate    = (user.break_rate || 0) * 100;
                 const breakRateStr = '%' + breakRate.toFixed(2).replace('.', ',');
 
-                // Eksik süre: dakika cinsinden tam sayı
-                const missingMin = Math.round(parseFloat(String(user.missing_time || '0').replace(',', '.')) || 0);
+                // missing_time dakika cinsinden tam sayı
+                const missingMin   = Math.round(parseFloat(String(user.missing_time || '0').replace(',', '.')) || 0);
                 const missingColor = missingMin < 0 ? 'text-rose-500' : 'text-green-500';
 
                 // Durum noktası
@@ -263,6 +271,7 @@
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                         <td class="px-6 py-4 font-semibold text-slate-800 dark:text-slate-100">${user.user_name}</td>
+                        <td class="px-6 py-4 text-slate-500 dark:text-slate-400">${teamLeader}</td>
                         <td class="px-6 py-4 font-bold ${fte >= 0.9 ? 'text-green-500' : 'text-amber-500'}">${fte.toFixed(3)}</td>
                         <td class="px-6 py-4 ${breakRate > 20 ? 'text-rose-500' : 'text-slate-500 dark:text-slate-400'}">${breakRateStr}</td>
                         <td class="px-6 py-4 font-medium ${missingColor}">${missingMin} dk</td>
