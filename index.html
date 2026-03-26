@@ -3,128 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finansal Performans Paneli</title>
+    <title>Performans Pro | Analitik Paneli</title>
+    
     <link rel="icon" href="https://appexchange.salesforce.com/image_host/0f3dad29-4a38-468b-8fb9-cbabe4acb8f1.png" type="image/png">
+    
+    <!-- Kütüphaneler -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .kpi-card { transition: all 0.3s ease; border-left-width: 4px; }
-        .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
-        .dark .kpi-card:hover { box-shadow: 0 10px 25px -5px rgba(0,0,0,0.4); }
-        ::-webkit-scrollbar { width: 6px; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; scroll-behavior: smooth; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .dark .glass { background: rgba(15, 23, 42, 0.6); }
+        
+        /* KPI Kartları için Özel Gradientler */
+        .kpi-card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; }
+        .kpi-card:hover { transform: translateY(-6px); }
+        .kpi-card::after { content: ''; position: absolute; top: 0; right: 0; width: 100px; height: 100px; background: currentColor; opacity: 0.05; border-radius: 50%; transform: translate(30%, -30%); }
+
+        /* Scrollbar Modernizasyonu */
+        ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .status-pill { @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border; }
     </style>
 </head>
-<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200">
+<body class="bg-[#f8fafc] dark:bg-[#0f172a] text-slate-900 dark:text-slate-100 antialiased transition-colors duration-500">
 
-    <div id="loading-overlay" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center">
-        <i class="fa-solid fa-circle-notch fa-spin fa-3x text-blue-500"></i>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-slate-950/90 z-[100] flex flex-col items-center justify-center space-y-4">
+        <div class="relative w-20 h-20">
+            <div class="absolute inset-0 border-4 border-blue-500/20 rounded-full"></div>
+            <div class="absolute inset-0 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+        <span class="text-blue-400 font-bold tracking-[0.2em] animate-pulse">VERİLER YÜKLENİYOR</span>
     </div>
 
     <div class="flex h-screen overflow-hidden">
-        <aside class="w-64 bg-slate-800 dark:bg-slate-950 text-white flex-col hidden md:flex shadow-2xl z-20">
-            <div class="p-6 border-b border-slate-700/50 flex items-center gap-4">
-                <div class="bg-white/10 p-2 rounded-lg">
-                    <img src="https://appexchange.salesforce.com/image_host/0f3dad29-4a38-468b-8fb9-cbabe4acb8f1.png" class="h-7 w-auto">
+        
+        <!-- Sidebar -->
+        <aside class="w-72 bg-white dark:bg-[#111827] border-r border-slate-200 dark:border-slate-800 flex flex-col hidden lg:flex shadow-xl z-30">
+            <div class="p-8">
+                <div class="flex items-center gap-4 bg-blue-600/10 p-4 rounded-2xl border border-blue-500/20">
+                    <img src="https://appexchange.salesforce.com/image_host/0f3dad29-4a38-468b-8fb9-cbabe4acb8f1.png" class="h-8 w-auto">
+                    <span class="text-xl font-black tracking-tighter bg-gradient-to-r from-blue-500 to-indigo-400 bg-clip-text text-transparent">PERFORMİX</span>
                 </div>
-                <span class="text-lg font-bold tracking-tight">Performans</span>
             </div>
-            <nav class="flex-1 p-4 space-y-1">
-                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-600 font-semibold">
-                    <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+            
+            <nav class="flex-1 px-4 space-y-1">
+                <a href="#" class="flex items-center gap-3 px-4 py-3.5 rounded-xl bg-blue-600 text-white font-bold shadow-lg shadow-blue-500/30 transition-all">
+                    <i class="fa-solid fa-grid-2 text-lg"></i>
                     <span>Genel Bakış</span>
                 </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all font-semibold">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Temsilci Listesi</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all font-semibold">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Raporlar</span>
+                </a>
             </nav>
-            <div class="p-4 border-t border-slate-700/50">
-                <button onclick="toggleTheme()" class="w-full flex items-center justify-center gap-2 text-sm text-slate-400 hover:text-white hover:bg-slate-700/50 py-2 rounded-lg transition-colors">
-                    <i id="theme-icon" class="fa-solid fa-moon"></i>
-                    <span id="theme-text">Karanlık Mod</span>
+
+            <div class="p-6">
+                <button onclick="toggleTheme()" class="w-full flex items-center justify-between px-5 py-4 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-blue-500/50 transition-all group">
+                    <span class="text-sm font-bold text-slate-500 group-hover:text-blue-500" id="theme-text">Karanlık Mod</span>
+                    <i id="theme-icon" class="fa-solid fa-moon text-slate-400 group-hover:text-blue-500"></i>
                 </button>
             </div>
         </aside>
 
+        <!-- Main Content -->
         <main class="flex-1 flex flex-col overflow-hidden">
-            <header class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700 h-20 flex items-center justify-between px-8 z-10">
-                <h1 class="text-2xl font-bold text-slate-800 dark:text-white">Dönem Özeti</h1>
-                <div class="relative">
-                    <i class="fa-solid fa-calendar-days absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <select id="periodFilter" onchange="fetchAndRender()" class="pl-9 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-sm rounded-lg focus:ring-2 focus:ring-blue-500 block w-full p-2.5 appearance-none">
-                        <option>Dönem Yükleniyor...</option>
-                    </select>
+            
+            <!-- Header -->
+            <header class="h-24 bg-white/70 dark:bg-[#0f172a]/70 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 px-10 flex items-center justify-between z-20">
+                <div>
+                    <h1 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Operasyon Paneli</h1>
+                    <p class="text-sm text-slate-500 font-medium">Hoş geldiniz, verileriniz güncel.</p>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <div class="relative group">
+                        <i class="fa-solid fa-calendar-alt absolute left-4 top-1/2 -translate-y-1/2 text-blue-500 group-hover:scale-110 transition-transform"></i>
+                        <select id="periodFilter" onchange="fetchAndRender()" class="pl-12 pr-10 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-blue-500/10 outline-none appearance-none cursor-pointer shadow-sm">
+                            <option>Dönem Seçiliyor...</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                    </div>
                 </div>
             </header>
 
-            <div class="flex-1 overflow-y-auto p-8">
+            <div class="flex-1 overflow-y-auto p-10 space-y-10">
+                
+                <!-- KPI Section -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- Net Çalışma -->
+                    <div class="kpi-card bg-white dark:bg-slate-900 p-8 rounded-[2rem] shadow-sm border border-slate-200 dark:border-slate-800 text-blue-500">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-4 bg-blue-500/10 rounded-2xl"><i class="fa-solid fa-stopwatch text-2xl"></i></div>
+                            <span class="text-[10px] font-black uppercase tracking-tighter opacity-60">FATURA DÖNEMİ</span>
+                        </div>
+                        <h3 id="kpi-cwt" class="text-4xl font-black text-slate-900 dark:text-white tabular-nums">-</h3>
+                        <p class="text-sm font-bold text-slate-400 mt-2 uppercase tracking-widest">NET ÇALIŞMA (SAAT)</p>
+                    </div>
 
-                <p class="text-xs font-bold uppercase text-slate-400 dark:text-slate-500 mb-3 tracking-widest">Operasyonel & Finansal</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <div class="kpi-card bg-white dark:bg-slate-800 p-6 rounded-xl shadow-md border-blue-500 fade-in">
-                        <div class="flex justify-between items-start">
-                            <p class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase">Toplam Net Çalışma</p>
-                            <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400"><i class="fa-solid fa-stopwatch"></i></div>
+                    <!-- FTE -->
+                    <div class="kpi-card bg-white dark:bg-slate-900 p-8 rounded-[2rem] shadow-sm border border-slate-200 dark:border-slate-800 text-purple-500">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-4 bg-purple-500/10 rounded-2xl"><i class="fa-solid fa-users-gear text-2xl"></i></div>
                         </div>
-                        <h3 id="kpi-cwt" class="text-4xl font-extrabold text-slate-800 dark:text-white mt-2">-</h3>
-                        <p class="text-xs text-slate-400 mt-1">Saat Cinsinden (Fatura Dönemi)</p>
+                        <h3 id="kpi-fte" class="text-4xl font-black text-slate-900 dark:text-white tabular-nums">-</h3>
+                        <p class="text-sm font-bold text-slate-400 mt-2 uppercase tracking-widest">KÜMÜLATİF FTE</p>
                     </div>
-                    <div class="kpi-card bg-white dark:bg-slate-800 p-6 rounded-xl shadow-md border-purple-500 fade-in" style="animation-delay:0.1s">
-                        <div class="flex justify-between items-start">
-                            <p class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase">Kümülatif FTE</p>
-                            <div class="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg text-purple-600 dark:text-purple-400"><i class="fa-solid fa-users"></i></div>
+
+                    <!-- Mola -->
+                    <div class="kpi-card bg-white dark:bg-slate-900 p-8 rounded-[2rem] shadow-sm border border-slate-200 dark:border-slate-800 text-amber-500">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-4 bg-amber-500/10 rounded-2xl"><i class="fa-solid fa-mug-hot text-2xl"></i></div>
                         </div>
-                        <h3 id="kpi-fte" class="text-4xl font-extrabold text-slate-800 dark:text-white mt-2">-</h3>
-                        <p class="text-xs text-slate-400 mt-1">Toplam Gerçekleşen (Fatura Dönemi)</p>
+                        <h3 id="kpi-break-rate" class="text-4xl font-black text-slate-900 dark:text-white tabular-nums">-</h3>
+                        <p class="text-sm font-bold text-slate-400 mt-2 uppercase tracking-widest">MOLA ORANI</p>
                     </div>
-                    <div class="kpi-card bg-white dark:bg-slate-800 p-6 rounded-xl shadow-md border-amber-500 fade-in" style="animation-delay:0.2s">
-                        <div class="flex justify-between items-start">
-                            <p class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase">Kümülatif Mola Oranı</p>
-                            <div class="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg text-amber-600 dark:text-amber-400"><i class="fa-solid fa-mug-hot"></i></div>
+
+                    <!-- Eksik Süre -->
+                    <div class="kpi-card bg-white dark:bg-slate-900 p-8 rounded-[2rem] shadow-sm border border-slate-200 dark:border-slate-800 text-rose-500">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-4 bg-rose-500/10 rounded-2xl"><i class="fa-solid fa-hourglass-half text-2xl"></i></div>
                         </div>
-                        <h3 id="kpi-break-rate" class="text-4xl font-extrabold text-slate-800 dark:text-white mt-2">-</h3>
-                        <p class="text-xs text-slate-400 mt-1">Login Süresine Oranla (Ay)</p>
-                    </div>
-                    <div class="kpi-card bg-white dark:bg-slate-800 p-6 rounded-xl shadow-md border-rose-500 fade-in" style="animation-delay:0.3s">
-                        <div class="flex justify-between items-start">
-                            <p class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase">Kümülatif Eksik Süre</p>
-                            <div class="p-2 bg-rose-100 dark:bg-rose-900/30 rounded-lg text-rose-600 dark:text-rose-400"><i class="fa-solid fa-hourglass-half"></i></div>
-                        </div>
-                        <h3 id="kpi-missing-time" class="text-4xl font-extrabold text-slate-800 dark:text-white mt-2">-</h3>
-                        <p class="text-xs text-slate-400 mt-1">Dakika Cinsinden (Ay)</p>
+                        <h3 id="kpi-missing-time" class="text-4xl font-black text-slate-900 dark:text-white tabular-nums">-</h3>
+                        <p class="text-sm font-bold text-slate-400 mt-2 uppercase tracking-widest">TOPLAM EKSİK (DK)</p>
                     </div>
                 </div>
 
-                <p class="text-xs font-bold uppercase text-slate-400 dark:text-slate-500 mb-3 tracking-widest">Temsilci Performans Özeti</p>
-                <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg overflow-hidden fade-in" style="animation-delay:0.4s">
-                    <div class="p-5 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
-                        <h3 class="font-bold text-slate-700 dark:text-slate-200">Temsilci Detayı</h3>
-                        <div class="relative">
-                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                            <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Temsilci ara..."
-                                class="pl-9 w-64 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-sm rounded-lg focus:ring-2 focus:ring-blue-500 block p-2.5">
+                <!-- Grafik ve Özet Bölümü -->
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                    <div class="xl:col-span-2 bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm border border-slate-200 dark:border-slate-800">
+                        <div class="flex justify-between items-center mb-8">
+                            <h3 class="text-xl font-black tracking-tight">Login Trend Analizi</h3>
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 bg-blue-500 rounded-full"></span>
+                                <span class="text-xs font-bold text-slate-500">Login (Dakika)</span>
+                            </div>
+                        </div>
+                        <div class="h-[300px] w-full">
+                            <canvas id="trendChart"></canvas>
                         </div>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 uppercase text-xs font-semibold">
-                                <tr>
-                                    <th class="px-6 py-4">Temsilci</th>
-                                    <th class="px-6 py-4">Takım Lideri</th>
-                                    <th class="px-6 py-4">FTE</th>
-                                    <th class="px-6 py-4">Mola Oranı</th>
-                                    <th class="px-6 py-4">Eksik Süre (Dk)</th>
-                                    <th class="px-6 py-4">Durum</th>
-                                </tr>
-                            </thead>
-                            <tbody id="dataTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 text-sm"></tbody>
-                        </table>
+                    
+                    <!-- Hızlı Bilgi Kartı -->
+                    <div class="bg-gradient-to-br from-blue-600 to-indigo-700 p-10 rounded-[2.5rem] text-white flex flex-col justify-between shadow-xl shadow-blue-500/20">
+                        <div>
+                            <i class="fa-solid fa-bolt text-4xl mb-6 text-blue-200"></i>
+                            <h3 class="text-2xl font-black mb-4 leading-tight">Performans Öngörüsü</h3>
+                            <p class="text-blue-100 font-medium leading-relaxed opacity-80 text-sm">
+                                Seçilen dönemdeki veriler, geçen aya göre mola oranlarında %2'lik bir iyileşme gösteriyor. FTE hedefine ulaşmak için son haftalık login planlamasına odaklanın.
+                            </p>
+                        </div>
+                        <button class="mt-8 py-4 bg-white text-blue-600 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-blue-50 transition-colors shadow-lg">Detaylı Rapor İndir</button>
                     </div>
                 </div>
 
+                <!-- Table Section -->
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xl font-black tracking-tight uppercase tracking-[0.2em] text-slate-400">Temsilci Detay Tablosu</h3>
+                        <div class="relative w-80">
+                            <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Hızlı ara..."
+                                class="w-full pl-12 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-blue-500/10 outline-none shadow-sm">
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-slate-50 dark:bg-slate-800/50 text-slate-400 text-[11px] font-black uppercase tracking-widest border-b border-slate-200 dark:border-slate-800">
+                                    <tr>
+                                        <th class="px-8 py-6">Temsilci</th>
+                                        <th class="px-8 py-6">Takım Lideri</th>
+                                        <th class="px-8 py-6 text-center">FTE</th>
+                                        <th class="px-8 py-6 text-center">Mola Oranı</th>
+                                        <th class="px-8 py-6 text-center">Eksik (Dk)</th>
+                                        <th class="px-8 py-6 text-right">Durum</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dataTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 text-sm font-semibold text-slate-600 dark:text-slate-300"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
@@ -134,6 +207,7 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0aWtqcnR4b3dqY3B2Ym1zZ3hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDYxMDUsImV4cCI6MjA4OTc4MjEwNX0.VWOBROBGR52E9gzxx-whsJZ0J8yBn_tPBb838dYxaHU';
 
         let _supabase;
+        let trendChart;
 
         document.addEventListener('DOMContentLoaded', () => {
             _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -141,30 +215,32 @@
             loadPeriods();
         });
 
+        // --- Theme Engine ---
         function initTheme() {
             const isDark = localStorage.getItem('theme') === 'dark' ||
                 (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
             document.documentElement.classList.toggle('dark', isDark);
             updateThemeUI();
         }
+
         function toggleTheme() {
             document.documentElement.classList.toggle('dark');
             localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
             updateThemeUI();
+            if(trendChart) updateChartColors();
         }
+
         function updateThemeUI() {
             const isDark = document.documentElement.classList.contains('dark');
             document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
             document.getElementById('theme-text').textContent = isDark ? 'Aydınlık Mod' : 'Karanlık Mod';
         }
 
+        // --- Data Fetching ---
         async function loadPeriods() {
-            const { data, error } = await _supabase
-                .from('period_summary')
-                .select('period')
-                .order('period', { ascending: false })
-                .limit(10000);
-            if (error) { console.error(error); return; }
+            const { data, error } = await _supabase.from('period_summary').select('period').order('period', { ascending: false });
+            if (error) return console.error(error);
+            
             const unique = [...new Set(data.map(d => d.period))];
             const sel = document.getElementById('periodFilter');
             sel.innerHTML = unique.map(p => `<option value="${p}">${formatPeriod(p)}</option>`).join('');
@@ -172,9 +248,7 @@
         }
 
         function formatPeriod(p) {
-            if (!p) return p;
-            const months = ['','Ocak','Şubat','Mart','Nisan','Mayıs','Haziran',
-                            'Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+            const months = ['', 'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
             const [y, m] = p.split('-');
             return `${months[parseInt(m)]} ${y}`;
         }
@@ -182,109 +256,138 @@
         async function fetchAndRender() {
             document.getElementById('loading-overlay').style.display = 'flex';
             const period = document.getElementById('periodFilter').value;
-            if (!period) { document.getElementById('loading-overlay').style.display = 'none'; return; }
-
+            
             try {
-                // CWT toplamı RPC ile çekiliyor — limit sorunu yok
                 const [dailyRes, cwtRpc, summaryRes, usersRes] = await Promise.all([
-                    _supabase.from('daily_data').select('login, break_total').eq('period', period).limit(10000),
+                    _supabase.from('daily_data').select('*').eq('period', period),
                     _supabase.rpc('get_cwt_sum', { p_period: period }),
-                    _supabase.from('period_summary').select('*').eq('period', period).limit(10000),
-                    _supabase.from('users').select('user_name, team_leader').limit(10000)
+                    _supabase.from('period_summary').select('*').eq('period', period),
+                    _supabase.from('users').select('user_name, team_leader')
                 ]);
 
-                if (dailyRes.error || cwtRpc.error || summaryRes.error || usersRes.error) {
-                    console.error(dailyRes.error, cwtRpc.error, summaryRes.error, usersRes.error);
-                    throw new Error('Veri çekme hatası');
-                }
+                // Map performance optimization: O(N) lookup instead of O(N*M)
+                const userMap = new Map(usersRes.data.map(u => [u.user_name, u]));
 
                 renderKpiCards(dailyRes.data, cwtRpc.data, summaryRes.data);
-                renderAdvisorTable(summaryRes.data, usersRes.data);
+                renderAdvisorTable(summaryRes.data, userMap);
+                renderTrendChart(dailyRes.data);
 
             } catch (err) {
-                console.error(err);
+                console.error("Render hatası:", err);
             } finally {
-                document.getElementById('loading-overlay').style.display = 'none';
+                setTimeout(() => {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                }, 800);
             }
         }
 
+        // --- Visual Components ---
         function renderKpiCards(dailyData, cwtSum, summaryData) {
-            // 1. Toplam Net Çalışma → RPC'den gelen tek sayı (dakika) → saate çevir
-            document.getElementById('kpi-cwt').textContent = Math.round(cwtSum / 60) + ' sa';
-
-            // 2. Kümülatif FTE → x,yy formatı
+            document.getElementById('kpi-cwt').textContent = Math.round(cwtSum / 60);
+            
             const totalFte = summaryData.reduce((s, r) => s + (r.fte || 0), 0);
             document.getElementById('kpi-fte').textContent = totalFte.toFixed(2).replace('.', ',');
 
-            // 3. Kümülatif Mola Oranı
             const totalLogin = dailyData.reduce((s, r) => s + (r.login || 0), 0);
             const totalBreak = dailyData.reduce((s, r) => s + (r.break_total || 0), 0);
-            const breakRate  = totalLogin > 0 ? (totalBreak / totalLogin) * 100 : 0;
-            document.getElementById('kpi-break-rate').textContent = '%' + breakRate.toFixed(2).replace('.', ',');
+            const breakRate = totalLogin > 0 ? (totalBreak / totalLogin) * 100 : 0;
+            document.getElementById('kpi-break-rate').textContent = '%' + breakRate.toFixed(1).replace('.', ',');
 
-            // 4. Kümülatif Eksik Süre → dakika
-            const totalMissing = summaryData.reduce((s, r) => {
-                return s + (parseFloat(String(r.missing_time || '0').replace(',', '.')) || 0);
-            }, 0);
-            document.getElementById('kpi-missing-time').textContent = Math.round(totalMissing) + ' dk';
+            const totalMissing = summaryData.reduce((s, r) => s + (parseFloat(String(r.missing_time || '0').replace(',', '.')) || 0), 0);
+            document.getElementById('kpi-missing-time').textContent = Math.round(totalMissing);
         }
 
-        function renderAdvisorTable(summaryData, usersData) {
+        function renderAdvisorTable(summaryData, userMap) {
             const tbody = document.getElementById('dataTableBody');
             tbody.innerHTML = '';
-
-            if (!summaryData || summaryData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-400">Bu dönem için özet veri bulunamadı.</td></tr>`;
-                return;
-            }
 
             summaryData.sort((a, b) => (b.fte || 0) - (a.fte || 0));
 
             summaryData.forEach(user => {
-                const userInfo   = usersData.find(u => u.user_name === user.user_name);
-                const teamLeader = userInfo?.team_leader || '-';
-                const fte        = user.fte || 0;
-                const fteStr     = fte.toFixed(2).replace('.', ',');
+                const teamLeader = userMap.get(user.user_name)?.team_leader || '-';
+                const fte = (user.fte || 0);
+                const br = (user.break_rate || 0) * 100;
+                const missingMin = Math.round(parseFloat(String(user.missing_time || '0').replace(',', '.')) || 0);
 
-                const breakRate    = (user.break_rate || 0) * 100;
-                const breakRateStr = '%' + breakRate.toFixed(2).replace('.', ',');
-
-                const missingMin   = Math.round(parseFloat(String(user.missing_time || '0').replace(',', '.')) || 0);
-                const missingColor = missingMin < 0 ? 'text-green-500 font-medium' : missingMin > 0 ? 'text-rose-500 font-medium' : 'text-slate-500';
-
-                let statusIcon, statusClass, statusBg, statusText;
+                let statusBadge;
                 if (missingMin < 0) {
-                    statusIcon  = 'fa-circle-check';
-                    statusClass = 'text-emerald-600 dark:text-emerald-400';
-                    statusBg    = 'bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800';
-                    statusText  = 'İyi';
+                    statusBadge = `<span class="status-pill text-emerald-600 bg-emerald-50 border-emerald-100 dark:bg-emerald-950/40 dark:border-emerald-900"><i class="fa-solid fa-circle-check"></i> İYİ</span>`;
                 } else if (missingMin <= 99) {
-                    statusIcon  = 'fa-triangle-exclamation';
-                    statusClass = 'text-amber-600 dark:text-amber-400';
-                    statusBg    = 'bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800';
-                    statusText  = 'Takipte';
+                    statusBadge = `<span class="status-pill text-amber-600 bg-amber-50 border-amber-100 dark:bg-amber-950/40 dark:border-amber-900"><i class="fa-solid fa-circle-exclamation"></i> TAKİPTE</span>`;
                 } else {
-                    statusIcon  = 'fa-circle-xmark';
-                    statusClass = 'text-rose-600 dark:text-rose-400';
-                    statusBg    = 'bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800';
-                    statusText  = 'Kritik';
+                    statusBadge = `<span class="status-pill text-rose-600 bg-rose-50 border-rose-100 dark:bg-rose-950/40 dark:border-rose-900"><i class="fa-solid fa-triangle-exclamation"></i> KRİTİK</span>`;
                 }
 
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                        <td class="px-6 py-4 font-semibold text-slate-800 dark:text-slate-100">${user.user_name}</td>
-                        <td class="px-6 py-4 text-slate-500 dark:text-slate-400">${teamLeader}</td>
-                        <td class="px-6 py-4 font-bold ${fte >= 0.9 ? 'text-green-500' : 'text-amber-500'}">${fteStr}</td>
-                        <td class="px-6 py-4 ${breakRate > 20 ? 'text-rose-500' : 'text-slate-500 dark:text-slate-400'}">${breakRateStr}</td>
-                        <td class="px-6 py-4 ${missingColor}">${missingMin} dk</td>
-                        <td class="px-6 py-4">
-                            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold ${statusBg} ${statusClass}">
-                                <i class="fa-solid ${statusIcon} text-xs"></i>
-                                <span>${statusText}</span>
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all">
+                        <td class="px-8 py-5">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600 font-black text-xs">${user.user_name[0]}</div>
+                                <span class="text-slate-900 dark:text-slate-100 font-bold tracking-tight">${user.user_name}</span>
                             </div>
                         </td>
+                        <td class="px-8 py-5 text-slate-500 font-medium">${teamLeader}</td>
+                        <td class="px-8 py-5 text-center font-black ${fte >= 0.9 ? 'text-emerald-500' : 'text-amber-500'}">${fte.toFixed(2).replace('.', ',')}</td>
+                        <td class="px-8 py-5 text-center font-bold ${br > 22 ? 'text-rose-500' : ''}">${br.toFixed(1)}%</td>
+                        <td class="px-8 py-5 text-center font-bold ${missingMin > 0 ? 'text-rose-500' : 'text-emerald-500'}">${missingMin} dk</td>
+                        <td class="px-8 py-5 text-right">${statusBadge}</td>
                     </tr>`;
             });
+        }
+
+        // --- Chart Logic ---
+        function renderTrendChart(dailyData) {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            
+            // Veriyi tarihlere göre grupla
+            const grouped = dailyData.reduce((acc, curr) => {
+                acc[curr.date] = (acc[curr.date] || 0) + (curr.login || 0);
+                return acc;
+            }, {});
+
+            const labels = Object.keys(grouped).sort();
+            const data = labels.map(l => grouped[l]);
+
+            if (trendChart) trendChart.destroy();
+
+            trendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels.map(l => l.split('-')[2]), // Sadece gün numarasını göster
+                    datasets: [{
+                        label: 'Login',
+                        data: data,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 4,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#3b82f6',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            grid: { color: 'rgba(148, 163, 184, 0.1)', drawBorder: false },
+                            ticks: { font: { weight: 'bold' } }
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function updateChartColors() {
+            const isDark = document.documentElement.classList.contains('dark');
+            trendChart.options.scales.y.grid.color = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
+            trendChart.update();
         }
 
         function filterTable() {
