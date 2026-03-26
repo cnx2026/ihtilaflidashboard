@@ -163,7 +163,7 @@
                 .from('period_summary')
                 .select('period')
                 .order('period', { ascending: false })
-                .limit(10000); // ── limit eklendi
+                .limit(10000);
             if (error) { console.error(error); return; }
             const unique = [...new Set(data.map(d => d.period))];
             const sel = document.getElementById('periodFilter');
@@ -185,19 +185,20 @@
             if (!period) { document.getElementById('loading-overlay').style.display = 'none'; return; }
 
             try {
-                const [dailyRes, cwtRes, summaryRes, usersRes] = await Promise.all([
-                    // ── Tüm sorgulara limit(10000) eklendi ──
+                // CWT toplamı RPC ile çekiliyor — limit sorunu yok
+                const [dailyRes, cwtRpc, summaryRes, usersRes] = await Promise.all([
                     _supabase.from('daily_data').select('login, break_total').eq('period', period).limit(10000),
-                    _supabase.from('cwt_data').select('cwt').eq('period', period).limit(10000),
+                    _supabase.rpc('get_cwt_sum', { p_period: period }),
                     _supabase.from('period_summary').select('*').eq('period', period).limit(10000),
                     _supabase.from('users').select('user_name, team_leader').limit(10000)
                 ]);
 
-                if (dailyRes.error || cwtRes.error || summaryRes.error || usersRes.error) {
+                if (dailyRes.error || cwtRpc.error || summaryRes.error || usersRes.error) {
+                    console.error(dailyRes.error, cwtRpc.error, summaryRes.error, usersRes.error);
                     throw new Error('Veri çekme hatası');
                 }
 
-                renderKpiCards(dailyRes.data, cwtRes.data, summaryRes.data);
+                renderKpiCards(dailyRes.data, cwtRpc.data, summaryRes.data);
                 renderAdvisorTable(summaryRes.data, usersRes.data);
 
             } catch (err) {
@@ -207,12 +208,11 @@
             }
         }
 
-        function renderKpiCards(dailyData, cwtData, summaryData) {
-            // 1. Toplam Net Çalışma → saate çevir, tam sayı
-            const totalCwtMin = cwtData.reduce((s, r) => s + (r.cwt || 0), 0);
-            document.getElementById('kpi-cwt').textContent = Math.round(totalCwtMin / 60) + ' sa';
+        function renderKpiCards(dailyData, cwtSum, summaryData) {
+            // 1. Toplam Net Çalışma → RPC'den gelen tek sayı (dakika) → saate çevir
+            document.getElementById('kpi-cwt').textContent = Math.round(cwtSum / 60) + ' sa';
 
-            // 2. Kümülatif FTE → iki ondalık
+            // 2. Kümülatif FTE → x,yy formatı
             const totalFte = summaryData.reduce((s, r) => s + (r.fte || 0), 0);
             document.getElementById('kpi-fte').textContent = totalFte.toFixed(2).replace('.', ',');
 
@@ -244,32 +244,30 @@
                 const userInfo   = usersData.find(u => u.user_name === user.user_name);
                 const teamLeader = userInfo?.team_leader || '-';
                 const fte        = user.fte || 0;
+                const fteStr     = fte.toFixed(2).replace('.', ',');
 
-                // break_rate: 0.15 formatında → ×100, x,yy formatı
                 const breakRate    = (user.break_rate || 0) * 100;
                 const breakRateStr = '%' + breakRate.toFixed(2).replace('.', ',');
 
-                // FTE: x,yy formatı
-                const fteStr = fte.toFixed(2).replace('.', ',');
-
-                // missing_time: dakika tam sayı
                 const missingMin   = Math.round(parseFloat(String(user.missing_time || '0').replace(',', '.')) || 0);
                 const missingColor = missingMin < 0 ? 'text-green-500 font-medium' : missingMin > 0 ? 'text-rose-500 font-medium' : 'text-slate-500';
 
-                // Durum — ikon + renk bantlı
-                let statusIcon, statusClass, statusBg;
+                let statusIcon, statusClass, statusBg, statusText;
                 if (missingMin < 0) {
                     statusIcon  = 'fa-circle-check';
                     statusClass = 'text-emerald-600 dark:text-emerald-400';
                     statusBg    = 'bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800';
+                    statusText  = 'İyi';
                 } else if (missingMin <= 99) {
                     statusIcon  = 'fa-triangle-exclamation';
                     statusClass = 'text-amber-600 dark:text-amber-400';
                     statusBg    = 'bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800';
+                    statusText  = 'Takipte';
                 } else {
                     statusIcon  = 'fa-circle-xmark';
                     statusClass = 'text-rose-600 dark:text-rose-400';
                     statusBg    = 'bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800';
+                    statusText  = 'Kritik';
                 }
 
                 tbody.innerHTML += `
@@ -282,7 +280,7 @@
                         <td class="px-6 py-4">
                             <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold ${statusBg} ${statusClass}">
                                 <i class="fa-solid ${statusIcon} text-xs"></i>
-                                <span>${missingMin < 0 ? 'İyi' : missingMin <= 99 ? 'Takipte' : 'Kritik'}</span>
+                                <span>${statusText}</span>
                             </div>
                         </td>
                     </tr>`;
