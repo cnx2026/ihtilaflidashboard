@@ -16,13 +16,7 @@
     <script>
         tailwind.config = {
             darkMode: 'class',
-            theme: { 
-                extend: { 
-                    colors: { 
-                        slate: { 850: '#111827', 950: '#030712' } 
-                    } 
-                } 
-            }
+            theme: { extend: { colors: { slate: { 850: '#111827', 950: '#030712' } } } }
         }
     </script>
 
@@ -46,6 +40,8 @@
             background-position: right 0.75rem center; 
             background-size: 1rem; 
         }
+
+        .filter-container { @apply flex items-center gap-3 bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm; }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen overflow-hidden transition-colors duration-500">
@@ -57,25 +53,22 @@
             <div class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] animate-pulse"></div>
         </div>
         
-        <div class="relative w-full max-w-md p-10 glass rounded-[2.5rem] shadow-2xl border border-white/10 fade-in">
-            <div class="text-center mb-10">
-                <div class="inline-flex p-4 bg-blue-600/10 rounded-2xl mb-6">
-                    <img src="https://appexchange.salesforce.com/image_host/0f3dad29-4a38-468b-8fb9-cbabe4acb8f1.png" class="h-10 w-auto">
-                </div>
-                <h2 class="text-3xl font-black tracking-tight text-white mb-2">Hoş Geldiniz</h2>
-                <p class="text-slate-400 font-medium">Giriş yaparak dashboard'a erişebilirsiniz.</p>
+        <div class="relative w-full max-w-md p-10 glass rounded-[2.5rem] shadow-2xl border border-white/10 fade-in text-center">
+            <div class="inline-flex p-4 bg-blue-600/10 rounded-2xl mb-6">
+                <img src="https://appexchange.salesforce.com/image_host/0f3dad29-4a38-468b-8fb9-cbabe4acb8f1.png" class="h-10 w-auto">
             </div>
+            <h2 class="text-3xl font-black tracking-tight text-white mb-8">Hoş Geldiniz</h2>
 
-            <form onsubmit="handleLogin(event)" class="space-y-6">
+            <form onsubmit="handleLogin(event)" class="space-y-6 text-left">
                 <div class="space-y-2">
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">E-Posta</label>
-                    <input type="email" id="email" required class="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="kurumsal@concentrix.com">
+                    <input type="email" id="email" required class="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="isim.soyisim@concentrix.com">
                 </div>
                 <div class="space-y-2">
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Şifre</label>
                     <input type="password" id="password" required class="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="••••••••">
                 </div>
-                <div id="loginError" class="hidden py-3 px-4 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-sm font-medium text-center">Hatalı e-posta veya şifre.</div>
+                <div id="loginError" class="hidden py-3 px-4 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-sm font-medium text-center">Hatalı bilgiler.</div>
                 <button type="submit" id="loginBtn" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-extrabold rounded-2xl shadow-lg transition-all transform active:scale-95">Giriş Yap</button>
             </form>
         </div>
@@ -94,7 +87,7 @@
             </div>
 
             <nav class="flex-1 px-4 py-8 space-y-2">
-                <a href="#" class="flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-blue-500/10 text-blue-500 font-bold border border-blue-500/20 shadow-sm transition-all">
+                <a href="#" class="flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-blue-500/10 text-blue-500 font-bold border border-blue-500/20 transition-all shadow-sm">
                     <i class="fa-solid fa-chart-line"></i> Üretim Takip
                 </a>
                 <a href="#" class="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all">
@@ -107,17 +100,13 @@
 
             <div class="p-6 border-t border-slate-100 dark:border-slate-800">
                 <div class="flex items-center justify-between mb-6 px-2">
-                    <button onclick="toggleTheme()" class="text-slate-400 hover:text-blue-500 transition-colors">
-                        <i id="theme-icon" class="fa-solid fa-moon text-xl"></i>
-                    </button>
-                    <button onclick="handleLogout()" class="text-slate-400 hover:text-rose-500 transition-colors">
-                        <i class="fa-solid fa-right-from-bracket text-xl"></i>
-                    </button>
+                    <button onclick="toggleTheme()" class="text-slate-400 hover:text-blue-500 transition-colors"><i id="theme-icon" class="fa-solid fa-moon text-xl"></i></button>
+                    <button onclick="handleLogout()" class="text-slate-400 hover:text-rose-500 transition-colors"><i class="fa-solid fa-right-from-bracket text-xl"></i></button>
                 </div>
                 <div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-850 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden">
-                    <div id="userInitials" class="w-10 h-10 shrink-0 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-xs uppercase">--</div>
+                    <div id="userInitials" class="w-10 h-10 shrink-0 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-xs uppercase tracking-tighter">--</div>
                     <div class="truncate">
-                        <p id="userName" class="text-sm font-bold truncate">Kullanıcı</p>
+                        <p id="userName" class="text-sm font-bold truncate tracking-tight">Kullanıcı</p>
                         <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Yönetici Paneli</p>
                     </div>
                 </div>
@@ -126,28 +115,34 @@
 
         <!-- CONTENT -->
         <main class="flex-1 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950">
-            <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 p-8 z-20">
+            <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b p-8 z-20">
                 <div class="flex flex-col xl:flex-row items-center justify-between gap-6">
                     <div>
                         <h2 class="text-2xl font-black tracking-tighter uppercase">Üretim Takip</h2>
-                        <p class="text-sm text-slate-400 font-medium">Anlık KPI ve performans analizi.</p>
+                        <p class="text-sm text-slate-400 font-medium">Operasyonel veriler ve gerçekleşme analizi.</p>
                     </div>
                     
-                    <div class="flex flex-wrap items-center gap-3">
-                        <div class="flex items-center gap-2 bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                            <select id="periodFilter" onchange="fetchAndRender()" class="px-4 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[160px]"></select>
-                            <select id="tlFilter" onchange="applyFilters()" class="px-4 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[160px]">
-                                <option value="all">Tüm Liderler</option>
-                            </select>
+                    <div class="flex flex-wrap items-center gap-4 w-full xl:w-auto">
+                        <div class="filter-container">
+                            <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2">
+                                <i class="fa-solid fa-calendar-day absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 text-xs"></i>
+                                <select id="periodFilter" onchange="fetchAndRender()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[180px]"></select>
+                            </div>
+                            <div class="relative">
+                                <i class="fa-solid fa-user-tie absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                <select id="tlFilter" onchange="applyFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[160px]">
+                                    <option value="all">Tüm Liderler</option>
+                                </select>
+                            </div>
                         </div>
                         
-                        <div class="relative min-w-[240px]">
+                        <div class="relative min-w-[260px]">
                             <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                            <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Temsilci ara..." class="w-full pl-11 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-blue-500 outline-none">
+                            <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Hızlı Temsilci Ara..." class="w-full pl-11 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-blue-500 outline-none shadow-sm transition-all">
                         </div>
 
-                        <button onclick="exportToExcel()" class="flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-2xl shadow-lg transition-all">
-                            <i class="fa-solid fa-file-excel"></i> EXCEL EXPORT
+                        <button onclick="exportToExcel()" class="flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-2xl shadow-lg transition-all uppercase tracking-widest">
+                            <i class="fa-solid fa-file-export"></i> Excel Export
                         </button>
                     </div>
                 </div>
@@ -162,7 +157,7 @@
                             <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">NET SAAT</span>
                         </div>
                         <h3 id="kpi-cwt" class="text-4xl font-black tracking-tighter">0</h3>
-                        <p class="text-xs font-bold text-slate-400 mt-2 uppercase">Toplam Net Çalışma</p>
+                        <p class="text-[11px] font-bold text-slate-400 mt-2 uppercase tracking-tight">Toplam Net Çalışma</p>
                     </div>
 
                     <div class="kpi-card bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm">
@@ -171,16 +166,16 @@
                             <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">GÜNCEL</span>
                         </div>
                         <h3 id="kpi-fte" class="text-4xl font-black tracking-tighter">0,00</h3>
-                        <p class="text-xs font-bold text-slate-400 mt-2 uppercase">Kümülatif FTE (Cap)</p>
+                        <p class="text-[11px] font-bold text-slate-400 mt-2 uppercase tracking-tight">Kümülatif FTE</p>
                     </div>
 
                     <div class="kpi-card bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm">
                         <div class="flex justify-between items-center mb-4">
                             <div class="p-3 bg-amber-500/10 text-amber-500 rounded-2xl"><i class="fa-solid fa-mug-hot text-xl"></i></div>
-                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">ORTALAMA</span>
+                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">GENEL</span>
                         </div>
                         <h3 id="kpi-break" class="text-4xl font-black tracking-tighter">0,00%</h3>
-                        <p class="text-xs font-bold text-slate-400 mt-2 uppercase">Mola Oranı</p>
+                        <p class="text-[11px] font-bold text-slate-400 mt-2 uppercase tracking-tight">Mola Oranı</p>
                     </div>
 
                     <div class="kpi-card bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm">
@@ -189,7 +184,7 @@
                             <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">DAKİKA</span>
                         </div>
                         <h3 id="kpi-missing" class="text-4xl font-black tracking-tighter">0</h3>
-                        <p class="text-xs font-bold text-slate-400 mt-2 uppercase">Toplam Eksik Süre</p>
+                        <p class="text-[11px] font-bold text-slate-400 mt-2 uppercase tracking-tight">Toplam Eksik Süre</p>
                     </div>
                 </div>
 
@@ -197,17 +192,17 @@
                 <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left">
-                            <thead class="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 font-black text-slate-400 uppercase tracking-widest text-[10px]">
+                            <thead class="bg-slate-50/50 dark:bg-slate-800/50 border-b font-black text-slate-400 uppercase tracking-widest text-[10px]">
                                 <tr>
-                                    <th class="px-8 py-6">Temsilci Detayı</th>
+                                    <th class="px-8 py-6">Temsilci Bilgisi</th>
                                     <th class="px-8 py-6">Yönetici</th>
                                     <th class="px-8 py-6 text-center">FTE (Cap)</th>
                                     <th class="px-8 py-6 text-center">Mola Oranı</th>
                                     <th class="px-8 py-6 text-center">Eksik Süre</th>
-                                    <th class="px-8 py-6 text-right">Performans</th>
+                                    <th class="px-8 py-6 text-right">Durum</th>
                                 </tr>
                             </thead>
-                            <tbody id="dataTableBody" class="divide-y divide-slate-50 dark:divide-slate-800 text-sm font-bold text-slate-700 dark:text-slate-300"></tbody>
+                            <tbody id="dataTableBody" class="divide-y text-sm font-bold text-slate-700 dark:text-slate-300"></tbody>
                         </table>
                     </div>
                 </div>
@@ -215,14 +210,12 @@
         </main>
     </div>
 
-    <!-- LOADING OVERLAY -->
     <div id="loading-overlay" class="fixed inset-0 z-[110] bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center space-y-4 hidden">
         <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
         <p class="text-blue-400 font-black tracking-widest animate-pulse uppercase text-xs">Veriler Eşitleniyor</p>
     </div>
 
     <script>
-        // --- CONFIG & SUPABASE ---
         const SUPABASE_URL = 'https://xtikjrtxowjcpvbmsgxh.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0aWtqcnR4b3dqY3B2Ym1zZ3hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDYxMDUsImV4cCI6MjA4OTc4MjEwNX0.VWOBROBGR52E9gzxx-whsJZ0J8yBn_tPBb838dYxaHU';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -230,7 +223,7 @@
         let fullData = [];
         let rawUsers = [];
 
-        // --- HELPERS ---
+        // Format Helper: Binlik ayraçlı tam sayı veya virgüllü ondalık
         const toTr = (val, dec = 0) => {
             const num = parseFloat(val) || 0;
             if (dec === 0) return Math.round(num).toLocaleString('tr-TR');
@@ -244,7 +237,6 @@
             return `${months[parseInt(m)]} ${y}`;
         };
 
-        // --- THEME ---
         function toggleTheme() {
             const isDark = document.documentElement.classList.toggle('dark');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
@@ -257,7 +249,6 @@
             document.getElementById('theme-icon').className = saved === 'dark' ? 'fa-solid fa-sun text-xl' : 'fa-solid fa-moon text-xl';
         }
 
-        // --- AUTH ---
         document.addEventListener('DOMContentLoaded', async () => {
             initTheme();
             const { data: { session } } = await _supabase.auth.getSession();
@@ -295,10 +286,9 @@
             loadPeriods();
         }
 
-        // --- DATA ---
         async function loadPeriods() {
             const { data } = await _supabase.from('period_summary').select('period').order('period', { ascending: false });
-            const unique = [...new Set(data.map(d => d.period))];
+            const unique = [...new Set((data || []).map(d => d.period))];
             const sel = document.getElementById('periodFilter');
             sel.innerHTML = unique.map(p => `<option value="${p}">${formatPeriodText(p)}</option>`).join('');
             fetchAndRender();
@@ -317,21 +307,24 @@
 
                 rawUsers = userRes.data || [];
                 
-                fullData = summaryRes.data.map(summary => {
+                // Normalizasyon ve Eşleştirme (CWT sorunu için kritik alan)
+                fullData = (summaryRes.data || []).map(summary => {
                     const normName = summary.user_name?.toLowerCase().trim();
                     const userMeta = rawUsers.find(u => u.user_name?.toLowerCase().trim() === normName) || {};
-                    const daily = dailyRes.data.filter(d => d.user_name?.toLowerCase().trim() === normName);
+                    const dailyRows = (dailyRes.data || []).filter(d => d.user_name?.toLowerCase().trim() === normName);
                     
-                    // Net Çalışma (CWT) hesaplamasını sağlama alıyoruz
-                    const calculatedCwt = daily.reduce((s, d) => s + (parseFloat(d.cwt) || 0), 0);
+                    // Net Çalışma (CWT) ve Login bilgilerini topluyoruz
+                    const calcCwt = dailyRows.reduce((s, d) => s + (parseFloat(d.cwt) || 0), 0);
+                    const calcLogin = dailyRows.reduce((s, d) => s + (parseFloat(d.login) || 0), 0);
+                    const calcBreak = dailyRows.reduce((s, d) => s + (parseFloat(d.break_total) || 0), 0);
 
                     return {
                         ...summary,
                         team_leader: userMeta.team_leader || '-',
                         reg_number: userMeta.register_number || '-',
-                        total_login: daily.reduce((s, d) => s + (parseFloat(d.login) || 0), 0),
-                        total_break: daily.reduce((s, d) => s + (parseFloat(d.break_total) || 0), 0),
-                        total_cwt_min: calculatedCwt,
+                        total_login: calcLogin,
+                        total_break: calcBreak,
+                        total_cwt_min: calcCwt,
                         capped_fte: Math.min(1.0, parseFloat(summary.fte) || 0)
                     };
                 });
@@ -353,20 +346,21 @@
 
             const filtered = fullData.filter(d => (tl === 'all' || d.team_leader === tl) && d.user_name.toLowerCase().includes(search));
 
-            // KPI Render
+            // Ana KPI Hesaplamaları
             const totalCwtHrs = filtered.reduce((s, d) => s + (d.total_cwt_min || 0), 0) / 60;
             const totalFteCap = filtered.reduce((s, d) => s + d.capped_fte, 0);
-            const sumL = filtered.reduce((s, d) => s + (d.total_login || 0), 0);
-            const sumB = filtered.reduce((s, d) => s + (d.total_break || 0), 0);
+            const sumL = filtered.reduce((s, d) => s + d.total_login, 0);
+            const sumB = filtered.reduce((s, d) => s + d.total_break, 0);
             const breakRate = sumL > 0 ? (sumB / sumL) * 100 : 0;
-            const miss = filtered.reduce((s, d) => s + (parseFloat(d.missing_time) || 0), 0);
+            const totalMissing = filtered.reduce((s, d) => s + (parseFloat(d.missing_time) || 0), 0);
 
+            // KPI Görünümleri
             document.getElementById('kpi-cwt').innerText = toTr(totalCwtHrs);
             document.getElementById('kpi-fte').innerText = toTr(totalFteCap, 2);
             document.getElementById('kpi-break').innerText = toTr(breakRate, 2) + '%';
-            document.getElementById('kpi-missing').innerText = toTr(miss);
+            document.getElementById('kpi-missing').innerText = toTr(totalMissing);
 
-            // Table Render
+            // Tablo Render
             const tbody = document.getElementById('dataTableBody');
             tbody.innerHTML = '';
             filtered.sort((a,b) => b.fte - a.fte).forEach(row => {
@@ -378,10 +372,10 @@
                 if (m > 60 || row.capped_fte < 0.85) { sC = 'text-rose-500 bg-rose-500/10 border-rose-500/20'; sT = 'KRİTİK'; }
                 else if (m > 0) { sC = 'text-amber-500 bg-amber-500/10 border-amber-500/20'; sT = 'TAKİPTE'; }
 
-                tbody.innerHTML += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all group">
+                tbody.innerHTML += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all">
                     <td class="px-8 py-5 flex items-center gap-3">
                         <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600 font-black text-[10px]">${row.user_name[0]}</div>
-                        <span class="tracking-tight">${row.user_name}</span>
+                        <span class="tracking-tight truncate">${row.user_name}</span>
                     </td>
                     <td class="px-8 py-5 text-slate-400 font-medium">${row.team_leader}</td>
                     <td class="px-8 py-5 text-center font-black">${toTr(row.capped_fte, 2)}</td>
@@ -392,7 +386,7 @@
             });
         }
 
-        // --- EXPORT ---
+        // Excel Export (Format ve Grand Total sorunu kökten çözüldü)
         function exportToExcel() {
             const tl = document.getElementById('tlFilter').value;
             const search = document.getElementById('searchInput').value.toLowerCase();
@@ -405,18 +399,22 @@
                     "Takım Lideri": d.team_leader,
                     "Login Süresi (Dk)": Math.round(parseFloat(d.total_login) || 0),
                     "Mola Süresi (Dk)": Math.round(parseFloat(d.total_break) || 0),
-                    "Mola Oranı": (parseFloat(d.break_rate) || 0),
+                    "Mola Oranı": (parseFloat(d.break_rate) || 0), // Excel maskesi için float
                     "Eksik Süre (Dk)": Math.round(parseFloat(d.missing_time) || 0),
                     "Ham FTE": (parseFloat(d.fte) || 0),
                     "Capped FTE": (parseFloat(d.capped_fte) || 0)
                 }));
 
-            // Totals
+            // Toplamlar (Mola oranı formülü düzeltildi)
+            const sumL = rows.reduce((s, r) => s + r["Login Süresi (Dk)"], 0);
+            const sumB = rows.reduce((s, r) => s + r["Mola Süresi (Dk)"], 0);
+            
             const totals = {
-                "Sicil No": "GENEL TOPLAM", "Temsilci Adı": "", "Takım Lideri": "",
-                "Login Süresi (Dk)": rows.reduce((s, r) => s + r["Login Süresi (Dk)"], 0),
-                "Mola Süresi (Dk)": rows.reduce((s, r) => s + r["Mola Süresi (Dk)"], 0),
-                "Mola Oranı": rows.length ? rows.reduce((s, r) => s + r["Mola Oranı"], 0) / rows.length : 0,
+                "Sicil No": "GENEL TOPLAM",
+                "Temsilci Adı": "", "Takım Lideri": "",
+                "Login Süresi (Dk)": sumL,
+                "Mola Süresi (Dk)": sumB,
+                "Mola Oranı": sumL > 0 ? (sumB / sumL) : 0, // Toplam bazlı oran
                 "Eksik Süre (Dk)": rows.reduce((s, r) => s + r["Eksik Süre (Dk)"], 0),
                 "Ham FTE": rows.reduce((s, r) => s + r["Ham FTE"], 0),
                 "Capped FTE": rows.reduce((s, r) => s + r["Capped FTE"], 0)
@@ -426,17 +424,17 @@
             const ws = XLSX.utils.json_to_sheet(rows);
             const range = XLSX.utils.decode_range(ws['!ref']);
             
-            // Excel Formatting (International formats that localize automatically)
+            // Excel FORMATLAMA (Uluslararası standart formatlar)
             for (let R = range.s.r + 1; R <= range.e.r; ++R) {
-                // Login, Mola, Eksik (Tam Sayı + Binlik Ayraç)
+                // Login, Mola, Eksik (Tam Sayı)
                 [3, 4, 6].forEach(C => {
                     const c = XLSX.utils.encode_cell({r: R, c: C});
                     if (ws[c]) { ws[c].t = 'n'; ws[c].z = '#,##0'; }
                 });
-                // Mola Oranı (%) - Excel standard format
+                // Mola Oranı (%)
                 const brC = XLSX.utils.encode_cell({r: R, c: 5});
                 if (ws[brC]) { ws[brC].t = 'n'; ws[brC].z = '0.00%'; }
-                // FTE (0,00) - Excel standard format
+                // FTE (0,00)
                 [7, 8].forEach(C => {
                     const c = XLSX.utils.encode_cell({r: R, c: C});
                     if (ws[c]) { ws[c].t = 'n'; ws[c].z = '0.00'; }
