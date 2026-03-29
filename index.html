@@ -34,6 +34,26 @@
             background-size: 1rem;
         }
         .filter-container { @apply flex items-center gap-3 bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm; }
+
+        /* ── Performans sayfası animasyonları ── */
+        .perf-row {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideIn 0.4s ease-out forwards;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        .bar-fill {
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .rank-badge {
+            transition: all 0.3s ease;
+        }
+        .top3 { background: linear-gradient(135deg, #f59e0b, #f97316); }
+        .rank-1 { background: linear-gradient(135deg, #fbbf24, #f59e0b); box-shadow: 0 0 20px rgba(251,191,36,0.4); }
+        .rank-2 { background: linear-gradient(135deg, #94a3b8, #64748b); }
+        .rank-3 { background: linear-gradient(135deg, #cd7c2f, #a16207); }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen overflow-hidden transition-colors duration-500">
@@ -66,6 +86,8 @@
 
     <!-- MAIN DASHBOARD -->
     <div id="mainDashboard" class="flex h-screen overflow-hidden hidden">
+
+        <!-- SIDEBAR -->
         <aside class="w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col z-30 shadow-2xl">
             <div class="p-8 border-b border-slate-100 dark:border-slate-800">
                 <div class="flex flex-col gap-4">
@@ -74,10 +96,10 @@
                 </div>
             </div>
             <nav class="flex-1 px-4 py-8 space-y-2">
-                <a href="#" class="flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-blue-500/10 text-blue-500 font-bold border border-blue-500/20 transition-all shadow-sm">
+                <a href="#" id="nav-uretim" onclick="showPage('uretim')" class="flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-blue-500/10 text-blue-500 font-bold border border-blue-500/20 transition-all shadow-sm">
                     <i class="fa-solid fa-chart-line"></i> Üretim Takip
                 </a>
-                <a href="#" class="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all">
+                <a href="#" id="nav-performans" onclick="showPage('performans')" class="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all">
                     <i class="fa-solid fa-gauge-high"></i> Performans
                 </a>
                 <a href="#" class="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all">
@@ -99,7 +121,8 @@
             </div>
         </aside>
 
-        <main class="flex-1 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950">
+        <!-- ── ÜRETİM TAKİP SAYFASI ── -->
+        <main id="page-uretim" class="flex-1 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950">
             <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b p-8 z-20">
                 <div class="flex flex-col xl:flex-row items-center justify-between gap-6">
                     <div>
@@ -129,7 +152,6 @@
                     </div>
                 </div>
             </header>
-
             <div class="flex-1 overflow-y-auto p-8 space-y-8">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div class="kpi-card bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm">
@@ -165,7 +187,6 @@
                         <p class="text-[11px] font-bold text-slate-400 mt-2 uppercase tracking-tight">Toplam Eksik Süre</p>
                     </div>
                 </div>
-
                 <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left">
@@ -181,6 +202,77 @@
                             </thead>
                             <tbody id="dataTableBody" class="divide-y text-sm font-bold text-slate-700 dark:text-slate-300"></tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- ── PERFORMANS SAYFASI ── -->
+        <main id="page-performans" class="flex-1 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 hidden">
+            <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b p-8 z-20">
+                <div class="flex flex-col xl:flex-row items-center justify-between gap-6">
+                    <div>
+                        <h2 class="text-2xl font-black tracking-tighter uppercase">Performans</h2>
+                        <p class="text-sm text-slate-400 font-medium">Temsilci bazlı işlem performansı ve sıralama.</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <!-- Gün filtresi placeholder -->
+                        <div class="filter-container">
+                            <div class="relative">
+                                <i class="fa-solid fa-calendar-day absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 text-xs"></i>
+                                <select id="perfDateFilter" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[200px]">
+                                    <option value="demo">29 Mart 2026 (Demo)</option>
+                                    <option value="demo2">28 Mart 2026 (Demo)</option>
+                                    <option value="demo3">27 Mart 2026 (Demo)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="px-4 py-2 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+                            <span class="text-[10px] font-black text-amber-500 uppercase tracking-widest">⚡ Demo Verisi</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-8">
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+
+                    <!-- ── TOP 10 SIDEBAR ── -->
+                    <div class="xl:col-span-1">
+                        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                            <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3">
+                                <div class="p-2 bg-amber-500/10 rounded-xl text-amber-500"><i class="fa-solid fa-trophy"></i></div>
+                                <div>
+                                    <h3 class="font-black tracking-tight">Top 10</h3>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Performans Sıralaması</p>
+                                </div>
+                            </div>
+                            <div id="top10List" class="p-4 space-y-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- ── ANA TABLO ── -->
+                    <div class="xl:col-span-2">
+                        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+                            <div class="p-6 border-b border-slate-100 dark:border-slate-800">
+                                <h3 class="font-black tracking-tight">Temsilci Performans Detayı</h3>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Kümülatif Veriler</p>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left">
+                                    <thead class="bg-slate-50/50 dark:bg-slate-800/50 border-b font-black text-slate-400 uppercase tracking-widest text-[10px]">
+                                        <tr>
+                                            <th class="px-6 py-5">Temsilci Bilgisi</th>
+                                            <th class="px-6 py-5 text-center">Havuz Ort.</th>
+                                            <th class="px-6 py-5 text-center">Gerçekleşen</th>
+                                            <th class="px-6 py-5 text-center">Performans %</th>
+                                            <th class="px-6 py-5 text-center">Ort. Uzaklık</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="perfTableBody" class="divide-y text-sm font-bold text-slate-700 dark:text-slate-300"></tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -201,6 +293,93 @@
         let rawUsers   = [];
         let cwtAllData = [];
 
+        // ── Demo performans verisi ────────────────────────────────────
+        const demoPerf = [
+            { name: 'ayse.kaya',      pool_avg: 145, actual: 198, perf_pct: 136.6, distance: +53 },
+            { name: 'mehmet.demir',   pool_avg: 145, actual: 187, perf_pct: 128.9, distance: +42 },
+            { name: 'fatma.celik',    pool_avg: 145, actual: 176, perf_pct: 121.4, distance: +31 },
+            { name: 'ali.yilmaz',     pool_avg: 145, actual: 168, perf_pct: 115.9, distance: +23 },
+            { name: 'zeynep.arslan',  pool_avg: 145, actual: 159, perf_pct: 109.7, distance: +14 },
+            { name: 'can.ozturk',     pool_avg: 145, actual: 151, perf_pct: 104.1, distance:  +6 },
+            { name: 'elif.sahin',     pool_avg: 145, actual: 143, perf_pct:  98.6, distance:  -2 },
+            { name: 'burak.aksoy',    pool_avg: 145, actual: 134, perf_pct:  92.4, distance: -11 },
+            { name: 'selin.kurt',     pool_avg: 145, actual: 121, perf_pct:  83.4, distance: -24 },
+            { name: 'emre.polat',     pool_avg: 145, actual: 108, perf_pct:  74.5, distance: -37 },
+        ];
+
+        // ── Sayfa yönetimi ────────────────────────────────────────────
+        function showPage(page) {
+            document.getElementById('page-uretim').classList.toggle('hidden', page !== 'uretim');
+            document.getElementById('page-performans').classList.toggle('hidden', page !== 'performans');
+
+            const navUretim     = document.getElementById('nav-uretim');
+            const navPerformans = document.getElementById('nav-performans');
+
+            if (page === 'uretim') {
+                navUretim.className     = 'flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-blue-500/10 text-blue-500 font-bold border border-blue-500/20 transition-all shadow-sm';
+                navPerformans.className = 'flex items-center gap-3 px-4 py-3.5 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all';
+            } else {
+                navPerformans.className = 'flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-blue-500/10 text-blue-500 font-bold border border-blue-500/20 transition-all shadow-sm';
+                navUretim.className     = 'flex items-center gap-3 px-4 py-3.5 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all';
+                renderPerformans();
+            }
+        }
+
+        // ── Performans render ─────────────────────────────────────────
+        function renderPerformans() {
+            const sorted = [...demoPerf].sort((a, b) => b.perf_pct - a.perf_pct);
+            const maxActual = Math.max(...sorted.map(d => d.actual));
+
+            // Top 10 sidebar
+            const top10 = document.getElementById('top10List');
+            top10.innerHTML = '';
+            sorted.forEach((row, i) => {
+                const rank = i + 1;
+                let badgeClass = 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300';
+                if (rank === 1) badgeClass = 'rank-1 text-white';
+                if (rank === 2) badgeClass = 'rank-2 text-white';
+                if (rank === 3) badgeClass = 'rank-3 text-white';
+
+                const pctColor = row.perf_pct >= 100 ? 'text-emerald-500' : 'text-rose-500';
+
+                top10.innerHTML += `
+                    <div class="perf-row flex items-center gap-3 p-3 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all" style="animation-delay:${i * 0.05}s">
+                        <div class="rank-badge w-8 h-8 shrink-0 rounded-xl flex items-center justify-center text-xs font-black ${badgeClass}">${rank}</div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-bold truncate">${row.name}</p>
+                            <div class="mt-1 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                <div class="bar-fill h-full rounded-full ${row.perf_pct >= 100 ? 'bg-emerald-500' : 'bg-rose-400'}" style="width:${Math.min((row.actual / maxActual) * 100, 100)}%"></div>
+                            </div>
+                        </div>
+                        <span class="text-xs font-black ${pctColor} shrink-0">%${row.perf_pct.toFixed(1)}</span>
+                    </div>`;
+            });
+
+            // Ana tablo
+            const tbody = document.getElementById('perfTableBody');
+            tbody.innerHTML = '';
+            sorted.forEach((row, i) => {
+                const pctColor  = row.perf_pct >= 100 ? 'text-emerald-500' : 'text-rose-500';
+                const distColor = row.distance >= 0 ? 'text-emerald-500' : 'text-rose-500';
+                const distSign  = row.distance >= 0 ? '+' : '';
+
+                tbody.innerHTML += `
+                    <tr class="perf-row hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all" style="animation-delay:${i * 0.04}s">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600 font-black text-[10px]">${row.name[0].toUpperCase()}</div>
+                                <span class="font-bold truncate">${row.name}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-center text-slate-500 font-medium">${row.pool_avg}</td>
+                        <td class="px-6 py-4 text-center font-black text-slate-800 dark:text-white">${row.actual}</td>
+                        <td class="px-6 py-4 text-center font-black ${pctColor}">%${row.perf_pct.toFixed(1)}</td>
+                        <td class="px-6 py-4 text-center font-black ${distColor}">${distSign}${row.distance}</td>
+                    </tr>`;
+            });
+        }
+
+        // ── Format Helper ─────────────────────────────────────────────
         const toTr = (val, dec = 0) => {
             const num = parseFloat(val) || 0;
             if (dec === 0) return Math.round(num).toLocaleString('tr-TR');
@@ -273,7 +452,6 @@
         async function fetchAndRender() {
             toggleLoading(true);
             const period = document.getElementById('periodFilter').value;
-
             try {
                 const cwtFetch = fetch(
                     `${SUPABASE_URL}/rest/v1/cwt_data?period=eq.${encodeURIComponent(period)}&select=user_name,cwt`,
@@ -372,8 +550,6 @@
             const tl     = document.getElementById('tlFilter').value;
             const search = document.getElementById('searchInput').value.toLowerCase();
 
-            // ── Math.round() kaldırıldı — ham float değerler gönderiliyor ──
-            // Excel format kodu hücrede tam sayı gösterir, formula bar'da tam değeri saklar
             const rows = fullData
                 .filter(d => (tl === 'all' || d.team_leader === tl) && d.user_name.toLowerCase().includes(search))
                 .map(d => ({
@@ -409,18 +585,14 @@
             const range = XLSX.utils.decode_range(ws['!ref']);
 
             for (let R = range.s.r + 1; R <= range.e.r; ++R) {
-                // Login (3), Mola (4), Net Login (5) → tam sayı görünüm, float saklama
                 [3, 4, 5].forEach(C => {
                     const c = XLSX.utils.encode_cell({ r: R, c: C });
                     if (ws[c]) { ws[c].t = 'n'; ws[c].z = '0'; }
                 });
-                // Eksik Süre (7) → tam sayı görünüm, float saklama
                 const eksikC = XLSX.utils.encode_cell({ r: R, c: 7 });
                 if (ws[eksikC]) { ws[eksikC].t = 'n'; ws[eksikC].z = '0'; }
-                // Mola Oranı (6) → %
                 const brC = XLSX.utils.encode_cell({ r: R, c: 6 });
                 if (ws[brC]) { ws[brC].t = 'n'; ws[brC].z = '0.00%'; }
-                // Ham FTE (8), Capped FTE (9) → 0.00
                 [8, 9].forEach(C => {
                     const c = XLSX.utils.encode_cell({ r: R, c: C });
                     if (ws[c]) { ws[c].t = 'n'; ws[c].z = '0.00'; }
