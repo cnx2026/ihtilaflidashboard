@@ -4,22 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>İhtilaflı Data KPI Dashboard</title>
-    
     <link rel="icon" href="https://appexchange.salesforce.com/image_host/0f3dad29-4a38-468b-8fb9-cbabe4acb8f1.png" type="image/png">
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: { extend: { colors: { slate: { 850: '#111827', 950: '#030712' } } } }
         }
     </script>
-
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.3s ease; }
         .glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
@@ -30,12 +26,12 @@
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         .fade-in { animation: fadeIn 0.5s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        select { 
-            appearance: none; 
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='C19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); 
-            background-repeat: no-repeat; 
-            background-position: right 0.75rem center; 
-            background-size: 1rem; 
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='C19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1rem;
         }
         .filter-container { @apply flex items-center gap-3 bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm; }
     </style>
@@ -70,7 +66,7 @@
 
     <!-- MAIN DASHBOARD -->
     <div id="mainDashboard" class="flex h-screen overflow-hidden hidden">
-        
+
         <!-- SIDEBAR -->
         <aside class="w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col z-30 shadow-2xl">
             <div class="p-8 border-b border-slate-100 dark:border-slate-800">
@@ -206,11 +202,11 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0aWtqcnR4b3dqY3B2Ym1zZ3hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDYxMDUsImV4cCI6MjA4OTc4MjEwNX0.VWOBROBGR52E9gzxx-whsJZ0J8yBn_tPBb838dYxaHU';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        let fullData = [];
-        let rawUsers = [];
+        let fullData    = [];
+        let rawUsers    = [];
+        let cwtAllData  = []; // ── tüm cwt_data burada tutulur ──
 
         // ── Format Helper ────────────────────────────────────────────
-        // Tüm sayılar TR locale ile virgüllü gösterilir
         const toTr = (val, dec = 0) => {
             const num = parseFloat(val) || 0;
             if (dec === 0) return Math.round(num).toLocaleString('tr-TR');
@@ -220,7 +216,7 @@
         const formatPeriodText = (p) => {
             if (!p || !p.includes('-')) return p;
             const [y, m] = p.split('-');
-            const months = ["", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+            const months = ["","Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
             return `${months[parseInt(m)]} ${y}`;
         };
 
@@ -285,7 +281,6 @@
             const period = document.getElementById('periodFilter').value;
 
             try {
-                // ── cwt_data ayrı tablodan çekiliyor ────────────────
                 const [dailyRes, summaryRes, userRes, cwtRes] = await Promise.all([
                     _supabase.from('daily_data').select('*').eq('period', period).limit(10000),
                     _supabase.from('period_summary').select('*').eq('period', period).limit(10000),
@@ -293,28 +288,27 @@
                     _supabase.from('cwt_data').select('*').eq('period', period).limit(10000)
                 ]);
 
-                rawUsers = userRes.data || [];
+                rawUsers   = userRes.data  || [];
+                cwtAllData = cwtRes.data   || []; // ── tüm cwt_data global'e kaydedildi ──
 
                 fullData = (summaryRes.data || []).map(summary => {
-                    const normName = summary.user_name?.toLowerCase().trim();
-                    const userMeta = rawUsers.find(u => u.user_name?.toLowerCase().trim() === normName) || {};
+                    const normName  = summary.user_name?.toLowerCase().trim();
+                    const userMeta  = rawUsers.find(u => u.user_name?.toLowerCase().trim() === normName) || {};
                     const dailyRows = (dailyRes.data || []).filter(d => d.user_name?.toLowerCase().trim() === normName);
+                    const cwtRows   = cwtAllData.filter(d => d.user_name?.toLowerCase().trim() === normName);
 
-                    // ── CWT artık cwt_data tablosundan geliyor ───────
-                    const cwtRows  = (cwtRes.data || []).filter(d => d.user_name?.toLowerCase().trim() === normName);
-                    const calcCwt  = cwtRows.reduce((s, d) => s + (parseFloat(d.cwt) || 0), 0);
-
-                    const calcLogin  = dailyRows.reduce((s, d) => s + (parseFloat(d.login) || 0), 0);
-                    const calcBreak  = dailyRows.reduce((s, d) => s + (parseFloat(d.break_total) || 0), 0);
+                    const calcCwt   = cwtRows.reduce((s, d) => s + (parseFloat(d.cwt) || 0), 0);
+                    const calcLogin = dailyRows.reduce((s, d) => s + (parseFloat(d.login) || 0), 0);
+                    const calcBreak = dailyRows.reduce((s, d) => s + (parseFloat(d.break_total) || 0), 0);
 
                     return {
                         ...summary,
-                        team_leader    : userMeta.team_leader || '-',
-                        reg_number     : userMeta.register_number || '-',
-                        total_login    : calcLogin,
-                        total_break    : calcBreak,
-                        total_cwt_min  : calcCwt,
-                        capped_fte     : Math.min(1.0, parseFloat(summary.fte) || 0)
+                        team_leader   : userMeta.team_leader || '-',
+                        reg_number    : userMeta.register_number || '-',
+                        total_login   : calcLogin,
+                        total_break   : calcBreak,
+                        total_cwt_min : calcCwt,
+                        capped_fte    : Math.min(1.0, parseFloat(summary.fte) || 0)
                     };
                 });
 
@@ -334,18 +328,25 @@
             const search = document.getElementById('searchInput').value.toLowerCase();
             const filtered = fullData.filter(d => (tl === 'all' || d.team_leader === tl) && d.user_name.toLowerCase().includes(search));
 
-            const totalCwtHrs  = filtered.reduce((s, d) => s + (d.total_cwt_min || 0), 0) / 60;
+            // ── NET SAAT: cwtAllData'nın tamamından hesapla ──────────
+            // Filtre varsa o kullanıcılara göre filtrele, yoksa tümünü al
+            const filteredNames = new Set(filtered.map(d => d.user_name?.toLowerCase().trim()));
+            const cwtFiltered   = (tl === 'all' && search === '')
+                ? cwtAllData
+                : cwtAllData.filter(d => filteredNames.has(d.user_name?.toLowerCase().trim()));
+            const totalCwtHrs = cwtFiltered.reduce((s, d) => s + (parseFloat(d.cwt) || 0), 0) / 60;
+
             const totalFteCap  = filtered.reduce((s, d) => s + d.capped_fte, 0);
             const sumL         = filtered.reduce((s, d) => s + d.total_login, 0);
             const sumB         = filtered.reduce((s, d) => s + d.total_break, 0);
             const breakRate    = sumL > 0 ? (sumB / sumL) * 100 : 0;
             const totalMissing = filtered.reduce((s, d) => s + (parseFloat(d.missing_time) || 0), 0);
 
-            // ── KPI kartları — tümü TR locale (virgüllü) ────────────
+            // ── KPI kartları ─────────────────────────────────────────
             document.getElementById('kpi-cwt').innerText     = toTr(totalCwtHrs);
             document.getElementById('kpi-fte').innerText     = toTr(totalFteCap, 2);
             document.getElementById('kpi-break').innerText   = toTr(breakRate, 2) + '%';
-            document.getElementById('kpi-missing').innerText = toTr(totalMissing); // virgüllü binlik ayraç
+            document.getElementById('kpi-missing').innerText = toTr(totalMissing);
 
             const tbody = document.getElementById('dataTableBody');
             tbody.innerHTML = '';
@@ -406,15 +407,12 @@
             const range = XLSX.utils.decode_range(ws['!ref']);
 
             for (let R = range.s.r + 1; R <= range.e.r; ++R) {
-                // ── Login, Mola, Eksik → ayraçsız tam sayı ──────────
                 [3, 4, 6].forEach(C => {
                     const c = XLSX.utils.encode_cell({ r: R, c: C });
                     if (ws[c]) { ws[c].t = 'n'; ws[c].z = '0'; }
                 });
-                // ── Mola Oranı → % ───────────────────────────────────
                 const brC = XLSX.utils.encode_cell({ r: R, c: 5 });
                 if (ws[brC]) { ws[brC].t = 'n'; ws[brC].z = '0.00%'; }
-                // ── FTE → 0,00 ───────────────────────────────────────
                 [7, 8].forEach(C => {
                     const c = XLSX.utils.encode_cell({ r: R, c: C });
                     if (ws[c]) { ws[c].t = 'n'; ws[c].z = '0.00'; }
