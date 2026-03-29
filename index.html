@@ -372,19 +372,21 @@
             const tl     = document.getElementById('tlFilter').value;
             const search = document.getElementById('searchInput').value.toLowerCase();
 
+            // ── Math.round() kaldırıldı — ham float değerler gönderiliyor ──
+            // Excel format kodu hücrede tam sayı gösterir, formula bar'da tam değeri saklar
             const rows = fullData
                 .filter(d => (tl === 'all' || d.team_leader === tl) && d.user_name.toLowerCase().includes(search))
                 .map(d => ({
-                    "Sicil No"            : d.reg_number,
-                    "Temsilci Adı"        : d.user_name,
-                    "Takım Lideri"        : d.team_leader,
-                    "Login Süresi (Dk)"   : Math.round(parseFloat(d.total_login) || 0),
-                    "Mola Süresi (Dk)"    : Math.round(parseFloat(d.total_break) || 0),
-                    "Net Login (Dk)"      : Math.round(parseFloat(d.total_cwt_min) || 0), // ← YENİ
-                    "Mola Oranı"          : parseFloat(d.break_rate) || 0,
-                    "Eksik Süre (Dk)"     : Math.round(parseFloat(d.missing_time) || 0),
-                    "Ham FTE"             : parseFloat(d.fte) || 0,
-                    "Capped FTE"          : parseFloat(d.capped_fte) || 0
+                    "Sicil No"          : d.reg_number,
+                    "Temsilci Adı"      : d.user_name,
+                    "Takım Lideri"      : d.team_leader,
+                    "Login Süresi (Dk)" : parseFloat(d.total_login)   || 0,
+                    "Mola Süresi (Dk)"  : parseFloat(d.total_break)   || 0,
+                    "Net Login (Dk)"    : parseFloat(d.total_cwt_min) || 0,
+                    "Mola Oranı"        : parseFloat(d.break_rate)    || 0,
+                    "Eksik Süre (Dk)"   : parseFloat(d.missing_time)  || 0,
+                    "Ham FTE"           : parseFloat(d.fte)           || 0,
+                    "Capped FTE"        : parseFloat(d.capped_fte)    || 0
                 }));
 
             const sumL   = rows.reduce((s, r) => s + r["Login Süresi (Dk)"], 0);
@@ -392,27 +394,27 @@
             const sumCwt = rows.reduce((s, r) => s + r["Net Login (Dk)"], 0);
 
             rows.push({
-                "Sicil No"            : "GENEL TOPLAM",
-                "Temsilci Adı"        : "", "Takım Lideri": "",
-                "Login Süresi (Dk)"   : sumL,
-                "Mola Süresi (Dk)"    : sumB,
-                "Net Login (Dk)"      : sumCwt,
-                "Mola Oranı"          : sumL > 0 ? (sumB / sumL) : 0,
-                "Eksik Süre (Dk)"     : rows.reduce((s, r) => s + r["Eksik Süre (Dk)"], 0),
-                "Ham FTE"             : rows.reduce((s, r) => s + r["Ham FTE"], 0),
-                "Capped FTE"          : rows.reduce((s, r) => s + r["Capped FTE"], 0)
+                "Sicil No"          : "GENEL TOPLAM",
+                "Temsilci Adı"      : "", "Takım Lideri": "",
+                "Login Süresi (Dk)" : sumL,
+                "Mola Süresi (Dk)"  : sumB,
+                "Net Login (Dk)"    : sumCwt,
+                "Mola Oranı"        : sumL > 0 ? (sumB / sumL) : 0,
+                "Eksik Süre (Dk)"   : rows.reduce((s, r) => s + r["Eksik Süre (Dk)"], 0),
+                "Ham FTE"           : rows.reduce((s, r) => s + r["Ham FTE"], 0),
+                "Capped FTE"        : rows.reduce((s, r) => s + r["Capped FTE"], 0)
             });
 
             const ws    = XLSX.utils.json_to_sheet(rows);
             const range = XLSX.utils.decode_range(ws['!ref']);
 
             for (let R = range.s.r + 1; R <= range.e.r; ++R) {
-                // Login (3), Mola (4), Net Login (5) → ayraçsız tam sayı
+                // Login (3), Mola (4), Net Login (5) → tam sayı görünüm, float saklama
                 [3, 4, 5].forEach(C => {
                     const c = XLSX.utils.encode_cell({ r: R, c: C });
                     if (ws[c]) { ws[c].t = 'n'; ws[c].z = '0'; }
                 });
-                // Eksik Süre (7) → ayraçsız tam sayı
+                // Eksik Süre (7) → tam sayı görünüm, float saklama
                 const eksikC = XLSX.utils.encode_cell({ r: R, c: 7 });
                 if (ws[eksikC]) { ws[eksikC].t = 'n'; ws[eksikC].z = '0'; }
                 // Mola Oranı (6) → %
