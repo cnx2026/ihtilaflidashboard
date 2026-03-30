@@ -18,14 +18,14 @@
     </script>
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.3s ease; }
-        .glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .kpi-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #e2e8f0; }
+        .glass { background: rgba(255,255,255,0.02); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
+        .kpi-card { transition: all 0.3s cubic-bezier(0.4,0,0.2,1); border: 1px solid #e2e8f0; }
         .dark .kpi-card { border-color: #1f2937; }
-        .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         .fade-in { animation: fadeIn 0.5s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
         select {
             appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='C19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
@@ -34,577 +34,598 @@
             background-size: 1rem;
         }
         .filter-container { @apply flex items-center gap-3 bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm; }
-
-        /* ── Performans sayfası animasyonları ── */
-        .perf-row {
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            animation: slideIn 0.4s ease-out forwards;
-        }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-20px); }
-            to   { opacity: 1; transform: translateX(0); }
-        }
-        .bar-fill {
-            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .rank-badge {
-            transition: all 0.3s ease;
-        }
-        .top3 { background: linear-gradient(135deg, #f59e0b, #f97316); }
-        .rank-1 { background: linear-gradient(135deg, #fbbf24, #f59e0b); box-shadow: 0 0 20px rgba(251,191,36,0.4); }
-        .rank-2 { background: linear-gradient(135deg, #94a3b8, #64748b); }
-        .rank-3 { background: linear-gradient(135deg, #cd7c2f, #a16207); }
+        .perf-row { animation: slideIn 0.4s ease-out forwards; }
+        @keyframes slideIn { from { opacity:0; transform:translateX(-16px); } to { opacity:1; transform:translateX(0); } }
+        .bar-fill { transition: width 1s cubic-bezier(0.4,0,0.2,1); }
+        .rank-1 { background: linear-gradient(135deg,#fbbf24,#f59e0b); box-shadow: 0 0 16px rgba(251,191,36,0.4); }
+        .rank-2 { background: linear-gradient(135deg,#94a3b8,#64748b); }
+        .rank-3 { background: linear-gradient(135deg,#cd7c2f,#a16207); }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen overflow-hidden transition-colors duration-500">
 
-    <!-- LOGIN SCREEN -->
-    <div id="loginPage" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#030712]">
-        <div class="absolute inset-0 overflow-hidden pointer-events-none">
-            <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[120px] animate-pulse"></div>
-            <div class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] animate-pulse"></div>
+<!-- LOGIN -->
+<div id="loginPage" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#030712]">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[120px] animate-pulse"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] animate-pulse"></div>
+    </div>
+    <div class="relative w-full max-w-md p-10 glass rounded-[2.5rem] shadow-2xl border border-white/10 fade-in text-center">
+        <div class="inline-flex p-4 bg-blue-600/10 rounded-2xl mb-6">
+            <img src="https://appexchange.salesforce.com/image_host/0f3dad29-4a38-468b-8fb9-cbabe4acb8f1.png" class="h-10 w-auto">
         </div>
-        <div class="relative w-full max-w-md p-10 glass rounded-[2.5rem] shadow-2xl border border-white/10 fade-in text-center">
-            <div class="inline-flex p-4 bg-blue-600/10 rounded-2xl mb-6">
-                <img src="https://appexchange.salesforce.com/image_host/0f3dad29-4a38-468b-8fb9-cbabe4acb8f1.png" class="h-10 w-auto">
+        <h2 class="text-3xl font-black tracking-tight text-white mb-8">Hoş Geldiniz</h2>
+        <form onsubmit="handleLogin(event)" class="space-y-6 text-left">
+            <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">E-Posta</label>
+                <input type="email" id="email" required class="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="isim.soyisim@concentrix.com">
             </div>
-            <h2 class="text-3xl font-black tracking-tight text-white mb-8">Hoş Geldiniz</h2>
-            <form onsubmit="handleLogin(event)" class="space-y-6 text-left">
-                <div class="space-y-2">
-                    <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">E-Posta</label>
-                    <input type="email" id="email" required class="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="isim.soyisim@concentrix.com">
-                </div>
-                <div class="space-y-2">
-                    <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Şifre</label>
-                    <input type="password" id="password" required class="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="••••••••">
-                </div>
-                <div id="loginError" class="hidden py-3 px-4 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-sm font-medium text-center">Hatalı bilgiler.</div>
-                <button type="submit" id="loginBtn" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-extrabold rounded-2xl shadow-lg transition-all transform active:scale-95">Giriş Yap</button>
-            </form>
+            <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Şifre</label>
+                <input type="password" id="password" required class="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="••••••••">
+            </div>
+            <div id="loginError" class="hidden py-3 px-4 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-sm font-medium text-center">Hatalı bilgiler.</div>
+            <button type="submit" id="loginBtn" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-extrabold rounded-2xl shadow-lg transition-all transform active:scale-95">Giriş Yap</button>
+        </form>
+    </div>
+</div>
+
+<!-- MAIN DASHBOARD -->
+<div id="mainDashboard" class="flex h-screen overflow-hidden hidden">
+
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col z-30 shadow-2xl shrink-0">
+        <div class="p-6 border-b border-slate-100 dark:border-slate-800">
+            <div class="flex flex-col gap-3">
+                <div class="bg-blue-600/10 p-3 rounded-2xl w-fit"><img src="https://appexchange.salesforce.com/image_host/0f3dad29-4a38-468b-8fb9-cbabe4acb8f1.png" class="h-7 w-auto"></div>
+                <h1 class="text-base font-black leading-tight tracking-tighter">İhtilaflı Data<br><span class="text-blue-500">KPI Dashboard</span></h1>
+            </div>
         </div>
-    </div>
-
-    <!-- MAIN DASHBOARD -->
-    <div id="mainDashboard" class="flex h-screen overflow-hidden hidden">
-
-        <!-- SIDEBAR -->
-        <aside class="w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col z-30 shadow-2xl">
-            <div class="p-8 border-b border-slate-100 dark:border-slate-800">
-                <div class="flex flex-col gap-4">
-                    <div class="bg-blue-600/10 p-3 rounded-2xl w-fit"><img src="https://appexchange.salesforce.com/image_host/0f3dad29-4a38-468b-8fb9-cbabe4acb8f1.png" class="h-8 w-auto"></div>
-                    <h1 class="text-lg font-black leading-tight tracking-tighter">İhtilaflı Data<br><span class="text-blue-500">KPI Dashboard</span></h1>
+        <nav class="flex-1 px-3 py-6 space-y-1.5">
+            <a href="#" id="nav-uretim" onclick="showPage('uretim')" class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-blue-500/10 text-blue-500 font-bold border border-blue-500/20 transition-all shadow-sm text-sm">
+                <i class="fa-solid fa-chart-line"></i> Üretim Takip
+            </a>
+            <a href="#" id="nav-performans" onclick="showPage('performans')" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all text-sm">
+                <i class="fa-solid fa-gauge-high"></i> Performans
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all text-sm">
+                <i class="fa-solid fa-bullseye"></i> Goalpex
+            </a>
+        </nav>
+        <div class="p-5 border-t border-slate-100 dark:border-slate-800">
+            <div class="flex items-center justify-between mb-4 px-1">
+                <button onclick="toggleTheme()" class="text-slate-400 hover:text-blue-500 transition-colors"><i id="theme-icon" class="fa-solid fa-moon text-lg"></i></button>
+                <button onclick="handleLogout()" class="text-slate-400 hover:text-rose-500 transition-colors"><i class="fa-solid fa-right-from-bracket text-lg"></i></button>
+            </div>
+            <div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-850 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden">
+                <div id="userInitials" class="w-9 h-9 shrink-0 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-xs uppercase tracking-tighter">--</div>
+                <div class="truncate">
+                    <p id="userName" class="text-xs font-bold truncate tracking-tight">Kullanıcı</p>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Yönetici Paneli</p>
                 </div>
             </div>
-            <nav class="flex-1 px-4 py-8 space-y-2">
-                <a href="#" id="nav-uretim" onclick="showPage('uretim')" class="flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-blue-500/10 text-blue-500 font-bold border border-blue-500/20 transition-all shadow-sm">
-                    <i class="fa-solid fa-chart-line"></i> Üretim Takip
-                </a>
-                <a href="#" id="nav-performans" onclick="showPage('performans')" class="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all">
-                    <i class="fa-solid fa-gauge-high"></i> Performans
-                </a>
-                <a href="#" class="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all">
-                    <i class="fa-solid fa-bullseye"></i> Goalpex
-                </a>
-            </nav>
-            <div class="p-6 border-t border-slate-100 dark:border-slate-800">
-                <div class="flex items-center justify-between mb-6 px-2">
-                    <button onclick="toggleTheme()" class="text-slate-400 hover:text-blue-500 transition-colors"><i id="theme-icon" class="fa-solid fa-moon text-xl"></i></button>
-                    <button onclick="handleLogout()" class="text-slate-400 hover:text-rose-500 transition-colors"><i class="fa-solid fa-right-from-bracket text-xl"></i></button>
+        </div>
+    </aside>
+
+    <!-- ── ÜRETİM TAKİP ── -->
+    <main id="page-uretim" class="flex-1 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 min-w-0">
+        <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b px-6 py-5 z-20">
+            <div class="flex flex-col xl:flex-row items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-black tracking-tighter uppercase">Üretim Takip</h2>
+                    <p class="text-xs text-slate-400 font-medium">Operasyonel veriler ve gerçekleşme analizi.</p>
                 </div>
-                <div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-850 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden">
-                    <div id="userInitials" class="w-10 h-10 shrink-0 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-xs uppercase tracking-tighter">--</div>
-                    <div class="truncate">
-                        <p id="userName" class="text-sm font-bold truncate tracking-tight">Kullanıcı</p>
-                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Yönetici Paneli</p>
+                <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
+                    <div class="filter-container">
+                        <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2">
+                            <i class="fa-solid fa-calendar-day absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 text-xs"></i>
+                            <select id="periodFilter" onchange="fetchAndRender()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[160px]"></select>
+                        </div>
+                        <div class="relative">
+                            <i class="fa-solid fa-user-tie absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                            <select id="tlFilter" onchange="applyFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[140px]">
+                                <option value="all">Tüm Liderler</option>
+                            </select>
+                        </div>
                     </div>
+                    <div class="relative min-w-[220px]">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Hızlı Temsilci Ara..." class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-blue-500 outline-none shadow-sm transition-all">
+                    </div>
+                    <button onclick="exportToExcel()" class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-2xl shadow-lg transition-all uppercase tracking-widest">
+                        <i class="fa-solid fa-file-export"></i> Excel Export
+                    </button>
                 </div>
             </div>
-        </aside>
-
-        <!-- ── ÜRETİM TAKİP SAYFASI ── -->
-        <main id="page-uretim" class="flex-1 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950">
-            <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b p-8 z-20">
-                <div class="flex flex-col xl:flex-row items-center justify-between gap-6">
-                    <div>
-                        <h2 class="text-2xl font-black tracking-tighter uppercase">Üretim Takip</h2>
-                        <p class="text-sm text-slate-400 font-medium">Operasyonel veriler ve gerçekleşme analizi.</p>
+        </header>
+        <div class="flex-1 overflow-y-auto p-6 space-y-6">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="kpi-card bg-white dark:bg-slate-900 p-6 rounded-[2rem] shadow-sm">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="p-2.5 bg-blue-500/10 text-blue-500 rounded-xl"><i class="fa-solid fa-stopwatch"></i></div>
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">NET SAAT</span>
                     </div>
-                    <div class="flex flex-wrap items-center gap-4 w-full xl:w-auto">
-                        <div class="filter-container">
-                            <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2">
-                                <i class="fa-solid fa-calendar-day absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 text-xs"></i>
-                                <select id="periodFilter" onchange="fetchAndRender()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[180px]"></select>
-                            </div>
-                            <div class="relative">
-                                <i class="fa-solid fa-user-tie absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                                <select id="tlFilter" onchange="applyFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[160px]">
-                                    <option value="all">Tüm Liderler</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="relative min-w-[260px]">
-                            <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                            <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Hızlı Temsilci Ara..." class="w-full pl-11 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-blue-500 outline-none shadow-sm transition-all">
-                        </div>
-                        <button onclick="exportToExcel()" class="flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-2xl shadow-lg transition-all uppercase tracking-widest">
-                            <i class="fa-solid fa-file-export"></i> Excel Export
-                        </button>
-                    </div>
+                    <h3 id="kpi-cwt" class="text-3xl font-black tracking-tighter">0</h3>
+                    <p class="text-[10px] font-bold text-slate-400 mt-1.5 uppercase tracking-tight">Toplam Net Çalışma</p>
                 </div>
-            </header>
-            <div class="flex-1 overflow-y-auto p-8 space-y-8">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="kpi-card bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm">
-                        <div class="flex justify-between items-center mb-4">
-                            <div class="p-3 bg-blue-500/10 text-blue-500 rounded-2xl"><i class="fa-solid fa-stopwatch text-xl"></i></div>
-                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">NET SAAT</span>
-                        </div>
-                        <h3 id="kpi-cwt" class="text-4xl font-black tracking-tighter">0</h3>
-                        <p class="text-[11px] font-bold text-slate-400 mt-2 uppercase tracking-tight">Toplam Net Çalışma</p>
+                <div class="kpi-card bg-white dark:bg-slate-900 p-6 rounded-[2rem] shadow-sm">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="p-2.5 bg-purple-500/10 text-purple-500 rounded-xl"><i class="fa-solid fa-users"></i></div>
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">GÜNCEL</span>
                     </div>
-                    <div class="kpi-card bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm">
-                        <div class="flex justify-between items-center mb-4">
-                            <div class="p-3 bg-purple-500/10 text-purple-500 rounded-2xl"><i class="fa-solid fa-users text-xl"></i></div>
-                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">GÜNCEL</span>
-                        </div>
-                        <h3 id="kpi-fte" class="text-4xl font-black tracking-tighter">0,00</h3>
-                        <p class="text-[11px] font-bold text-slate-400 mt-2 uppercase tracking-tight">Kümülatif FTE</p>
-                    </div>
-                    <div class="kpi-card bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm">
-                        <div class="flex justify-between items-center mb-4">
-                            <div class="p-3 bg-amber-500/10 text-amber-500 rounded-2xl"><i class="fa-solid fa-mug-hot text-xl"></i></div>
-                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">GENEL</span>
-                        </div>
-                        <h3 id="kpi-break" class="text-4xl font-black tracking-tighter">0,00%</h3>
-                        <p class="text-[11px] font-bold text-slate-400 mt-2 uppercase tracking-tight">Mola Oranı</p>
-                    </div>
-                    <div class="kpi-card bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm">
-                        <div class="flex justify-between items-center mb-4">
-                            <div class="p-3 bg-rose-500/10 text-rose-500 rounded-2xl"><i class="fa-solid fa-hourglass-half text-xl"></i></div>
-                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">DAKİKA</span>
-                        </div>
-                        <h3 id="kpi-missing" class="text-4xl font-black tracking-tighter">0</h3>
-                        <p class="text-[11px] font-bold text-slate-400 mt-2 uppercase tracking-tight">Toplam Eksik Süre</p>
-                    </div>
+                    <h3 id="kpi-fte" class="text-3xl font-black tracking-tighter">0,00</h3>
+                    <p class="text-[10px] font-bold text-slate-400 mt-1.5 uppercase tracking-tight">Kümülatif FTE</p>
                 </div>
-                <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead class="bg-slate-50/50 dark:bg-slate-800/50 border-b font-black text-slate-400 uppercase tracking-widest text-[10px]">
-                                <tr>
-                                    <th class="px-8 py-6">Temsilci Bilgisi</th>
-                                    <th class="px-8 py-6">Yönetici</th>
-                                    <th class="px-8 py-6 text-center">FTE (Cap)</th>
-                                    <th class="px-8 py-6 text-center">Mola Oranı</th>
-                                    <th class="px-8 py-6 text-center">Eksik Süre</th>
-                                    <th class="px-8 py-6 text-right">Durum</th>
-                                </tr>
-                            </thead>
-                            <tbody id="dataTableBody" class="divide-y text-sm font-bold text-slate-700 dark:text-slate-300"></tbody>
-                        </table>
+                <div class="kpi-card bg-white dark:bg-slate-900 p-6 rounded-[2rem] shadow-sm">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="p-2.5 bg-amber-500/10 text-amber-500 rounded-xl"><i class="fa-solid fa-mug-hot"></i></div>
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">GENEL</span>
                     </div>
+                    <h3 id="kpi-break" class="text-3xl font-black tracking-tighter">0,00%</h3>
+                    <p class="text-[10px] font-bold text-slate-400 mt-1.5 uppercase tracking-tight">Mola Oranı</p>
+                </div>
+                <div class="kpi-card bg-white dark:bg-slate-900 p-6 rounded-[2rem] shadow-sm">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="p-2.5 bg-rose-500/10 text-rose-500 rounded-xl"><i class="fa-solid fa-hourglass-half"></i></div>
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">DAKİKA</span>
+                    </div>
+                    <h3 id="kpi-missing" class="text-3xl font-black tracking-tighter">0</h3>
+                    <p class="text-[10px] font-bold text-slate-400 mt-1.5 uppercase tracking-tight">Toplam Eksik Süre</p>
                 </div>
             </div>
-        </main>
-
-        <!-- ── PERFORMANS SAYFASI ── -->
-        <main id="page-performans" class="flex-1 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 hidden">
-            <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b p-8 z-20">
-                <div class="flex flex-col xl:flex-row items-center justify-between gap-6">
-                    <div>
-                        <h2 class="text-2xl font-black tracking-tighter uppercase">Performans</h2>
-                        <p class="text-sm text-slate-400 font-medium">Temsilci bazlı işlem performansı ve sıralama.</p>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <!-- Gün filtresi placeholder -->
-                        <div class="filter-container">
-                            <div class="relative">
-                                <i class="fa-solid fa-calendar-day absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 text-xs"></i>
-                                <select id="perfDateFilter" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[200px]">
-                                    <option value="demo">29 Mart 2026 (Demo)</option>
-                                    <option value="demo2">28 Mart 2026 (Demo)</option>
-                                    <option value="demo3">27 Mart 2026 (Demo)</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="px-4 py-2 bg-amber-500/10 border border-amber-500/20 rounded-xl">
-                            <span class="text-[10px] font-black text-amber-500 uppercase tracking-widest">⚡ Demo Verisi</span>
-                        </div>
-                    </div>
+            <div class="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50/50 dark:bg-slate-800/50 border-b font-black text-slate-400 uppercase tracking-widest text-[10px]">
+                            <tr>
+                                <th class="px-6 py-5">Temsilci Bilgisi</th>
+                                <th class="px-6 py-5">Yönetici</th>
+                                <th class="px-6 py-5 text-center">FTE (Cap)</th>
+                                <th class="px-6 py-5 text-center">Mola Oranı</th>
+                                <th class="px-6 py-5 text-center">Eksik Süre</th>
+                                <th class="px-6 py-5 text-right">Durum</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataTableBody" class="divide-y text-sm font-bold text-slate-700 dark:text-slate-300"></tbody>
+                    </table>
                 </div>
-            </header>
+            </div>
+        </div>
+    </main>
 
-            <div class="flex-1 overflow-y-auto p-8">
-                <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
-
-                    <!-- ── TOP 10 SIDEBAR ── -->
-                    <div class="xl:col-span-1">
-                        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-                            <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3">
-                                <div class="p-2 bg-amber-500/10 rounded-xl text-amber-500"><i class="fa-solid fa-trophy"></i></div>
-                                <div>
-                                    <h3 class="font-black tracking-tight">Top 10</h3>
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Performans Sıralaması</p>
-                                </div>
-                            </div>
-                            <div id="top10List" class="p-4 space-y-2"></div>
+    <!-- ── PERFORMANS SAYFASI ── -->
+    <main id="page-performans" class="flex-1 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 hidden min-w-0">
+        <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b px-6 py-5 z-20">
+            <div class="flex flex-col xl:flex-row items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-black tracking-tighter uppercase">Performans</h2>
+                    <p class="text-xs text-slate-400 font-medium">Temsilci bazlı işlem performansı ve sıralama.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="filter-container">
+                        <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2">
+                            <i class="fa-solid fa-calendar-day absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 text-xs"></i>
+                            <select id="perfPeriodFilter" onchange="fetchPerformans()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[150px]"></select>
                         </div>
-                    </div>
-
-                    <!-- ── ANA TABLO ── -->
-                    <div class="xl:col-span-2">
-                        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
-                            <div class="p-6 border-b border-slate-100 dark:border-slate-800">
-                                <h3 class="font-black tracking-tight">Temsilci Performans Detayı</h3>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Kümülatif Veriler</p>
-                            </div>
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-left">
-                                    <thead class="bg-slate-50/50 dark:bg-slate-800/50 border-b font-black text-slate-400 uppercase tracking-widest text-[10px]">
-                                        <tr>
-                                            <th class="px-6 py-5">Temsilci Bilgisi</th>
-                                            <th class="px-6 py-5 text-center">Havuz Ort.</th>
-                                            <th class="px-6 py-5 text-center">Gerçekleşen</th>
-                                            <th class="px-6 py-5 text-center">Performans %</th>
-                                            <th class="px-6 py-5 text-center">Ort. Uzaklık</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="perfTableBody" class="divide-y text-sm font-bold text-slate-700 dark:text-slate-300"></tbody>
-                                </table>
-                            </div>
+                        <div class="relative">
+                            <i class="fa-solid fa-calendar-check absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                            <select id="perfDateFilter" onchange="applyPerfFilter()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[170px]">
+                                <option value="all">Tümü (Kümülatif)</option>
+                            </select>
                         </div>
                     </div>
                 </div>
             </div>
-        </main>
-    </div>
+        </header>
 
-    <div id="loading-overlay" class="fixed inset-0 z-[110] bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center space-y-4 hidden">
-        <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-        <p class="text-blue-400 font-black tracking-widest animate-pulse uppercase text-xs">Veriler Eşitleniyor</p>
-    </div>
+        <div class="flex-1 overflow-y-auto p-6">
+            <div class="flex gap-6 h-full">
 
-    <script>
-        const SUPABASE_URL = 'https://xtikjrtxowjcpvbmsgxh.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0aWtqcnR4b3dqY3B2Ym1zZ3hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDYxMDUsImV4cCI6MjA4OTc4MjEwNX0.VWOBROBGR52E9gzxx-whsJZ0J8yBn_tPBb838dYxaHU';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                <!-- ── TOP 10 SIDEBAR ── -->
+                <div class="w-64 shrink-0">
+                    <div class="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden h-full flex flex-col">
+                        <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2.5">
+                            <div class="p-2 bg-amber-500/10 rounded-xl text-amber-500 text-sm"><i class="fa-solid fa-trophy"></i></div>
+                            <div>
+                                <h3 class="font-black tracking-tight text-sm">Top 10</h3>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Performans Sıralaması</p>
+                            </div>
+                        </div>
+                        <div id="top10List" class="p-3 space-y-1 overflow-y-auto flex-1"></div>
+                    </div>
+                </div>
 
-        let fullData   = [];
-        let rawUsers   = [];
-        let cwtAllData = [];
+                <!-- ── ANA TABLO ── -->
+                <div class="flex-1 min-w-0">
+                    <div class="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+                        <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+                            <h3 class="font-black tracking-tight text-sm">Temsilci Performans Detayı</h3>
+                            <p id="perfTableSubtitle" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Kümülatif Veriler</p>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-slate-50/50 dark:bg-slate-800/50 border-b font-black text-slate-400 uppercase tracking-widest text-[10px]">
+                                    <tr>
+                                        <th class="px-5 py-4">Temsilci Bilgisi</th>
+                                        <th class="px-5 py-4 text-center">Havuz Ort.</th>
+                                        <th class="px-5 py-4 text-center">Gerçekleşen</th>
+                                        <th class="px-5 py-4 text-center">Performans %</th>
+                                        <th class="px-5 py-4 text-center">Ort. Uzaklık</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="perfTableBody" class="divide-y text-sm font-bold text-slate-700 dark:text-slate-300"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
 
-        // ── Demo performans verisi ────────────────────────────────────
-        const demoPerf = [
-            { name: 'ayse.kaya',      pool_avg: 145, actual: 198, perf_pct: 136.6, distance: +53 },
-            { name: 'mehmet.demir',   pool_avg: 145, actual: 187, perf_pct: 128.9, distance: +42 },
-            { name: 'fatma.celik',    pool_avg: 145, actual: 176, perf_pct: 121.4, distance: +31 },
-            { name: 'ali.yilmaz',     pool_avg: 145, actual: 168, perf_pct: 115.9, distance: +23 },
-            { name: 'zeynep.arslan',  pool_avg: 145, actual: 159, perf_pct: 109.7, distance: +14 },
-            { name: 'can.ozturk',     pool_avg: 145, actual: 151, perf_pct: 104.1, distance:  +6 },
-            { name: 'elif.sahin',     pool_avg: 145, actual: 143, perf_pct:  98.6, distance:  -2 },
-            { name: 'burak.aksoy',    pool_avg: 145, actual: 134, perf_pct:  92.4, distance: -11 },
-            { name: 'selin.kurt',     pool_avg: 145, actual: 121, perf_pct:  83.4, distance: -24 },
-            { name: 'emre.polat',     pool_avg: 145, actual: 108, perf_pct:  74.5, distance: -37 },
-        ];
+<div id="loading-overlay" class="fixed inset-0 z-[110] bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center space-y-4 hidden">
+    <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+    <p class="text-blue-400 font-black tracking-widest animate-pulse uppercase text-xs">Veriler Eşitleniyor</p>
+</div>
 
-        // ── Sayfa yönetimi ────────────────────────────────────────────
-        function showPage(page) {
-            document.getElementById('page-uretim').classList.toggle('hidden', page !== 'uretim');
-            document.getElementById('page-performans').classList.toggle('hidden', page !== 'performans');
+<script>
+    const SUPABASE_URL = 'https://xtikjrtxowjcpvbmsgxh.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0aWtqcnR4b3dqY3B2Ym1zZ3hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDYxMDUsImV4cCI6MjA4OTc4MjEwNX0.VWOBROBGR52E9gzxx-whsJZ0J8yBn_tPBb838dYxaHU';
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-            const navUretim     = document.getElementById('nav-uretim');
-            const navPerformans = document.getElementById('nav-performans');
+    let fullData      = [];
+    let rawUsers      = [];
+    let cwtAllData    = [];
+    let perfAllData   = []; // tüm performance_data bu dönem için
 
-            if (page === 'uretim') {
-                navUretim.className     = 'flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-blue-500/10 text-blue-500 font-bold border border-blue-500/20 transition-all shadow-sm';
-                navPerformans.className = 'flex items-center gap-3 px-4 py-3.5 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all';
-            } else {
-                navPerformans.className = 'flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-blue-500/10 text-blue-500 font-bold border border-blue-500/20 transition-all shadow-sm';
-                navUretim.className     = 'flex items-center gap-3 px-4 py-3.5 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all';
-                renderPerformans();
-            }
+    // ── Format Helpers ────────────────────────────────────────────
+    const toTr = (val, dec = 0) => {
+        const num = parseFloat(val) || 0;
+        if (dec === 0) return Math.round(num).toLocaleString('tr-TR');
+        return num.toFixed(dec).replace('.', ',');
+    };
+
+    const formatPeriodText = (p) => {
+        if (!p || !p.includes('-')) return p;
+        const [y, m] = p.split('-');
+        const months = ["","Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
+        return `${months[parseInt(m)]} ${y}`;
+    };
+
+    const formatDateTR = (d) => {
+        if (!d) return d;
+        const [y, m, day] = d.split('-');
+        return `${day} ${["","Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"][parseInt(m)]} ${y}`;
+    };
+
+    // ── Tema ──────────────────────────────────────────────────────
+    function toggleTheme() {
+        const isDark = document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun text-lg' : 'fa-solid fa-moon text-lg';
+    }
+    function initTheme() {
+        const saved = localStorage.getItem('theme') || 'dark';
+        document.documentElement.classList.toggle('dark', saved === 'dark');
+        document.getElementById('theme-icon').className = saved === 'dark' ? 'fa-solid fa-sun text-lg' : 'fa-solid fa-moon text-lg';
+    }
+
+    // ── Sayfa geçişi ──────────────────────────────────────────────
+    function showPage(page) {
+        document.getElementById('page-uretim').classList.toggle('hidden', page !== 'uretim');
+        document.getElementById('page-performans').classList.toggle('hidden', page !== 'performans');
+        const navU = document.getElementById('nav-uretim');
+        const navP = document.getElementById('nav-performans');
+        const active   = 'flex items-center gap-3 px-4 py-3 rounded-2xl bg-blue-500/10 text-blue-500 font-bold border border-blue-500/20 transition-all shadow-sm text-sm';
+        const inactive = 'flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all text-sm';
+        navU.className = page === 'uretim'     ? active : inactive;
+        navP.className = page === 'performans' ? active : inactive;
+        if (page === 'performans') loadPerformans();
+    }
+
+    // ── Auth ──────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', async () => {
+        initTheme();
+        const { data: { session } } = await _supabase.auth.getSession();
+        if (session) showDashboard(session.user);
+    });
+
+    async function handleLogin(e) {
+        e.preventDefault();
+        const btn = document.getElementById('loginBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+        const { data, error } = await _supabase.auth.signInWithPassword({
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value
+        });
+        if (error) {
+            document.getElementById('loginError').classList.remove('hidden');
+            btn.disabled = false;
+            btn.innerText = 'Giriş Yap';
+        } else {
+            showDashboard(data.user);
         }
+    }
 
-        // ── Performans render ─────────────────────────────────────────
-        function renderPerformans() {
-            const sorted = [...demoPerf].sort((a, b) => b.perf_pct - a.perf_pct);
-            const maxActual = Math.max(...sorted.map(d => d.actual));
+    function handleLogout() { _supabase.auth.signOut().then(() => location.reload()); }
 
-            // Top 10 sidebar
-            const top10 = document.getElementById('top10List');
-            top10.innerHTML = '';
-            sorted.forEach((row, i) => {
-                const rank = i + 1;
-                let badgeClass = 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300';
-                if (rank === 1) badgeClass = 'rank-1 text-white';
-                if (rank === 2) badgeClass = 'rank-2 text-white';
-                if (rank === 3) badgeClass = 'rank-3 text-white';
+    function showDashboard(user) {
+        document.getElementById('loginPage').classList.add('hidden');
+        document.getElementById('mainDashboard').classList.remove('hidden');
+        const initials = user.email.split('@')[0].split('.').map(n => n[0]).join('');
+        document.getElementById('userInitials').innerText = initials;
+        document.getElementById('userName').innerText = user.email.split('@')[0].replace('.', ' ');
+        loadPeriods();
+    }
 
-                const pctColor = row.perf_pct >= 100 ? 'text-emerald-500' : 'text-rose-500';
+    // ════════════════════════════════════════════════════════════════
+    // ÜRETİM TAKİP
+    // ════════════════════════════════════════════════════════════════
+    async function loadPeriods() {
+        const { data } = await _supabase.from('period_summary').select('period').order('period', { ascending: false }).limit(10000);
+        const unique = [...new Set((data || []).map(d => d.period))];
+        const sel = document.getElementById('periodFilter');
+        sel.innerHTML = unique.map(p => `<option value="${p}">${formatPeriodText(p)}</option>`).join('');
+        fetchAndRender();
+    }
 
-                top10.innerHTML += `
-                    <div class="perf-row flex items-center gap-3 p-3 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all" style="animation-delay:${i * 0.05}s">
-                        <div class="rank-badge w-8 h-8 shrink-0 rounded-xl flex items-center justify-center text-xs font-black ${badgeClass}">${rank}</div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-bold truncate">${row.name}</p>
-                            <div class="mt-1 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                <div class="bar-fill h-full rounded-full ${row.perf_pct >= 100 ? 'bg-emerald-500' : 'bg-rose-400'}" style="width:${Math.min((row.actual / maxActual) * 100, 100)}%"></div>
-                            </div>
-                        </div>
-                        <span class="text-xs font-black ${pctColor} shrink-0">%${row.perf_pct.toFixed(1)}</span>
-                    </div>`;
+    async function fetchAndRender() {
+        toggleLoading(true);
+        const period = document.getElementById('periodFilter').value;
+        try {
+            const cwtFetch = fetch(
+                `${SUPABASE_URL}/rest/v1/cwt_data?period=eq.${encodeURIComponent(period)}&select=user_name,cwt`,
+                { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+            ).then(r => r.json());
+
+            const [dailyRes, summaryRes, userRes, cwtData] = await Promise.all([
+                _supabase.from('daily_data').select('*').eq('period', period).limit(10000),
+                _supabase.from('period_summary').select('*').eq('period', period).limit(10000),
+                _supabase.from('users').select('*').limit(10000),
+                cwtFetch
+            ]);
+
+            rawUsers   = userRes.data || [];
+            cwtAllData = Array.isArray(cwtData) ? cwtData : [];
+
+            fullData = (summaryRes.data || []).map(summary => {
+                const normName  = summary.user_name?.toLowerCase().trim();
+                const userMeta  = rawUsers.find(u => u.user_name?.toLowerCase().trim() === normName) || {};
+                const dailyRows = (dailyRes.data || []).filter(d => d.user_name?.toLowerCase().trim() === normName);
+                const cwtRows   = cwtAllData.filter(d => d.user_name?.toLowerCase().trim() === normName);
+                return {
+                    ...summary,
+                    team_leader   : userMeta.team_leader || '-',
+                    reg_number    : userMeta.register_number || '-',
+                    total_login   : dailyRows.reduce((s, d) => s + (parseFloat(d.login) || 0), 0),
+                    total_break   : dailyRows.reduce((s, d) => s + (parseFloat(d.break_total) || 0), 0),
+                    total_cwt_min : cwtRows.reduce((s, d) => s + (parseFloat(d.cwt) || 0), 0),
+                    capped_fte    : Math.min(1.0, parseFloat(summary.fte) || 0)
+                };
             });
 
-            // Ana tablo
-            const tbody = document.getElementById('perfTableBody');
-            tbody.innerHTML = '';
-            sorted.forEach((row, i) => {
-                const pctColor  = row.perf_pct >= 100 ? 'text-emerald-500' : 'text-rose-500';
-                const distColor = row.distance >= 0 ? 'text-emerald-500' : 'text-rose-500';
-                const distSign  = row.distance >= 0 ? '+' : '';
+            const tls = [...new Set(fullData.map(d => d.team_leader))].sort();
+            document.getElementById('tlFilter').innerHTML = '<option value="all">Tüm Liderler</option>' + tls.map(t => `<option value="${t}">${t}</option>`).join('');
+            applyFilters();
+        } catch (err) {
+            console.error("Fetch Error:", err);
+        } finally {
+            toggleLoading(false);
+        }
+    }
 
-                tbody.innerHTML += `
-                    <tr class="perf-row hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all" style="animation-delay:${i * 0.04}s">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600 font-black text-[10px]">${row.name[0].toUpperCase()}</div>
-                                <span class="font-bold truncate">${row.name}</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-center text-slate-500 font-medium">${row.pool_avg}</td>
-                        <td class="px-6 py-4 text-center font-black text-slate-800 dark:text-white">${row.actual}</td>
-                        <td class="px-6 py-4 text-center font-black ${pctColor}">%${row.perf_pct.toFixed(1)}</td>
-                        <td class="px-6 py-4 text-center font-black ${distColor}">${distSign}${row.distance}</td>
-                    </tr>`;
-            });
+    function applyFilters() {
+        const tl     = document.getElementById('tlFilter').value;
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = fullData.filter(d => (tl === 'all' || d.team_leader === tl) && d.user_name.toLowerCase().includes(search));
+
+        const filteredNames = new Set(filtered.map(d => d.user_name?.toLowerCase().trim()));
+        const cwtFiltered   = (tl === 'all' && search === '') ? cwtAllData : cwtAllData.filter(d => filteredNames.has(d.user_name?.toLowerCase().trim()));
+        const totalCwtHrs   = cwtFiltered.reduce((s, d) => s + (parseFloat(d.cwt) || 0), 0) / 60;
+        const totalFteCap   = filtered.reduce((s, d) => s + d.capped_fte, 0);
+        const sumL          = filtered.reduce((s, d) => s + d.total_login, 0);
+        const sumB          = filtered.reduce((s, d) => s + d.total_break, 0);
+        const breakRate     = sumL > 0 ? (sumB / sumL) * 100 : 0;
+        const totalMissing  = filtered.reduce((s, d) => s + (parseFloat(d.missing_time) || 0), 0);
+
+        document.getElementById('kpi-cwt').innerText     = toTr(totalCwtHrs);
+        document.getElementById('kpi-fte').innerText     = toTr(totalFteCap, 2);
+        document.getElementById('kpi-break').innerText   = toTr(breakRate, 2) + '%';
+        document.getElementById('kpi-missing').innerText = toTr(totalMissing);
+
+        const tbody = document.getElementById('dataTableBody');
+        tbody.innerHTML = '';
+        filtered.sort((a, b) => b.fte - a.fte).forEach(row => {
+            const m  = Math.round(parseFloat(row.missing_time) || 0);
+            const bR = (parseFloat(row.break_rate) || 0) * 100;
+            let sC = 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20', sT = 'HEDEFTE';
+            if (m > 60 || row.capped_fte < 0.85) { sC = 'text-rose-500 bg-rose-500/10 border-rose-500/20'; sT = 'KRİTİK'; }
+            else if (m > 0) { sC = 'text-amber-500 bg-amber-500/10 border-amber-500/20'; sT = 'TAKİPTE'; }
+            tbody.innerHTML += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all">
+                <td class="px-6 py-4 flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600 font-black text-[10px]">${row.user_name[0]}</div>
+                    <span class="tracking-tight truncate text-sm">${row.user_name}</span>
+                </td>
+                <td class="px-6 py-4 text-slate-400 font-medium text-sm">${row.team_leader}</td>
+                <td class="px-6 py-4 text-center font-black text-sm">${toTr(row.capped_fte, 2)}</td>
+                <td class="px-6 py-4 text-center text-slate-500 font-medium text-sm">${toTr(bR, 2)}%</td>
+                <td class="px-6 py-4 text-center ${m > 0 ? 'text-rose-500' : 'text-emerald-500'} font-black text-sm">${toTr(m)} dk</td>
+                <td class="px-6 py-4 text-right"><span class="px-3 py-1.5 rounded-lg border text-[10px] font-black tracking-widest ${sC}">${sT}</span></td>
+            </tr>`;
+        });
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    // PERFORMANS SAYFASI
+    // ════════════════════════════════════════════════════════════════
+    async function loadPerformans() {
+        // Dönem listesini performance_data'dan çek
+        const { data } = await _supabase.from('performance_data').select('period').order('period', { ascending: false }).limit(10000);
+        const unique = [...new Set((data || []).map(d => d.period))];
+        const sel = document.getElementById('perfPeriodFilter');
+        sel.innerHTML = unique.map(p => `<option value="${p}">${formatPeriodText(p)}</option>`).join('');
+        if (unique.length > 0) fetchPerformans();
+    }
+
+    async function fetchPerformans() {
+        toggleLoading(true);
+        const period = document.getElementById('perfPeriodFilter').value;
+        try {
+            const { data } = await _supabase
+                .from('performance_data')
+                .select('*')
+                .eq('period', period)
+                .limit(10000);
+
+            perfAllData = data || [];
+
+            // Gün filtresi — kümülatif satırları (period-01) hariç tut
+            const dailyDates = [...new Set(
+                perfAllData
+                    .map(d => d.date)
+                    .filter(d => d && !d.endsWith('-01'))
+            )].sort((a, b) => b.localeCompare(a));
+
+            const dateSel = document.getElementById('perfDateFilter');
+            dateSel.innerHTML = '<option value="all">Tümü (Kümülatif)</option>' +
+                dailyDates.map(d => `<option value="${d}">${formatDateTR(d)}</option>`).join('');
+
+            applyPerfFilter();
+        } catch (err) {
+            console.error("Perf Fetch Error:", err);
+        } finally {
+            toggleLoading(false);
+        }
+    }
+
+    function applyPerfFilter() {
+        const selectedDate = document.getElementById('perfDateFilter').value;
+        let filtered;
+
+        if (selectedDate === 'all') {
+            // Kümülatif: period-01 tarihli satırlar
+            filtered = perfAllData.filter(d => d.date && d.date.endsWith('-01'));
+            document.getElementById('perfTableSubtitle').innerText = 'Kümülatif Veriler';
+        } else {
+            // Seçilen güne ait satırlar
+            filtered = perfAllData.filter(d => d.date === selectedDate);
+            document.getElementById('perfTableSubtitle').innerText = formatDateTR(selectedDate) + ' Verileri';
         }
 
-        // ── Format Helper ─────────────────────────────────────────────
-        const toTr = (val, dec = 0) => {
-            const num = parseFloat(val) || 0;
-            if (dec === 0) return Math.round(num).toLocaleString('tr-TR');
-            return num.toFixed(dec).replace('.', ',');
-        };
+        renderPerfTables(filtered);
+    }
 
-        const formatPeriodText = (p) => {
-            if (!p || !p.includes('-')) return p;
-            const [y, m] = p.split('-');
-            const months = ["","Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
-            return `${months[parseInt(m)]} ${y}`;
-        };
+    function renderPerfTables(data) {
+        const sorted    = [...data].sort((a, b) => (parseFloat(b.performance_pct) || 0) - (parseFloat(a.performance_pct) || 0));
+        const top10     = sorted.slice(0, 10);
+        const maxActual = Math.max(...sorted.map(d => parseFloat(d.transaction_count) || 0), 1);
 
-        function toggleTheme() {
-            const isDark = document.documentElement.classList.toggle('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun text-xl' : 'fa-solid fa-moon text-xl';
-        }
-
-        function initTheme() {
-            const saved = localStorage.getItem('theme') || 'dark';
-            document.documentElement.classList.toggle('dark', saved === 'dark');
-            document.getElementById('theme-icon').className = saved === 'dark' ? 'fa-solid fa-sun text-xl' : 'fa-solid fa-moon text-xl';
-        }
-
-        document.addEventListener('DOMContentLoaded', async () => {
-            initTheme();
-            const { data: { session } } = await _supabase.auth.getSession();
-            if (session) showDashboard(session.user);
+        // Top 10 sidebar
+        const top10El = document.getElementById('top10List');
+        top10El.innerHTML = '';
+        top10.forEach((row, i) => {
+            const rank    = i + 1;
+            const pct     = parseFloat(row.performance_pct) || 0;
+            const actual  = parseFloat(row.transaction_count) || 0;
+            let badgeClass = 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300';
+            if (rank === 1) badgeClass = 'rank-1 text-white';
+            if (rank === 2) badgeClass = 'rank-2 text-white';
+            if (rank === 3) badgeClass = 'rank-3 text-white';
+            const pctColor = pct >= 100 ? 'text-emerald-500' : 'text-rose-500';
+            top10El.innerHTML += `
+                <div class="perf-row flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all" style="animation-delay:${i*0.05}s">
+                    <div class="w-7 h-7 shrink-0 rounded-lg flex items-center justify-center text-xs font-black ${badgeClass}">${rank}</div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-bold truncate">${row.user_name}</p>
+                        <div class="mt-1 h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                            <div class="bar-fill h-full rounded-full ${pct >= 100 ? 'bg-emerald-500' : 'bg-rose-400'}" style="width:${Math.min((actual/maxActual)*100,100)}%"></div>
+                        </div>
+                    </div>
+                    <span class="text-[11px] font-black ${pctColor} shrink-0">%${pct.toFixed(1)}</span>
+                </div>`;
         });
 
-        async function handleLogin(e) {
-            e.preventDefault();
-            const btn = document.getElementById('loginBtn');
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
-            const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
-            if (error) {
-                document.getElementById('loginError').classList.remove('hidden');
-                btn.disabled = false;
-                btn.innerText = 'Giriş Yap';
-            } else {
-                showDashboard(data.user);
-            }
-        }
-
-        function handleLogout() {
-            _supabase.auth.signOut().then(() => location.reload());
-        }
-
-        function showDashboard(user) {
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('mainDashboard').classList.remove('hidden');
-            const initials = user.email.split('@')[0].split('.').map(n => n[0]).join('');
-            document.getElementById('userInitials').innerText = initials;
-            document.getElementById('userName').innerText = user.email.split('@')[0].replace('.', ' ');
-            loadPeriods();
-        }
-
-        async function loadPeriods() {
-            const { data } = await _supabase.from('period_summary').select('period').order('period', { ascending: false }).limit(10000);
-            const unique = [...new Set((data || []).map(d => d.period))];
-            const sel = document.getElementById('periodFilter');
-            sel.innerHTML = unique.map(p => `<option value="${p}">${formatPeriodText(p)}</option>`).join('');
-            fetchAndRender();
-        }
-
-        async function fetchAndRender() {
-            toggleLoading(true);
-            const period = document.getElementById('periodFilter').value;
-            try {
-                const cwtFetch = fetch(
-                    `${SUPABASE_URL}/rest/v1/cwt_data?period=eq.${encodeURIComponent(period)}&select=user_name,cwt`,
-                    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
-                ).then(r => r.json());
-
-                const [dailyRes, summaryRes, userRes, cwtData] = await Promise.all([
-                    _supabase.from('daily_data').select('*').eq('period', period).limit(10000),
-                    _supabase.from('period_summary').select('*').eq('period', period).limit(10000),
-                    _supabase.from('users').select('*').limit(10000),
-                    cwtFetch
-                ]);
-
-                rawUsers   = userRes.data || [];
-                cwtAllData = Array.isArray(cwtData) ? cwtData : [];
-
-                fullData = (summaryRes.data || []).map(summary => {
-                    const normName  = summary.user_name?.toLowerCase().trim();
-                    const userMeta  = rawUsers.find(u => u.user_name?.toLowerCase().trim() === normName) || {};
-                    const dailyRows = (dailyRes.data || []).filter(d => d.user_name?.toLowerCase().trim() === normName);
-                    const cwtRows   = cwtAllData.filter(d => d.user_name?.toLowerCase().trim() === normName);
-
-                    const calcCwt   = cwtRows.reduce((s, d) => s + (parseFloat(d.cwt) || 0), 0);
-                    const calcLogin = dailyRows.reduce((s, d) => s + (parseFloat(d.login) || 0), 0);
-                    const calcBreak = dailyRows.reduce((s, d) => s + (parseFloat(d.break_total) || 0), 0);
-
-                    return {
-                        ...summary,
-                        team_leader   : userMeta.team_leader || '-',
-                        reg_number    : userMeta.register_number || '-',
-                        total_login   : calcLogin,
-                        total_break   : calcBreak,
-                        total_cwt_min : calcCwt,
-                        capped_fte    : Math.min(1.0, parseFloat(summary.fte) || 0)
-                    };
-                });
-
-                const tls = [...new Set(fullData.map(d => d.team_leader))].sort();
-                document.getElementById('tlFilter').innerHTML = '<option value="all">Tüm Liderler</option>' + tls.map(t => `<option value="${t}">${t}</option>`).join('');
-
-                applyFilters();
-            } catch (err) {
-                console.error("Fetch Error:", err);
-            } finally {
-                toggleLoading(false);
-            }
-        }
-
-        function applyFilters() {
-            const tl     = document.getElementById('tlFilter').value;
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = fullData.filter(d => (tl === 'all' || d.team_leader === tl) && d.user_name.toLowerCase().includes(search));
-
-            const filteredNames = new Set(filtered.map(d => d.user_name?.toLowerCase().trim()));
-            const cwtFiltered   = (tl === 'all' && search === '')
-                ? cwtAllData
-                : cwtAllData.filter(d => filteredNames.has(d.user_name?.toLowerCase().trim()));
-            const totalCwtHrs = cwtFiltered.reduce((s, d) => s + (parseFloat(d.cwt) || 0), 0) / 60;
-
-            const totalFteCap  = filtered.reduce((s, d) => s + d.capped_fte, 0);
-            const sumL         = filtered.reduce((s, d) => s + d.total_login, 0);
-            const sumB         = filtered.reduce((s, d) => s + d.total_break, 0);
-            const breakRate    = sumL > 0 ? (sumB / sumL) * 100 : 0;
-            const totalMissing = filtered.reduce((s, d) => s + (parseFloat(d.missing_time) || 0), 0);
-
-            document.getElementById('kpi-cwt').innerText     = toTr(totalCwtHrs);
-            document.getElementById('kpi-fte').innerText     = toTr(totalFteCap, 2);
-            document.getElementById('kpi-break').innerText   = toTr(breakRate, 2) + '%';
-            document.getElementById('kpi-missing').innerText = toTr(totalMissing);
-
-            const tbody = document.getElementById('dataTableBody');
-            tbody.innerHTML = '';
-            filtered.sort((a, b) => b.fte - a.fte).forEach(row => {
-                const m  = Math.round(parseFloat(row.missing_time) || 0);
-                const bR = (parseFloat(row.break_rate) || 0) * 100;
-                let sC = 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20';
-                let sT = 'HEDEFTE';
-                if (m > 60 || row.capped_fte < 0.85) { sC = 'text-rose-500 bg-rose-500/10 border-rose-500/20'; sT = 'KRİTİK'; }
-                else if (m > 0) { sC = 'text-amber-500 bg-amber-500/10 border-amber-500/20'; sT = 'TAKİPTE'; }
-
-                tbody.innerHTML += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all">
-                    <td class="px-8 py-5 flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600 font-black text-[10px]">${row.user_name[0]}</div>
-                        <span class="tracking-tight truncate">${row.user_name}</span>
+        // Ana tablo
+        const tbody = document.getElementById('perfTableBody');
+        tbody.innerHTML = '';
+        sorted.forEach((row, i) => {
+            const pct      = parseFloat(row.performance_pct) || 0;
+            const actual   = parseFloat(row.transaction_count) || 0;
+            const avg      = parseFloat(row.pool_average) || 0;
+            const distance = actual - avg;
+            const pctColor  = pct >= 100 ? 'text-emerald-500' : 'text-rose-500';
+            const distColor = distance >= 0 ? 'text-emerald-500' : 'text-rose-500';
+            const distSign  = distance >= 0 ? '+' : '';
+            tbody.innerHTML += `
+                <tr class="perf-row hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all" style="animation-delay:${i*0.03}s">
+                    <td class="px-5 py-3.5">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600 font-black text-[10px]">${row.user_name[0].toUpperCase()}</div>
+                            <span class="font-bold text-sm truncate">${row.user_name}</span>
+                        </div>
                     </td>
-                    <td class="px-8 py-5 text-slate-400 font-medium">${row.team_leader}</td>
-                    <td class="px-8 py-5 text-center font-black">${toTr(row.capped_fte, 2)}</td>
-                    <td class="px-8 py-5 text-center text-slate-500 font-medium">${toTr(bR, 2)}%</td>
-                    <td class="px-8 py-5 text-center ${m > 0 ? 'text-rose-500' : 'text-emerald-500'} font-black">${toTr(m)} dk</td>
-                    <td class="px-8 py-5 text-right"><span class="px-3 py-1.5 rounded-lg border text-[10px] font-black tracking-widest ${sC}">${sT}</span></td>
+                    <td class="px-5 py-3.5 text-center text-slate-500 font-medium text-sm">${avg > 0 ? avg.toFixed(0) : '-'}</td>
+                    <td class="px-5 py-3.5 text-center font-black text-sm">${actual > 0 ? actual : '-'}</td>
+                    <td class="px-5 py-3.5 text-center font-black text-sm ${pctColor}">%${pct.toFixed(1)}</td>
+                    <td class="px-5 py-3.5 text-center font-black text-sm ${distColor}">${avg > 0 ? distSign + distance.toFixed(0) : '-'}</td>
                 </tr>`;
-            });
+        });
+
+        if (sorted.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="px-5 py-12 text-center text-slate-400 font-bold text-sm">Bu dönem için veri bulunamadı.</td></tr>`;
+            top10El.innerHTML = `<p class="p-4 text-center text-slate-400 text-xs font-bold">Veri yok</p>`;
         }
+    }
 
-        function exportToExcel() {
-            const tl     = document.getElementById('tlFilter').value;
-            const search = document.getElementById('searchInput').value.toLowerCase();
+    // ════════════════════════════════════════════════════════════════
+    // EXCEL EXPORT
+    // ════════════════════════════════════════════════════════════════
+    function exportToExcel() {
+        const tl     = document.getElementById('tlFilter').value;
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const rows   = fullData
+            .filter(d => (tl === 'all' || d.team_leader === tl) && d.user_name.toLowerCase().includes(search))
+            .map(d => ({
+                "Sicil No"          : d.reg_number,
+                "Temsilci Adı"      : d.user_name,
+                "Takım Lideri"      : d.team_leader,
+                "Login Süresi (Dk)" : parseFloat(d.total_login)   || 0,
+                "Mola Süresi (Dk)"  : parseFloat(d.total_break)   || 0,
+                "Net Login (Dk)"    : parseFloat(d.total_cwt_min) || 0,
+                "Mola Oranı"        : parseFloat(d.break_rate)    || 0,
+                "Eksik Süre (Dk)"   : parseFloat(d.missing_time)  || 0,
+                "Ham FTE"           : parseFloat(d.fte)           || 0,
+                "Capped FTE"        : parseFloat(d.capped_fte)    || 0
+            }));
 
-            const rows = fullData
-                .filter(d => (tl === 'all' || d.team_leader === tl) && d.user_name.toLowerCase().includes(search))
-                .map(d => ({
-                    "Sicil No"          : d.reg_number,
-                    "Temsilci Adı"      : d.user_name,
-                    "Takım Lideri"      : d.team_leader,
-                    "Login Süresi (Dk)" : parseFloat(d.total_login)   || 0,
-                    "Mola Süresi (Dk)"  : parseFloat(d.total_break)   || 0,
-                    "Net Login (Dk)"    : parseFloat(d.total_cwt_min) || 0,
-                    "Mola Oranı"        : parseFloat(d.break_rate)    || 0,
-                    "Eksik Süre (Dk)"   : parseFloat(d.missing_time)  || 0,
-                    "Ham FTE"           : parseFloat(d.fte)           || 0,
-                    "Capped FTE"        : parseFloat(d.capped_fte)    || 0
-                }));
+        const sumL = rows.reduce((s, r) => s + r["Login Süresi (Dk)"], 0);
+        const sumB = rows.reduce((s, r) => s + r["Mola Süresi (Dk)"], 0);
+        rows.push({
+            "Sicil No": "GENEL TOPLAM", "Temsilci Adı": "", "Takım Lideri": "",
+            "Login Süresi (Dk)" : sumL,
+            "Mola Süresi (Dk)"  : sumB,
+            "Net Login (Dk)"    : rows.reduce((s, r) => s + r["Net Login (Dk)"], 0),
+            "Mola Oranı"        : sumL > 0 ? (sumB / sumL) : 0,
+            "Eksik Süre (Dk)"   : rows.reduce((s, r) => s + r["Eksik Süre (Dk)"], 0),
+            "Ham FTE"           : rows.reduce((s, r) => s + r["Ham FTE"], 0),
+            "Capped FTE"        : rows.reduce((s, r) => s + r["Capped FTE"], 0)
+        });
 
-            const sumL   = rows.reduce((s, r) => s + r["Login Süresi (Dk)"], 0);
-            const sumB   = rows.reduce((s, r) => s + r["Mola Süresi (Dk)"], 0);
-            const sumCwt = rows.reduce((s, r) => s + r["Net Login (Dk)"], 0);
-
-            rows.push({
-                "Sicil No"          : "GENEL TOPLAM",
-                "Temsilci Adı"      : "", "Takım Lideri": "",
-                "Login Süresi (Dk)" : sumL,
-                "Mola Süresi (Dk)"  : sumB,
-                "Net Login (Dk)"    : sumCwt,
-                "Mola Oranı"        : sumL > 0 ? (sumB / sumL) : 0,
-                "Eksik Süre (Dk)"   : rows.reduce((s, r) => s + r["Eksik Süre (Dk)"], 0),
-                "Ham FTE"           : rows.reduce((s, r) => s + r["Ham FTE"], 0),
-                "Capped FTE"        : rows.reduce((s, r) => s + r["Capped FTE"], 0)
-            });
-
-            const ws    = XLSX.utils.json_to_sheet(rows);
-            const range = XLSX.utils.decode_range(ws['!ref']);
-
-            for (let R = range.s.r + 1; R <= range.e.r; ++R) {
-                [3, 4, 5].forEach(C => {
-                    const c = XLSX.utils.encode_cell({ r: R, c: C });
-                    if (ws[c]) { ws[c].t = 'n'; ws[c].z = '0'; }
-                });
-                const eksikC = XLSX.utils.encode_cell({ r: R, c: 7 });
-                if (ws[eksikC]) { ws[eksikC].t = 'n'; ws[eksikC].z = '0'; }
-                const brC = XLSX.utils.encode_cell({ r: R, c: 6 });
-                if (ws[brC]) { ws[brC].t = 'n'; ws[brC].z = '0.00%'; }
-                [8, 9].forEach(C => {
-                    const c = XLSX.utils.encode_cell({ r: R, c: C });
-                    if (ws[c]) { ws[c].t = 'n'; ws[c].z = '0.00'; }
-                });
-            }
-
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "KPI Raporu");
-            XLSX.writeFile(wb, `Ihtilafli_KPI_${document.getElementById('periodFilter').value}.xlsx`);
+        const ws    = XLSX.utils.json_to_sheet(rows);
+        const range = XLSX.utils.decode_range(ws['!ref']);
+        for (let R = range.s.r + 1; R <= range.e.r; ++R) {
+            [3,4,5].forEach(C => { const c = XLSX.utils.encode_cell({r:R,c:C}); if(ws[c]){ws[c].t='n';ws[c].z='0';} });
+            const eksikC = XLSX.utils.encode_cell({r:R,c:7}); if(ws[eksikC]){ws[eksikC].t='n';ws[eksikC].z='0';}
+            const brC    = XLSX.utils.encode_cell({r:R,c:6}); if(ws[brC]){ws[brC].t='n';ws[brC].z='0.00%';}
+            [8,9].forEach(C => { const c = XLSX.utils.encode_cell({r:R,c:C}); if(ws[c]){ws[c].t='n';ws[c].z='0.00';} });
         }
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "KPI Raporu");
+        XLSX.writeFile(wb, `Ihtilafli_KPI_${document.getElementById('periodFilter').value}.xlsx`);
+    }
 
-        function toggleLoading(s) { document.getElementById('loading-overlay').classList.toggle('hidden', !s); }
-    </script>
+    function toggleLoading(s) { document.getElementById('loading-overlay').classList.toggle('hidden', !s); }
+</script>
 </body>
 </html>
