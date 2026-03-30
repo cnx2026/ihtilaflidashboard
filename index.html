@@ -40,6 +40,21 @@
         .rank-1 { background: linear-gradient(135deg,#fbbf24,#f59e0b); box-shadow: 0 0 16px rgba(251,191,36,0.4); }
         .rank-2 { background: linear-gradient(135deg,#94a3b8,#64748b); }
         .rank-3 { background: linear-gradient(135deg,#cd7c2f,#a16207); }
+        /* Export dropdown */
+        .export-dropdown { position: relative; display: inline-block; }
+        .export-menu { display: none; position: absolute; right: 0; top: calc(100% + 6px); z-index: 50;
+            background: white; border: 1px solid #e2e8f0; border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15); min-width: 180px; overflow: hidden; }
+        .dark .export-menu { background: #0f172a; border-color: #1e293b; }
+        .export-menu.open { display: block; }
+        .export-menu button { display: flex; align-items: center; gap: 8px; width: 100%;
+            padding: 10px 16px; font-size: 12px; font-weight: 800; text-align: left;
+            text-transform: uppercase; letter-spacing: 0.05em; transition: background 0.15s; }
+        .export-menu button:hover { background: #f1f5f9; }
+        .dark .export-menu button:hover { background: #1e293b; }
+        /* Özel export multi-select */
+        .day-checkbox { display: flex; align-items: center; gap: 8px; padding: 4px 0; cursor: pointer; font-size: 13px; font-weight: 600; }
+        .day-checkbox input { accent-color: #3b82f6; width: 14px; height: 14px; cursor: pointer; }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen overflow-hidden transition-colors duration-500">
@@ -201,7 +216,8 @@
                     <h2 class="text-xl font-black tracking-tighter uppercase">Performans</h2>
                     <p class="text-xs text-slate-400 font-medium">Temsilci bazlı işlem performansı ve sıralama.</p>
                 </div>
-                <div class="flex items-center gap-3">
+                <div class="flex flex-wrap items-center gap-3">
+                    <!-- Filtreler -->
                     <div class="filter-container">
                         <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2">
                             <i class="fa-solid fa-calendar-day absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 text-xs"></i>
@@ -212,6 +228,28 @@
                             <select id="perfDateFilter" onchange="applyPerfFilter()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[170px]">
                                 <option value="all">Tümü (Kümülatif)</option>
                             </select>
+                        </div>
+                    </div>
+                    <!-- Temsilci arama -->
+                    <div class="relative min-w-[200px]">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="perfSearchInput" onkeyup="applyPerfFilter()" placeholder="Temsilci Ara..." class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-blue-500 outline-none shadow-sm transition-all">
+                    </div>
+                    <!-- Excel Export dropdown -->
+                    <div class="export-dropdown" id="perfExportDropdown">
+                        <button onclick="toggleExportMenu()" class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-2xl shadow-lg transition-all uppercase tracking-widest">
+                            <i class="fa-solid fa-file-export"></i> Excel Export <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                        </button>
+                        <div class="export-menu" id="perfExportMenu">
+                            <button onclick="exportPerfKumulatif()">
+                                <i class="fa-solid fa-layer-group text-purple-500"></i> Kümülatif
+                            </button>
+                            <button onclick="exportPerfGunluk()">
+                                <i class="fa-solid fa-calendar-days text-blue-500"></i> Günlük (Tüm)
+                            </button>
+                            <button onclick="openOzelModal()">
+                                <i class="fa-solid fa-sliders text-amber-500"></i> Özel
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -262,6 +300,49 @@
     </main>
 </div>
 
+<!-- ── ÖZEL EXPORT MODAL ── -->
+<div id="ozelModal" class="fixed inset-0 z-[120] hidden items-center justify-center bg-slate-950/70 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-lg p-8 mx-4">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h3 class="font-black text-lg tracking-tight">Özel Export</h3>
+                <p class="text-xs text-slate-400 font-medium mt-0.5">Temsilci ve gün seçimi yapın</p>
+            </div>
+            <button onclick="closeOzelModal()" class="text-slate-400 hover:text-rose-500 transition-colors text-xl"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <!-- Temsilci seçimi -->
+        <div class="mb-5">
+            <label class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Temsilciler</label>
+            <div class="flex gap-2 mb-2">
+                <button onclick="selectAllUsers(true)" class="text-xs font-bold text-blue-500 hover:underline">Tümünü Seç</button>
+                <span class="text-slate-300">|</span>
+                <button onclick="selectAllUsers(false)" class="text-xs font-bold text-slate-400 hover:underline">Temizle</button>
+            </div>
+            <div class="relative mb-2">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input type="text" id="modalUserSearch" oninput="filterModalUsers()" placeholder="Temsilci ara..." class="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div id="modalUserList" class="max-h-36 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl p-3 space-y-1 bg-slate-50 dark:bg-slate-800/50"></div>
+        </div>
+
+        <!-- Gün seçimi -->
+        <div class="mb-6">
+            <label class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Günler</label>
+            <div class="flex gap-2 mb-2">
+                <button onclick="selectAllDays(true)" class="text-xs font-bold text-blue-500 hover:underline">Tümünü Seç</button>
+                <span class="text-slate-300">|</span>
+                <button onclick="selectAllDays(false)" class="text-xs font-bold text-slate-400 hover:underline">Temizle</button>
+            </div>
+            <div id="modalDayList" class="max-h-36 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl p-3 grid grid-cols-3 gap-1 bg-slate-50 dark:bg-slate-800/50"></div>
+        </div>
+
+        <button onclick="exportPerfOzel()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl text-sm uppercase tracking-widest transition-all">
+            <i class="fa-solid fa-file-export mr-2"></i> Export Yap
+        </button>
+    </div>
+</div>
+
 <div id="loading-overlay" class="fixed inset-0 z-[110] bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center space-y-4 hidden">
     <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
     <p class="text-blue-400 font-black tracking-widest animate-pulse uppercase text-xs">Veriler Eşitleniyor</p>
@@ -283,18 +364,21 @@
         if (dec === 0) return Math.round(num).toLocaleString('tr-TR');
         return num.toFixed(dec).replace('.', ',');
     };
-
     const formatPeriodText = (p) => {
         if (!p || !p.includes('-')) return p;
         const [y, m] = p.split('-');
         const months = ["","Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
         return `${months[parseInt(m)]} ${y}`;
     };
-
     const formatDateTR = (d) => {
         if (!d) return '-';
         const [y, m, day] = d.split('-');
         return `${day} ${["","Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"][parseInt(m)]} ${y}`;
+    };
+    const formatDateShort = (d) => {
+        if (!d) return '-';
+        const [y, m, day] = d.split('-');
+        return `${day}/${m}`;
     };
 
     // ── Tema ──────────────────────────────────────────────────────
@@ -325,6 +409,13 @@
         initTheme();
         const { data: { session } } = await _supabase.auth.getSession();
         if (session) showDashboard(session.user);
+        // Export menu dışına tıklayınca kapat
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('perfExportDropdown');
+            if (dropdown && !dropdown.contains(e.target)) {
+                document.getElementById('perfExportMenu').classList.remove('open');
+            }
+        });
     });
 
     async function handleLogin(e) {
@@ -340,9 +431,7 @@
             document.getElementById('loginError').classList.remove('hidden');
             btn.disabled = false;
             btn.innerText = 'Giriş Yap';
-        } else {
-            showDashboard(data.user);
-        }
+        } else { showDashboard(data.user); }
     }
 
     function handleLogout() { _supabase.auth.signOut().then(() => location.reload()); }
@@ -404,11 +493,8 @@
             const tls = [...new Set(fullData.map(d => d.team_leader))].sort();
             document.getElementById('tlFilter').innerHTML = '<option value="all">Tüm Liderler</option>' + tls.map(t => `<option value="${t}">${t}</option>`).join('');
             applyFilters();
-        } catch (err) {
-            console.error("Fetch Error:", err);
-        } finally {
-            toggleLoading(false);
-        }
+        } catch (err) { console.error("Fetch Error:", err); }
+        finally { toggleLoading(false); }
     }
 
     function applyFilters() {
@@ -420,15 +506,13 @@
         const cwtFiltered   = (tl === 'all' && search === '') ? cwtAllData : cwtAllData.filter(d => filteredNames.has(d.user_name?.toLowerCase().trim()));
         const totalCwtHrs   = cwtFiltered.reduce((s, d) => s + (parseFloat(d.cwt) || 0), 0) / 60;
         const totalFteCap   = filtered.reduce((s, d) => s + d.capped_fte, 0);
-        const sumL          = filtered.reduce((s, d) => s + d.total_login, 0);
-        const sumB          = filtered.reduce((s, d) => s + d.total_break, 0);
-        const breakRate     = sumL > 0 ? (sumB / sumL) * 100 : 0;
-        const totalMissing  = filtered.reduce((s, d) => s + (parseFloat(d.missing_time) || 0), 0);
+        const sumL = filtered.reduce((s, d) => s + d.total_login, 0);
+        const sumB = filtered.reduce((s, d) => s + d.total_break, 0);
 
         document.getElementById('kpi-cwt').innerText     = toTr(totalCwtHrs);
         document.getElementById('kpi-fte').innerText     = toTr(totalFteCap, 2);
-        document.getElementById('kpi-break').innerText   = toTr(breakRate, 2) + '%';
-        document.getElementById('kpi-missing').innerText = toTr(totalMissing);
+        document.getElementById('kpi-break').innerText   = toTr(sumL > 0 ? (sumB/sumL)*100 : 0, 2) + '%';
+        document.getElementById('kpi-missing').innerText = toTr(filtered.reduce((s, d) => s + (parseFloat(d.missing_time) || 0), 0));
 
         const tbody = document.getElementById('dataTableBody');
         tbody.innerHTML = '';
@@ -466,46 +550,34 @@
         toggleLoading(true);
         const period = document.getElementById('perfPeriodFilter').value;
         try {
-            const { data } = await _supabase
-                .from('performance_data')
-                .select('*')
-                .eq('period', period)
-                .limit(10000);
-
+            const { data } = await _supabase.from('performance_data').select('*').eq('period', period).limit(10000);
             perfAllData = data || [];
 
-            // ── Gün filtresi: date NULL olmayanlar = günlük satırlar ──
-            const dailyDates = [...new Set(
-                perfAllData
-                    .map(d => d.date)
-                    .filter(d => d !== null && d !== undefined)
-            )].sort((a, b) => b.localeCompare(a));
-
+            const dailyDates = [...new Set(perfAllData.map(d => d.date).filter(d => d !== null && d !== undefined))].sort((a, b) => b.localeCompare(a));
             const dateSel = document.getElementById('perfDateFilter');
             dateSel.innerHTML = '<option value="all">Tümü (Kümülatif)</option>' +
                 dailyDates.map(d => `<option value="${d}">${formatDateTR(d)}</option>`).join('');
 
             applyPerfFilter();
-        } catch (err) {
-            console.error("Perf Fetch Error:", err);
-        } finally {
-            toggleLoading(false);
-        }
+        } catch (err) { console.error("Perf Fetch Error:", err); }
+        finally { toggleLoading(false); }
     }
 
     function applyPerfFilter() {
         const selectedDate = document.getElementById('perfDateFilter').value;
+        const search = document.getElementById('perfSearchInput').value.toLowerCase();
         let filtered;
 
         if (selectedDate === 'all') {
-            // ── Kümülatif: date NULL olan satırlar ──
             filtered = perfAllData.filter(d => d.date === null);
             document.getElementById('perfTableSubtitle').innerText = 'Kümülatif Veriler';
         } else {
-            // ── Seçilen güne ait satırlar ──
             filtered = perfAllData.filter(d => d.date === selectedDate);
             document.getElementById('perfTableSubtitle').innerText = formatDateTR(selectedDate) + ' Verileri';
         }
+
+        // Temsilci arama filtresi
+        if (search) filtered = filtered.filter(d => d.user_name.toLowerCase().includes(search));
 
         renderPerfTables(filtered);
     }
@@ -515,12 +587,11 @@
         const top10     = sorted.slice(0, 10);
         const maxActual = Math.max(...sorted.map(d => parseFloat(d.transaction_count) || 0), 1);
 
-        // ── Top 10 sidebar ────────────────────────────────────────
         const top10El = document.getElementById('top10List');
         top10El.innerHTML = '';
         top10.forEach((row, i) => {
-            const rank   = i + 1;
-            const pct    = parseFloat(row.performance_pct) || 0;
+            const rank = i + 1;
+            const pct  = parseFloat(row.performance_pct) || 0;
             const actual = parseFloat(row.transaction_count) || 0;
             let badgeClass = 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300';
             if (rank === 1) badgeClass = 'rank-1 text-white';
@@ -540,7 +611,6 @@
                 </div>`;
         });
 
-        // ── Ana tablo ─────────────────────────────────────────────
         const tbody = document.getElementById('perfTableBody');
         tbody.innerHTML = '';
         sorted.forEach((row, i) => {
@@ -573,7 +643,164 @@
     }
 
     // ════════════════════════════════════════════════════════════════
-    // EXCEL EXPORT
+    // PERFORMANS EXCEL EXPORT
+    // ════════════════════════════════════════════════════════════════
+
+    function toggleExportMenu() {
+        document.getElementById('perfExportMenu').classList.toggle('open');
+    }
+
+    // ── Helper: günlük verilerden pivot tablo oluştur ─────────────
+    function buildPivotData(users, days) {
+        // Her user için {user_name, gün: adet, ...} satırı
+        const dailyRows = perfAllData.filter(d => d.date !== null);
+
+        // Gün bazlı ortalama ve HC
+        const dayStats = {};
+        days.forEach(day => {
+            const dayData = dailyRows.filter(d => d.date === day);
+            dayStats[day] = {
+                avg : dayData.length > 0 ? (dayData[0].pool_average || 0) : 0,
+                hc  : dayData.length,
+                total: dayData.reduce((s, d) => s + (parseFloat(d.transaction_count) || 0), 0)
+            };
+        });
+
+        // Temsilci satırları
+        const rows = users.map(userName => {
+            const row = { "Temsilci": userName };
+            days.forEach(day => {
+                const match = dailyRows.find(d => d.user_name === userName && d.date === day);
+                row[formatDateShort(day)] = match ? (parseFloat(match.transaction_count) || '') : '';
+            });
+            return row;
+        });
+
+        // Alt satırlar: Havuz Ort., HC, Toplam
+        const avgRow   = { "Temsilci": "Havuz Ortalaması" };
+        const hcRow    = { "Temsilci": "HC" };
+        const totalRow = { "Temsilci": "Toplam İşlem" };
+        days.forEach(day => {
+            avgRow[formatDateShort(day)]   = dayStats[day].avg > 0 ? parseFloat(dayStats[day].avg.toFixed(2)) : '';
+            hcRow[formatDateShort(day)]    = dayStats[day].hc || '';
+            totalRow[formatDateShort(day)] = dayStats[day].total || '';
+        });
+
+        return { rows, avgRow, hcRow, totalRow };
+    }
+
+    // ── 1. KÜMÜLATİF EXPORT ──────────────────────────────────────
+    function exportPerfKumulatif() {
+        document.getElementById('perfExportMenu').classList.remove('open');
+        const kumData = perfAllData.filter(d => d.date === null).sort((a, b) => (parseFloat(b.performance_pct) || 0) - (parseFloat(a.performance_pct) || 0));
+
+        const rows = kumData.map(d => {
+            const avg      = parseFloat(d.pool_average) || 0;
+            const actual   = parseFloat(d.transaction_count) || 0;
+            const pct      = parseFloat(d.performance_pct) || 0;
+            return {
+                "Temsilci"        : d.user_name,
+                "Havuz Ortalaması": avg > 0 ? parseFloat(avg.toFixed(2)) : '',
+                "Gerçekleşen"     : actual || '',
+                "Performans %"    : pct > 0 ? pct / 100 : '',
+                "Ort. Uzaklık"    : avg > 0 ? parseFloat((actual - avg).toFixed(2)) : ''
+            };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(rows);
+        const range = XLSX.utils.decode_range(ws['!ref']);
+        for (let R = range.s.r + 1; R <= range.e.r; ++R) {
+            const pctC = XLSX.utils.encode_cell({ r: R, c: 3 });
+            if (ws[pctC]) { ws[pctC].t = 'n'; ws[pctC].z = '0.00%'; }
+        }
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Kümülatif");
+        XLSX.writeFile(wb, `Performans_Kumulatif_${document.getElementById('perfPeriodFilter').value}.xlsx`);
+    }
+
+    // ── 2. GÜNLÜK EXPORT (tüm günler) ────────────────────────────
+    function exportPerfGunluk() {
+        document.getElementById('perfExportMenu').classList.remove('open');
+        const days  = [...new Set(perfAllData.map(d => d.date).filter(d => d !== null))].sort();
+        const users = [...new Set(perfAllData.filter(d => d.date !== null).map(d => d.user_name))].sort();
+
+        const { rows, avgRow, hcRow, totalRow } = buildPivotData(users, days);
+
+        const allRows = [...rows, {}, avgRow, hcRow, totalRow];
+        const ws = XLSX.utils.json_to_sheet(allRows);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Günlük");
+        XLSX.writeFile(wb, `Performans_Gunluk_${document.getElementById('perfPeriodFilter').value}.xlsx`);
+    }
+
+    // ── 3. ÖZEL EXPORT MODAL ─────────────────────────────────────
+    function openOzelModal() {
+        document.getElementById('perfExportMenu').classList.remove('open');
+
+        const days  = [...new Set(perfAllData.map(d => d.date).filter(d => d !== null))].sort();
+        const users = [...new Set(perfAllData.filter(d => d.date !== null).map(d => d.user_name))].sort();
+
+        // Kullanıcı listesi
+        const userList = document.getElementById('modalUserList');
+        userList.innerHTML = users.map(u => `
+            <label class="day-checkbox">
+                <input type="checkbox" class="modal-user-cb" value="${u}" checked>
+                <span>${u}</span>
+            </label>`).join('');
+
+        // Gün listesi
+        const dayList = document.getElementById('modalDayList');
+        dayList.innerHTML = days.map(d => `
+            <label class="day-checkbox">
+                <input type="checkbox" class="modal-day-cb" value="${d}" checked>
+                <span>${formatDateShort(d)}</span>
+            </label>`).join('');
+
+        document.getElementById('ozelModal').classList.remove('hidden');
+        document.getElementById('ozelModal').classList.add('flex');
+    }
+
+    function closeOzelModal() {
+        document.getElementById('ozelModal').classList.add('hidden');
+        document.getElementById('ozelModal').classList.remove('flex');
+    }
+
+    function filterModalUsers() {
+        const q = document.getElementById('modalUserSearch').value.toLowerCase();
+        document.querySelectorAll('#modalUserList .day-checkbox').forEach(el => {
+            el.style.display = el.querySelector('span').textContent.toLowerCase().includes(q) ? '' : 'none';
+        });
+    }
+
+    function selectAllUsers(val) {
+        document.querySelectorAll('.modal-user-cb').forEach(cb => cb.checked = val);
+    }
+
+    function selectAllDays(val) {
+        document.querySelectorAll('.modal-day-cb').forEach(cb => cb.checked = val);
+    }
+
+    function exportPerfOzel() {
+        const selectedUsers = [...document.querySelectorAll('.modal-user-cb:checked')].map(cb => cb.value);
+        const selectedDays  = [...document.querySelectorAll('.modal-day-cb:checked')].map(cb => cb.value).sort();
+
+        if (selectedUsers.length === 0 || selectedDays.length === 0) {
+            alert('En az bir temsilci ve bir gün seçmelisiniz.');
+            return;
+        }
+
+        const { rows, avgRow, hcRow, totalRow } = buildPivotData(selectedUsers, selectedDays);
+        const allRows = [...rows, {}, avgRow, hcRow, totalRow];
+
+        const ws = XLSX.utils.json_to_sheet(allRows);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Özel");
+        XLSX.writeFile(wb, `Performans_Ozel_${document.getElementById('perfPeriodFilter').value}.xlsx`);
+        closeOzelModal();
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    // ÜRETİM TAKİP EXCEL EXPORT
     // ════════════════════════════════════════════════════════════════
     function exportToExcel() {
         const tl     = document.getElementById('tlFilter').value;
@@ -597,8 +824,7 @@
         const sumB = rows.reduce((s, r) => s + r["Mola Süresi (Dk)"], 0);
         rows.push({
             "Sicil No": "GENEL TOPLAM", "Temsilci Adı": "", "Takım Lideri": "",
-            "Login Süresi (Dk)" : sumL,
-            "Mola Süresi (Dk)"  : sumB,
+            "Login Süresi (Dk)" : sumL, "Mola Süresi (Dk)": sumB,
             "Net Login (Dk)"    : rows.reduce((s, r) => s + r["Net Login (Dk)"], 0),
             "Mola Oranı"        : sumL > 0 ? (sumB / sumL) : 0,
             "Eksik Süre (Dk)"   : rows.reduce((s, r) => s + r["Eksik Süre (Dk)"], 0),
@@ -606,7 +832,7 @@
             "Capped FTE"        : rows.reduce((s, r) => s + r["Capped FTE"], 0)
         });
 
-        const ws    = XLSX.utils.json_to_sheet(rows);
+        const ws = XLSX.utils.json_to_sheet(rows);
         const range = XLSX.utils.decode_range(ws['!ref']);
         for (let R = range.s.r + 1; R <= range.e.r; ++R) {
             [3,4,5].forEach(C => { const c = XLSX.utils.encode_cell({r:R,c:C}); if(ws[c]){ws[c].t='n';ws[c].z='0';} });
