@@ -220,7 +220,6 @@
 
         <div class="flex-1 overflow-y-auto p-6">
             <div class="flex gap-6 h-full">
-
                 <!-- ── TOP 10 SIDEBAR ── -->
                 <div class="w-64 shrink-0">
                     <div class="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden h-full flex flex-col">
@@ -273,10 +272,10 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0aWtqcnR4b3dqY3B2Ym1zZ3hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDYxMDUsImV4cCI6MjA4OTc4MjEwNX0.VWOBROBGR52E9gzxx-whsJZ0J8yBn_tPBb838dYxaHU';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let fullData      = [];
-    let rawUsers      = [];
-    let cwtAllData    = [];
-    let perfAllData   = []; // tüm performance_data bu dönem için
+    let fullData    = [];
+    let rawUsers    = [];
+    let cwtAllData  = [];
+    let perfAllData = [];
 
     // ── Format Helpers ────────────────────────────────────────────
     const toTr = (val, dec = 0) => {
@@ -293,7 +292,7 @@
     };
 
     const formatDateTR = (d) => {
-        if (!d) return d;
+        if (!d) return '-';
         const [y, m, day] = d.split('-');
         return `${day} ${["","Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"][parseInt(m)]} ${y}`;
     };
@@ -314,12 +313,10 @@
     function showPage(page) {
         document.getElementById('page-uretim').classList.toggle('hidden', page !== 'uretim');
         document.getElementById('page-performans').classList.toggle('hidden', page !== 'performans');
-        const navU = document.getElementById('nav-uretim');
-        const navP = document.getElementById('nav-performans');
         const active   = 'flex items-center gap-3 px-4 py-3 rounded-2xl bg-blue-500/10 text-blue-500 font-bold border border-blue-500/20 transition-all shadow-sm text-sm';
         const inactive = 'flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all text-sm';
-        navU.className = page === 'uretim'     ? active : inactive;
-        navP.className = page === 'performans' ? active : inactive;
+        document.getElementById('nav-uretim').className    = page === 'uretim'     ? active : inactive;
+        document.getElementById('nav-performans').className = page === 'performans' ? active : inactive;
         if (page === 'performans') loadPerformans();
     }
 
@@ -365,8 +362,7 @@
     async function loadPeriods() {
         const { data } = await _supabase.from('period_summary').select('period').order('period', { ascending: false }).limit(10000);
         const unique = [...new Set((data || []).map(d => d.period))];
-        const sel = document.getElementById('periodFilter');
-        sel.innerHTML = unique.map(p => `<option value="${p}">${formatPeriodText(p)}</option>`).join('');
+        document.getElementById('periodFilter').innerHTML = unique.map(p => `<option value="${p}">${formatPeriodText(p)}</option>`).join('');
         fetchAndRender();
     }
 
@@ -460,11 +456,9 @@
     // PERFORMANS SAYFASI
     // ════════════════════════════════════════════════════════════════
     async function loadPerformans() {
-        // Dönem listesini performance_data'dan çek
         const { data } = await _supabase.from('performance_data').select('period').order('period', { ascending: false }).limit(10000);
         const unique = [...new Set((data || []).map(d => d.period))];
-        const sel = document.getElementById('perfPeriodFilter');
-        sel.innerHTML = unique.map(p => `<option value="${p}">${formatPeriodText(p)}</option>`).join('');
+        document.getElementById('perfPeriodFilter').innerHTML = unique.map(p => `<option value="${p}">${formatPeriodText(p)}</option>`).join('');
         if (unique.length > 0) fetchPerformans();
     }
 
@@ -480,11 +474,11 @@
 
             perfAllData = data || [];
 
-            // Gün filtresi — kümülatif satırları (period-01) hariç tut
+            // ── Gün filtresi: date NULL olmayanlar = günlük satırlar ──
             const dailyDates = [...new Set(
                 perfAllData
                     .map(d => d.date)
-                    .filter(d => d && !d.endsWith('-01'))
+                    .filter(d => d !== null && d !== undefined)
             )].sort((a, b) => b.localeCompare(a));
 
             const dateSel = document.getElementById('perfDateFilter');
@@ -504,11 +498,11 @@
         let filtered;
 
         if (selectedDate === 'all') {
-            // Kümülatif: period-01 tarihli satırlar
-            filtered = perfAllData.filter(d => d.date && d.date.endsWith('-01'));
+            // ── Kümülatif: date NULL olan satırlar ──
+            filtered = perfAllData.filter(d => d.date === null);
             document.getElementById('perfTableSubtitle').innerText = 'Kümülatif Veriler';
         } else {
-            // Seçilen güne ait satırlar
+            // ── Seçilen güne ait satırlar ──
             filtered = perfAllData.filter(d => d.date === selectedDate);
             document.getElementById('perfTableSubtitle').innerText = formatDateTR(selectedDate) + ' Verileri';
         }
@@ -521,13 +515,13 @@
         const top10     = sorted.slice(0, 10);
         const maxActual = Math.max(...sorted.map(d => parseFloat(d.transaction_count) || 0), 1);
 
-        // Top 10 sidebar
+        // ── Top 10 sidebar ────────────────────────────────────────
         const top10El = document.getElementById('top10List');
         top10El.innerHTML = '';
         top10.forEach((row, i) => {
-            const rank    = i + 1;
-            const pct     = parseFloat(row.performance_pct) || 0;
-            const actual  = parseFloat(row.transaction_count) || 0;
+            const rank   = i + 1;
+            const pct    = parseFloat(row.performance_pct) || 0;
+            const actual = parseFloat(row.transaction_count) || 0;
             let badgeClass = 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300';
             if (rank === 1) badgeClass = 'rank-1 text-white';
             if (rank === 2) badgeClass = 'rank-2 text-white';
@@ -546,7 +540,7 @@
                 </div>`;
         });
 
-        // Ana tablo
+        // ── Ana tablo ─────────────────────────────────────────────
         const tbody = document.getElementById('perfTableBody');
         tbody.innerHTML = '';
         sorted.forEach((row, i) => {
