@@ -53,16 +53,22 @@
         .dark .export-menu button:hover { background: #1e293b; }
         .day-checkbox { display: flex; align-items: center; gap: 8px; padding: 4px 0; cursor: pointer; font-size: 13px; font-weight: 600; }
         .day-checkbox input { accent-color: #3b82f6; width: 14px; height: 14px; cursor: pointer; }
-        /* Metric radio toggle */
         .metric-toggle { display: flex; align-items: center; gap: 10px; padding: 8px 12px;
             border: 1px solid #e2e8f0; border-radius: 12px; cursor: pointer; transition: all 0.15s; }
         .dark .metric-toggle { border-color: #1e293b; }
         .metric-toggle.active { background: #eff6ff; border-color: #3b82f6; }
         .dark .metric-toggle.active { background: #1e3a5f; border-color: #1d4ed8; }
         .metric-toggle input { accent-color: #3b82f6; width: 15px; height: 15px; cursor: pointer; }
-        /* Gün listesi boş mesajı */
-        .days-empty { padding: 12px; text-align: center; font-size: 12px; font-weight: 700;
-            color: #94a3b8; letter-spacing: 0.05em; }
+        .days-empty { padding: 12px; text-align: center; font-size: 12px; font-weight: 700; color: #94a3b8; letter-spacing: 0.05em; }
+        /* Scala popup */
+        .scala-cat-header { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; }
+        .scala-tier { display: flex; justify-content: space-between; align-items: center; padding: 5px 10px; border-radius: 8px; margin-bottom: 3px; font-size: 12px; font-weight: 700; }
+        .scala-tier.positive { background: rgba(16,185,129,0.08); }
+        .scala-tier.neutral  { background: rgba(148,163,184,0.08); }
+        .scala-tier.negative { background: rgba(239,68,68,0.08); }
+        .scala-points.positive { color: #10b981; }
+        .scala-points.neutral  { color: #94a3b8; }
+        .scala-points.negative { color: #ef4444; }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen overflow-hidden transition-colors duration-500">
@@ -111,7 +117,7 @@
             <a href="#" id="nav-performans" onclick="showPage('performans')" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all text-sm">
                 <i class="fa-solid fa-gauge-high"></i> Performans
             </a>
-            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all text-sm">
+            <a href="#" id="nav-goalpex" onclick="showPage('goalpex')" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all text-sm">
                 <i class="fa-solid fa-bullseye"></i> Goalpex
             </a>
         </nav>
@@ -256,21 +262,14 @@
                             <i class="fa-solid fa-file-export"></i> Excel Export <i class="fa-solid fa-chevron-down text-[10px]"></i>
                         </button>
                         <div class="export-menu" id="perfExportMenu">
-                            <button onclick="exportPerfKumulatif()">
-                                <i class="fa-solid fa-layer-group text-purple-500"></i> Kümülatif
-                            </button>
-                            <button onclick="exportPerfGunluk()">
-                                <i class="fa-solid fa-calendar-days text-blue-500"></i> Günlük (Tüm)
-                            </button>
-                            <button onclick="openOzelModal()">
-                                <i class="fa-solid fa-sliders text-amber-500"></i> Özel
-                            </button>
+                            <button onclick="exportPerfKumulatif()"><i class="fa-solid fa-layer-group text-purple-500"></i> Kümülatif</button>
+                            <button onclick="exportPerfGunluk()"><i class="fa-solid fa-calendar-days text-blue-500"></i> Günlük (Tüm)</button>
+                            <button onclick="openOzelModal()"><i class="fa-solid fa-sliders text-amber-500"></i> Özel</button>
                         </div>
                     </div>
                 </div>
             </div>
         </header>
-
         <div class="flex-1 overflow-y-auto p-6">
             <div class="flex gap-6 h-full">
                 <div class="w-64 shrink-0">
@@ -310,6 +309,61 @@
             </div>
         </div>
     </main>
+
+    <!-- ── GOALPEX SAYFASI ── -->
+    <main id="page-goalpex" class="flex-1 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 hidden min-w-0">
+        <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b px-6 py-5 z-20">
+            <div class="flex flex-col xl:flex-row items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-black tracking-tighter uppercase">Goalpex</h2>
+                    <p class="text-xs text-slate-400 font-medium">Temsilci bazlı prim ve performans değerlendirmesi.</p>
+                </div>
+                <button onclick="openScalaModal()" class="flex items-center gap-2 px-5 py-2.5 text-white text-xs font-black rounded-2xl shadow-lg transition-all uppercase tracking-widest"
+                    style="background: linear-gradient(135deg, #6366f1, #8b5cf6); box-shadow: 0 4px 20px rgba(99,102,241,0.35);">
+                    <i class="fa-solid fa-table-list"></i> Goalpex Scala
+                </button>
+            </div>
+        </header>
+        <div class="flex-1 overflow-y-auto p-6">
+            <div class="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+                <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+                    <h3 class="font-black tracking-tight text-sm">Temsilci Goalpex Detayı</h3>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Dönem Değerlendirmesi</p>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50/50 dark:bg-slate-800/50 border-b font-black text-slate-400 uppercase tracking-widest text-[10px]">
+                            <tr>
+                                <th class="px-5 py-4 min-w-[160px]">Temsilci Bilgisi</th>
+                                <th class="px-4 py-4 text-center">Perf. %</th>
+                                <th class="px-4 py-4 text-center">Kalite</th>
+                                <th class="px-4 py-4 text-center">IFF</th>
+                                <th class="px-4 py-4 text-center">Mola Oranı</th>
+                                <th class="px-4 py-4 text-center">Quiz</th>
+                                <th class="px-4 py-4 text-center">Şikayet</th>
+                                <th class="px-4 py-4 text-center">Devamsızlık</th>
+                                <th class="px-4 py-4 text-center">Goalpex</th>
+                                <th class="px-4 py-4 text-center">Prim Tutarı</th>
+                            </tr>
+                        </thead>
+                        <tbody id="goalpexTableBody" class="divide-y text-sm font-bold text-slate-700 dark:text-slate-300">
+                            <tr>
+                                <td colspan="10" class="px-5 py-16 text-center">
+                                    <div class="flex flex-col items-center gap-3">
+                                        <div class="w-14 h-14 rounded-2xl bg-violet-500/10 flex items-center justify-center">
+                                            <i class="fa-solid fa-bullseye text-violet-500 text-2xl"></i>
+                                        </div>
+                                        <p class="text-slate-400 font-bold text-sm">Goalpex verileri yakında eklenecek</p>
+                                        <p class="text-slate-300 dark:text-slate-600 font-medium text-xs">Bu alan şu an geliştirme aşamasındadır</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
 </div>
 
 <!-- ── ÜRETİM ÖZEL EXPORT MODAL ── -->
@@ -322,8 +376,7 @@
             </div>
             <button onclick="closeUretimOzelModal()" class="text-slate-400 hover:text-rose-500 transition-colors text-xl"><i class="fa-solid fa-xmark"></i></button>
         </div>
-
-        <!-- Metrik seçimi — tek seçim (radio) -->
+        <!-- Metrik — eksik süre KALDIRILDI -->
         <div class="mb-6">
             <label class="text-xs font-black text-slate-500 uppercase tracking-widest mb-3 block">Metrik</label>
             <div class="grid grid-cols-2 gap-2">
@@ -342,21 +395,14 @@
                     <i class="fa-solid fa-percent text-orange-500 text-sm"></i>
                     <span class="text-sm font-bold">Mola Oranı</span>
                 </label>
-                <label class="metric-toggle" id="toggle-eksik" onclick="onMetricSelect('eksik')">
-                    <input type="radio" name="uretim-metric" id="metric-eksik" value="eksik">
-                    <i class="fa-solid fa-hourglass-half text-rose-500 text-sm"></i>
-                    <span class="text-sm font-bold">Eksik Süre</span>
-                </label>
-                <label class="metric-toggle col-span-2" id="toggle-cwt" onclick="onMetricSelect('cwt')">
+                <label class="metric-toggle col-span-1" id="toggle-cwt" onclick="onMetricSelect('cwt')">
                     <input type="radio" name="uretim-metric" id="metric-cwt" value="cwt">
                     <i class="fa-solid fa-stopwatch text-emerald-500 text-sm"></i>
                     <span class="text-sm font-bold">Net Login (CWT)</span>
-                    <span class="ml-auto text-[10px] font-black text-slate-400 uppercase tracking-wider">CWT Tarihleri</span>
+                    <span class="ml-auto text-[10px] font-black text-slate-400 uppercase tracking-wider">CWT</span>
                 </label>
             </div>
         </div>
-
-        <!-- Temsilci seçimi -->
         <div class="mb-5">
             <label class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Temsilciler</label>
             <div class="flex gap-2 mb-2">
@@ -370,8 +416,6 @@
             </div>
             <div id="uretimModalUserList" class="max-h-36 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl p-3 grid grid-cols-2 gap-1 bg-slate-50 dark:bg-slate-800/50"></div>
         </div>
-
-        <!-- Gün seçimi -->
         <div class="mb-6">
             <div class="flex items-center justify-between mb-2">
                 <label class="text-xs font-black text-slate-500 uppercase tracking-widest block">Günler</label>
@@ -386,7 +430,6 @@
                 <p class="days-empty col-span-4">Önce bir metrik seçin</p>
             </div>
         </div>
-
         <button onclick="exportUretimOzel()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl text-sm uppercase tracking-widest transition-all">
             <i class="fa-solid fa-file-export mr-2"></i> Export Yap
         </button>
@@ -431,6 +474,142 @@
     </div>
 </div>
 
+<!-- ── GOALPEX SCALA MODAL ── -->
+<div id="scalaModal" class="fixed inset-0 z-[130] hidden items-center justify-center bg-slate-950/75 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-4xl mx-4 max-h-[88vh] overflow-y-auto fade-in">
+        <!-- Header -->
+        <div class="px-8 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between sticky top-0 bg-white dark:bg-slate-900 z-10 rounded-t-[2rem]">
+            <div class="flex items-center gap-3">
+                <div class="p-2.5 rounded-xl" style="background:rgba(99,102,241,0.12)">
+                    <i class="fa-solid fa-table-list text-indigo-500"></i>
+                </div>
+                <div>
+                    <h3 class="font-black text-base tracking-tight">Goalpex Scala</h3>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Prim Değerlendirme Kriterleri</p>
+                </div>
+            </div>
+            <button onclick="closeScalaModal()" class="text-slate-400 hover:text-rose-500 transition-colors text-xl"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <!-- Scala grid -->
+        <div class="p-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+
+            <!-- Kalite -->
+            <div class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-4 border border-slate-200 dark:border-slate-700/60">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-7 h-7 rounded-lg bg-blue-500/15 flex items-center justify-center"><i class="fa-solid fa-star text-blue-500 text-xs"></i></div>
+                    <span class="scala-cat-header text-slate-500 dark:text-slate-400">Kalite</span>
+                    <span class="ml-auto text-[10px] font-black text-blue-500 bg-blue-500/10 px-2 py-0.5 rounded-full">25P</span>
+                </div>
+                <div class="space-y-1">
+                    <div class="scala-tier positive"><span>97–100</span><span class="scala-points positive font-black">+25</span></div>
+                    <div class="scala-tier neutral"><span>&lt; 97</span><span class="scala-points neutral font-black">0</span></div>
+                </div>
+            </div>
+
+            <!-- İşlem Adeti -->
+            <div class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-4 border border-slate-200 dark:border-slate-700/60">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-7 h-7 rounded-lg bg-emerald-500/15 flex items-center justify-center"><i class="fa-solid fa-list-check text-emerald-500 text-xs"></i></div>
+                    <span class="scala-cat-header text-slate-500 dark:text-slate-400">İşlem Adeti</span>
+                    <span class="ml-auto text-[10px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">45P</span>
+                </div>
+                <div class="space-y-1">
+                    <div class="scala-tier positive"><span>%120+</span><span class="scala-points positive font-black">+45</span></div>
+                    <div class="scala-tier positive"><span>%110–%120</span><span class="scala-points positive font-black">+30</span></div>
+                    <div class="scala-tier positive"><span>%95–%99</span><span class="scala-points positive font-black">+20</span></div>
+                    <div class="scala-tier positive"><span>%90–%94</span><span class="scala-points positive font-black">+10</span></div>
+                    <div class="scala-tier neutral"><span>%90 altı</span><span class="scala-points neutral font-black">0</span></div>
+                </div>
+            </div>
+
+            <!-- IFF -->
+            <div class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-4 border border-slate-200 dark:border-slate-700/60">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-7 h-7 rounded-lg bg-amber-500/15 flex items-center justify-center"><i class="fa-solid fa-turkish-lira-sign text-amber-500 text-xs"></i></div>
+                    <span class="scala-cat-header text-slate-500 dark:text-slate-400">IFF</span>
+                    <span class="ml-auto text-[10px] font-black text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full">40P</span>
+                </div>
+                <div class="space-y-1">
+                    <div class="scala-tier positive"><span>0 TL</span><span class="scala-points positive font-black">+40</span></div>
+                    <div class="scala-tier positive"><span>0–199 TL</span><span class="scala-points positive font-black">+35</span></div>
+                    <div class="scala-tier positive"><span>200–399 TL</span><span class="scala-points positive font-black">+20</span></div>
+                    <div class="scala-tier positive"><span>400–499 TL</span><span class="scala-points positive font-black">+10</span></div>
+                    <div class="scala-tier neutral"><span>500–999 TL</span><span class="scala-points neutral font-black">0</span></div>
+                    <div class="scala-tier negative"><span>&gt; 1000 TL</span><span class="scala-points negative font-black">−120</span></div>
+                </div>
+            </div>
+
+            <!-- Quiz -->
+            <div class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-4 border border-slate-200 dark:border-slate-700/60">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-7 h-7 rounded-lg bg-purple-500/15 flex items-center justify-center"><i class="fa-solid fa-circle-question text-purple-500 text-xs"></i></div>
+                    <span class="scala-cat-header text-slate-500 dark:text-slate-400">Quiz</span>
+                    <span class="ml-auto text-[10px] font-black text-purple-500 bg-purple-500/10 px-2 py-0.5 rounded-full">10P</span>
+                </div>
+                <div class="space-y-1">
+                    <div class="scala-tier positive"><span>95–100</span><span class="scala-points positive font-black">+10</span></div>
+                    <div class="scala-tier positive"><span>90–95</span><span class="scala-points positive font-black">+5</span></div>
+                    <div class="scala-tier neutral"><span>&lt; 90</span><span class="scala-points neutral font-black">0</span></div>
+                </div>
+            </div>
+
+            <!-- Şikayet -->
+            <div class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-4 border border-slate-200 dark:border-slate-700/60">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-7 h-7 rounded-lg bg-rose-500/15 flex items-center justify-center"><i class="fa-solid fa-triangle-exclamation text-rose-500 text-xs"></i></div>
+                    <span class="scala-cat-header text-slate-500 dark:text-slate-400">Şikayet</span>
+                </div>
+                <div class="space-y-1">
+                    <div class="scala-tier neutral"><span>0 şikayet</span><span class="scala-points neutral font-black">0</span></div>
+                    <div class="scala-tier negative"><span>≥ 1 şikayet</span><span class="scala-points negative font-black">−120</span></div>
+                </div>
+            </div>
+
+            <!-- DVS -->
+            <div class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-4 border border-slate-200 dark:border-slate-700/60">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-7 h-7 rounded-lg bg-slate-400/15 flex items-center justify-center"><i class="fa-solid fa-user-xmark text-slate-400 text-xs"></i></div>
+                    <span class="scala-cat-header text-slate-500 dark:text-slate-400">DVS</span>
+                </div>
+                <div class="space-y-1">
+                    <div class="scala-tier neutral"><span>0 gün</span><span class="scala-points neutral font-black">0</span></div>
+                    <div class="scala-tier negative"><span>1 gün</span><span class="scala-points negative font-black">−15</span></div>
+                    <div class="scala-tier negative"><span>2 gün</span><span class="scala-points negative font-black">−30</span></div>
+                </div>
+            </div>
+
+            <!-- Mola -->
+            <div class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-4 border border-slate-200 dark:border-slate-700/60">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-7 h-7 rounded-lg bg-orange-500/15 flex items-center justify-center"><i class="fa-solid fa-mug-hot text-orange-500 text-xs"></i></div>
+                    <span class="scala-cat-header text-slate-500 dark:text-slate-400">Mola</span>
+                </div>
+                <div class="space-y-1">
+                    <div class="scala-tier neutral"><span>%15–%16</span><span class="scala-points neutral font-black">0</span></div>
+                    <div class="scala-tier negative"><span>&gt; %16</span><span class="scala-points negative font-black">−10</span></div>
+                    <div class="scala-tier negative"><span>&lt; %15</span><span class="scala-points negative font-black">−10</span></div>
+                </div>
+            </div>
+
+            <!-- Toplam Puan Özeti -->
+            <div class="bg-gradient-to-br from-indigo-500/10 to-violet-500/10 rounded-2xl p-4 border border-indigo-500/20">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-7 h-7 rounded-lg bg-indigo-500/20 flex items-center justify-center"><i class="fa-solid fa-sigma text-indigo-500 text-xs"></i></div>
+                    <span class="scala-cat-header text-indigo-500">Toplam Maks.</span>
+                </div>
+                <div class="space-y-2 mt-2">
+                    <div class="flex justify-between text-xs font-bold text-slate-500 dark:text-slate-400"><span>Kalite</span><span class="text-emerald-500">+25</span></div>
+                    <div class="flex justify-between text-xs font-bold text-slate-500 dark:text-slate-400"><span>İşlem Adeti</span><span class="text-emerald-500">+45</span></div>
+                    <div class="flex justify-between text-xs font-bold text-slate-500 dark:text-slate-400"><span>IFF</span><span class="text-emerald-500">+40</span></div>
+                    <div class="flex justify-between text-xs font-bold text-slate-500 dark:text-slate-400"><span>Quiz</span><span class="text-emerald-500">+10</span></div>
+                    <div class="mt-2 pt-2 border-t border-indigo-500/20 flex justify-between text-sm font-black"><span class="text-slate-700 dark:text-slate-200">Maksimum</span><span class="text-indigo-500">120 P</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="loading-overlay" class="fixed inset-0 z-[110] bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center space-y-4 hidden">
     <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
     <p class="text-blue-400 font-black tracking-widest animate-pulse uppercase text-xs">Veriler Eşitleniyor</p>
@@ -441,33 +620,12 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0aWtqcnR4b3dqY3B2Ym1zZ3hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDYxMDUsImV4cCI6MjA4OTc4MjEwNX0.VWOBROBGR52E9gzxx-whsJZ0J8yBn_tPBb838dYxaHU';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let fullData     = [];
-    let rawUsers     = [];
-    let cwtAllData   = [];
-    let perfAllData  = [];
-    let dailyAllData = [];
+    let fullData = [], rawUsers = [], cwtAllData = [], perfAllData = [], dailyAllData = [];
 
-    const toTr = (val, dec = 0) => {
-        const num = parseFloat(val) || 0;
-        if (dec === 0) return Math.round(num).toLocaleString('tr-TR');
-        return num.toFixed(dec).replace('.', ',');
-    };
-    const formatPeriodText = (p) => {
-        if (!p || !p.includes('-')) return p;
-        const [y, m] = p.split('-');
-        const months = ["","Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
-        return `${months[parseInt(m)]} ${y}`;
-    };
-    const formatDateTR = (d) => {
-        if (!d) return '-';
-        const [y, m, day] = d.split('-');
-        return `${day} ${["","Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"][parseInt(m)]} ${y}`;
-    };
-    const formatDateShort = (d) => {
-        if (!d) return '-';
-        const [y, m, day] = d.split('-');
-        return `${day}/${m}`;
-    };
+    const toTr = (val, dec = 0) => { const num = parseFloat(val)||0; return dec===0 ? Math.round(num).toLocaleString('tr-TR') : num.toFixed(dec).replace('.',','); };
+    const formatPeriodText = (p) => { if(!p||!p.includes('-')) return p; const [y,m]=p.split('-'); return `${["","Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"][parseInt(m)]} ${y}`; };
+    const formatDateTR = (d) => { if(!d) return '-'; const [y,m,day]=d.split('-'); return `${day} ${["","Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"][parseInt(m)]} ${y}`; };
+    const formatDateShort = (d) => { if(!d) return '-'; const [y,m,day]=d.split('-'); return `${day}/${m}`; };
 
     function toggleTheme() {
         const isDark = document.documentElement.classList.toggle('dark');
@@ -481,12 +639,10 @@
     }
 
     function showPage(page) {
-        document.getElementById('page-uretim').classList.toggle('hidden', page !== 'uretim');
-        document.getElementById('page-performans').classList.toggle('hidden', page !== 'performans');
+        ['uretim','performans','goalpex'].forEach(p => document.getElementById(`page-${p}`).classList.toggle('hidden', p !== page));
         const active   = 'flex items-center gap-3 px-4 py-3 rounded-2xl bg-blue-500/10 text-blue-500 font-bold border border-blue-500/20 transition-all shadow-sm text-sm';
         const inactive = 'flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all text-sm';
-        document.getElementById('nav-uretim').className    = page === 'uretim'     ? active : inactive;
-        document.getElementById('nav-performans').className = page === 'performans' ? active : inactive;
+        ['uretim','performans','goalpex'].forEach(p => { document.getElementById(`nav-${p}`).className = p === page ? active : inactive; });
         if (page === 'performans') loadPerformans();
     }
 
@@ -495,47 +651,40 @@
         const { data: { session } } = await _supabase.auth.getSession();
         if (session) showDashboard(session.user);
         document.addEventListener('click', (e) => {
-            if (!document.getElementById('perfExportDropdown')?.contains(e.target))
-                document.getElementById('perfExportMenu')?.classList.remove('open');
-            if (!document.getElementById('uretimExportDropdown')?.contains(e.target))
-                document.getElementById('uretimExportMenu')?.classList.remove('open');
+            if (!document.getElementById('perfExportDropdown')?.contains(e.target)) document.getElementById('perfExportMenu')?.classList.remove('open');
+            if (!document.getElementById('uretimExportDropdown')?.contains(e.target)) document.getElementById('uretimExportMenu')?.classList.remove('open');
         });
     });
 
     async function handleLogin(e) {
         e.preventDefault();
         const btn = document.getElementById('loginBtn');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
-        const { data, error } = await _supabase.auth.signInWithPassword({
-            email: document.getElementById('email').value,
-            password: document.getElementById('password').value
-        });
-        if (error) {
-            document.getElementById('loginError').classList.remove('hidden');
-            btn.disabled = false;
-            btn.innerText = 'Giriş Yap';
-        } else { showDashboard(data.user); }
+        btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+        const { data, error } = await _supabase.auth.signInWithPassword({ email: document.getElementById('email').value, password: document.getElementById('password').value });
+        if (error) { document.getElementById('loginError').classList.remove('hidden'); btn.disabled = false; btn.innerText = 'Giriş Yap'; }
+        else { showDashboard(data.user); }
     }
-
     function handleLogout() { _supabase.auth.signOut().then(() => location.reload()); }
-
     function showDashboard(user) {
         document.getElementById('loginPage').classList.add('hidden');
         document.getElementById('mainDashboard').classList.remove('hidden');
-        const initials = user.email.split('@')[0].split('.').map(n => n[0]).join('');
+        const initials = user.email.split('@')[0].split('.').map(n=>n[0]).join('');
         document.getElementById('userInitials').innerText = initials;
         document.getElementById('userName').innerText = user.email.split('@')[0].replace('.', ' ');
         loadPeriods();
     }
+
+    // ── Scala Modal ───────────────────────────────────────────────
+    function openScalaModal()  { document.getElementById('scalaModal').classList.remove('hidden'); document.getElementById('scalaModal').classList.add('flex'); }
+    function closeScalaModal() { document.getElementById('scalaModal').classList.add('hidden'); document.getElementById('scalaModal').classList.remove('flex'); }
 
     // ════════════════════════════════════════════════════════════════
     // ÜRETİM TAKİP
     // ════════════════════════════════════════════════════════════════
     async function loadPeriods() {
         const { data } = await _supabase.from('period_summary').select('period').order('period', { ascending: false }).limit(10000);
-        const unique = [...new Set((data || []).map(d => d.period))];
-        document.getElementById('periodFilter').innerHTML = unique.map(p => `<option value="${p}">${formatPeriodText(p)}</option>`).join('');
+        const unique = [...new Set((data||[]).map(d=>d.period))];
+        document.getElementById('periodFilter').innerHTML = unique.map(p=>`<option value="${p}">${formatPeriodText(p)}</option>`).join('');
         fetchAndRender();
     }
 
@@ -543,79 +692,61 @@
         toggleLoading(true);
         const period = document.getElementById('periodFilter').value;
         try {
-            const cwtFetch = fetch(
-                `${SUPABASE_URL}/rest/v1/cwt_data?period=eq.${encodeURIComponent(period)}&select=user_name,cwt,date`,
-                { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
-            ).then(r => r.json());
-
+            const cwtFetch = fetch(`${SUPABASE_URL}/rest/v1/cwt_data?period=eq.${encodeURIComponent(period)}&select=user_name,cwt,date`,
+                { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }).then(r=>r.json());
             const [dailyRes, summaryRes, userRes, cwtData] = await Promise.all([
                 _supabase.from('daily_data').select('*').eq('period', period).limit(10000),
                 _supabase.from('period_summary').select('*').eq('period', period).limit(10000),
                 _supabase.from('users').select('*').limit(10000),
                 cwtFetch
             ]);
-
-            rawUsers     = userRes.data || [];
-            cwtAllData   = Array.isArray(cwtData) ? cwtData : [];
-            dailyAllData = dailyRes.data || [];
-
-            fullData = (summaryRes.data || []).map(summary => {
-                const normName  = summary.user_name?.toLowerCase().trim();
-                const userMeta  = rawUsers.find(u => u.user_name?.toLowerCase().trim() === normName) || {};
-                const dailyRows = dailyAllData.filter(d => d.user_name?.toLowerCase().trim() === normName);
-                const cwtRows   = cwtAllData.filter(d => d.user_name?.toLowerCase().trim() === normName);
-                return {
-                    ...summary,
-                    team_leader   : userMeta.team_leader || '-',
-                    reg_number    : userMeta.register_number || '-',
-                    total_login   : dailyRows.reduce((s, d) => s + (parseFloat(d.login) || 0), 0),
-                    total_break   : dailyRows.reduce((s, d) => s + (parseFloat(d.break_total) || 0), 0),
-                    total_cwt_min : cwtRows.reduce((s, d) => s + (parseFloat(d.cwt) || 0), 0),
-                    capped_fte    : Math.min(1.0, parseFloat(summary.fte) || 0)
-                };
+            rawUsers = userRes.data||[]; cwtAllData = Array.isArray(cwtData)?cwtData:[]; dailyAllData = dailyRes.data||[];
+            fullData = (summaryRes.data||[]).map(summary => {
+                const normName = summary.user_name?.toLowerCase().trim();
+                const userMeta = rawUsers.find(u=>u.user_name?.toLowerCase().trim()===normName)||{};
+                const dailyRows = dailyAllData.filter(d=>d.user_name?.toLowerCase().trim()===normName);
+                const cwtRows   = cwtAllData.filter(d=>d.user_name?.toLowerCase().trim()===normName);
+                return { ...summary, team_leader: userMeta.team_leader||'-', reg_number: userMeta.register_number||'-',
+                    total_login: dailyRows.reduce((s,d)=>s+(parseFloat(d.login)||0),0),
+                    total_break: dailyRows.reduce((s,d)=>s+(parseFloat(d.break_total)||0),0),
+                    total_cwt_min: cwtRows.reduce((s,d)=>s+(parseFloat(d.cwt)||0),0),
+                    capped_fte: Math.min(1.0, parseFloat(summary.fte)||0) };
             });
-
-            const tls = [...new Set(fullData.map(d => d.team_leader))].sort();
-            document.getElementById('tlFilter').innerHTML = '<option value="all">Tüm Liderler</option>' + tls.map(t => `<option value="${t}">${t}</option>`).join('');
+            const tls = [...new Set(fullData.map(d=>d.team_leader))].sort();
+            document.getElementById('tlFilter').innerHTML = '<option value="all">Tüm Liderler</option>' + tls.map(t=>`<option value="${t}">${t}</option>`).join('');
             applyFilters();
-        } catch (err) { console.error("Fetch Error:", err); }
+        } catch(err) { console.error("Fetch Error:", err); }
         finally { toggleLoading(false); }
     }
 
     function applyFilters() {
-        const tl     = document.getElementById('tlFilter').value;
+        const tl = document.getElementById('tlFilter').value;
         const search = document.getElementById('searchInput').value.toLowerCase();
-        const filtered = fullData.filter(d => (tl === 'all' || d.team_leader === tl) && d.user_name.toLowerCase().includes(search));
-
-        const filteredNames = new Set(filtered.map(d => d.user_name?.toLowerCase().trim()));
-        const cwtFiltered   = (tl === 'all' && search === '') ? cwtAllData : cwtAllData.filter(d => filteredNames.has(d.user_name?.toLowerCase().trim()));
-        const totalCwtHrs   = cwtFiltered.reduce((s, d) => s + (parseFloat(d.cwt) || 0), 0) / 60;
-        const totalFteCap   = filtered.reduce((s, d) => s + d.capped_fte, 0);
-        const sumL = filtered.reduce((s, d) => s + d.total_login, 0);
-        const sumB = filtered.reduce((s, d) => s + d.total_break, 0);
-
-        document.getElementById('kpi-cwt').innerText     = toTr(totalCwtHrs);
-        document.getElementById('kpi-fte').innerText     = toTr(totalFteCap, 2);
-        document.getElementById('kpi-break').innerText   = toTr(sumL > 0 ? (sumB/sumL)*100 : 0, 2) + '%';
-        document.getElementById('kpi-missing').innerText = toTr(filtered.reduce((s, d) => s + (parseFloat(d.missing_time) || 0), 0));
-
+        const filtered = fullData.filter(d=>(tl==='all'||d.team_leader===tl)&&d.user_name.toLowerCase().includes(search));
+        const filteredNames = new Set(filtered.map(d=>d.user_name?.toLowerCase().trim()));
+        const cwtFiltered = (tl==='all'&&search==='')?cwtAllData:cwtAllData.filter(d=>filteredNames.has(d.user_name?.toLowerCase().trim()));
+        const totalCwtHrs = cwtFiltered.reduce((s,d)=>s+(parseFloat(d.cwt)||0),0)/60;
+        const totalFteCap = filtered.reduce((s,d)=>s+d.capped_fte,0);
+        const sumL = filtered.reduce((s,d)=>s+d.total_login,0);
+        const sumB = filtered.reduce((s,d)=>s+d.total_break,0);
+        document.getElementById('kpi-cwt').innerText = toTr(totalCwtHrs);
+        document.getElementById('kpi-fte').innerText = toTr(totalFteCap,2);
+        document.getElementById('kpi-break').innerText = toTr(sumL>0?(sumB/sumL)*100:0,2)+'%';
+        document.getElementById('kpi-missing').innerText = toTr(filtered.reduce((s,d)=>s+(parseFloat(d.missing_time)||0),0));
         const tbody = document.getElementById('dataTableBody');
         tbody.innerHTML = '';
-        filtered.sort((a, b) => b.fte - a.fte).forEach(row => {
-            const m  = Math.round(parseFloat(row.missing_time) || 0);
-            const bR = (parseFloat(row.break_rate) || 0) * 100;
-            let sC = 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20', sT = 'HEDEFTE';
-            if (m > 60 || row.capped_fte < 0.85) { sC = 'text-rose-500 bg-rose-500/10 border-rose-500/20'; sT = 'KRİTİK'; }
-            else if (m > 0) { sC = 'text-amber-500 bg-amber-500/10 border-amber-500/20'; sT = 'TAKİPTE'; }
-            tbody.innerHTML += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all">
-                <td class="px-6 py-4 flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600 font-black text-[10px]">${row.user_name[0]}</div>
-                    <span class="tracking-tight truncate text-sm">${row.user_name}</span>
-                </td>
+        filtered.sort((a,b)=>b.fte-a.fte).forEach(row => {
+            const m = Math.round(parseFloat(row.missing_time)||0);
+            const bR = (parseFloat(row.break_rate)||0)*100;
+            let sC='text-emerald-500 bg-emerald-500/10 border-emerald-500/20', sT='HEDEFTE';
+            if(m>60||row.capped_fte<0.85){sC='text-rose-500 bg-rose-500/10 border-rose-500/20';sT='KRİTİK';}
+            else if(m>0){sC='text-amber-500 bg-amber-500/10 border-amber-500/20';sT='TAKİPTE';}
+            tbody.innerHTML+=`<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all">
+                <td class="px-6 py-4 flex items-center gap-3"><div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600 font-black text-[10px]">${row.user_name[0]}</div><span class="tracking-tight truncate text-sm">${row.user_name}</span></td>
                 <td class="px-6 py-4 text-slate-400 font-medium text-sm">${row.team_leader}</td>
-                <td class="px-6 py-4 text-center font-black text-sm">${toTr(row.capped_fte, 2)}</td>
-                <td class="px-6 py-4 text-center text-slate-500 font-medium text-sm">${toTr(bR, 2)}%</td>
-                <td class="px-6 py-4 text-center ${m > 0 ? 'text-rose-500' : 'text-emerald-500'} font-black text-sm">${toTr(m)} dk</td>
+                <td class="px-6 py-4 text-center font-black text-sm">${toTr(row.capped_fte,2)}</td>
+                <td class="px-6 py-4 text-center text-slate-500 font-medium text-sm">${toTr(bR,2)}%</td>
+                <td class="px-6 py-4 text-center ${m>0?'text-rose-500':'text-emerald-500'} font-black text-sm">${toTr(m)} dk</td>
                 <td class="px-6 py-4 text-right"><span class="px-3 py-1.5 rounded-lg border text-[10px] font-black tracking-widest ${sC}">${sT}</span></td>
             </tr>`;
         });
@@ -624,371 +755,190 @@
     // ════════════════════════════════════════════════════════════════
     // ÜRETİM ÖZEL EXPORT
     // ════════════════════════════════════════════════════════════════
-    function toggleUretimExportMenu() {
-        document.getElementById('uretimExportMenu').classList.toggle('open');
-    }
+    function toggleUretimExportMenu() { document.getElementById('uretimExportMenu').classList.toggle('open'); }
 
-    // ── Metrik seçilince gün listesini güncelle ───────────────────
     function onMetricSelect(key) {
-        // Radio görsel aktif state
-        ['login','mola','molaorani','eksik','cwt'].forEach(k => {
-            document.getElementById(`toggle-${k}`).classList.remove('active');
-        });
+        ['login','mola','molaorani','cwt'].forEach(k => document.getElementById(`toggle-${k}`).classList.remove('active'));
         document.getElementById(`toggle-${key}`).classList.add('active');
-
-        // CWT → cwt_data tarihleri, diğerleri → daily_data tarihleri
-        let days;
-        let rangeLabel = '';
+        let days, rangeLabel = '';
         if (key === 'cwt') {
-            days = [...new Set(cwtAllData.map(d => d.date).filter(Boolean))].sort();
-            if (days.length > 0) {
-                rangeLabel = `${formatDateShort(days[0])} — ${formatDateShort(days[days.length - 1])}`;
-            }
+            days = [...new Set(cwtAllData.map(d=>d.date).filter(Boolean))].sort();
         } else {
-            days = [...new Set(dailyAllData.map(d => d.date).filter(Boolean))].sort();
-            if (days.length > 0) {
-                rangeLabel = `${formatDateShort(days[0])} — ${formatDateShort(days[days.length - 1])}`;
-            }
+            days = [...new Set(dailyAllData.map(d=>d.date).filter(Boolean))].sort();
         }
-
+        if (days.length > 0) rangeLabel = `${formatDateShort(days[0])} — ${formatDateShort(days[days.length-1])}`;
         document.getElementById('uretimDayRangeLabel').innerText = rangeLabel;
-
         const dayList = document.getElementById('uretimModalDayList');
-        if (days.length === 0) {
-            dayList.innerHTML = '<p class="days-empty col-span-4">Veri bulunamadı</p>';
-            return;
-        }
-        dayList.innerHTML = days.map(d => `
-            <label class="day-checkbox">
-                <input type="checkbox" class="uretim-day-cb" value="${d}">
-                <span>${formatDateShort(d)}</span>
-            </label>`).join('');
+        if (days.length === 0) { dayList.innerHTML = '<p class="days-empty col-span-4">Veri bulunamadı</p>'; return; }
+        dayList.innerHTML = days.map(d=>`<label class="day-checkbox"><input type="checkbox" class="uretim-day-cb" value="${d}"><span>${formatDateShort(d)}</span></label>`).join('');
     }
 
     function openUretimOzelModal() {
         document.getElementById('uretimExportMenu').classList.remove('open');
-
-        // Radio + gün listesini sıfırla
-        ['login','mola','molaorani','eksik','cwt'].forEach(k => {
-            const el = document.getElementById(`metric-${k}`);
-            if (el) el.checked = false;
+        ['login','mola','molaorani','cwt'].forEach(k => {
+            const el = document.getElementById(`metric-${k}`); if(el) el.checked = false;
             document.getElementById(`toggle-${k}`).classList.remove('active');
         });
         document.getElementById('uretimDayRangeLabel').innerText = '';
         document.getElementById('uretimModalDayList').innerHTML = '<p class="days-empty col-span-4">Önce bir metrik seçin</p>';
         document.getElementById('uretimModalUserSearch').value = '';
-
-        // Temsilci listesi
-        const users = [...new Set(fullData.map(d => d.user_name))].sort();
-        document.getElementById('uretimModalUserList').innerHTML = users.map(u => `
-            <label class="day-checkbox">
-                <input type="checkbox" class="uretim-user-cb" value="${u}">
-                <span class="truncate">${u}</span>
-            </label>`).join('');
-
+        const users = [...new Set(fullData.map(d=>d.user_name))].sort();
+        document.getElementById('uretimModalUserList').innerHTML = users.map(u=>`<label class="day-checkbox"><input type="checkbox" class="uretim-user-cb" value="${u}"><span class="truncate">${u}</span></label>`).join('');
         document.getElementById('uretimOzelModal').classList.remove('hidden');
         document.getElementById('uretimOzelModal').classList.add('flex');
     }
-
-    function closeUretimOzelModal() {
-        document.getElementById('uretimOzelModal').classList.add('hidden');
-        document.getElementById('uretimOzelModal').classList.remove('flex');
-    }
-
+    function closeUretimOzelModal() { document.getElementById('uretimOzelModal').classList.add('hidden'); document.getElementById('uretimOzelModal').classList.remove('flex'); }
     function filterUretimModalUsers() {
         const q = document.getElementById('uretimModalUserSearch').value.toLowerCase();
-        document.querySelectorAll('#uretimModalUserList .day-checkbox').forEach(el => {
-            el.style.display = el.querySelector('span').textContent.toLowerCase().includes(q) ? '' : 'none';
-        });
+        document.querySelectorAll('#uretimModalUserList .day-checkbox').forEach(el => { el.style.display = el.querySelector('span').textContent.toLowerCase().includes(q)?'':'none'; });
     }
-
-    function selectAllUretimUsers(val) {
-        document.querySelectorAll('.uretim-user-cb').forEach(cb => cb.checked = val);
-    }
-
-    function selectAllUretimDays(val) {
-        document.querySelectorAll('.uretim-day-cb').forEach(cb => cb.checked = val);
-    }
+    function selectAllUretimUsers(val) { document.querySelectorAll('.uretim-user-cb').forEach(cb=>cb.checked=val); }
+    function selectAllUretimDays(val)  { document.querySelectorAll('.uretim-day-cb').forEach(cb=>cb.checked=val); }
 
     function exportUretimOzel() {
         const selectedMetric = document.querySelector('input[name="uretim-metric"]:checked')?.value;
         if (!selectedMetric) { alert('Lütfen bir metrik seçin.'); return; }
-
-        const selectedUsers = [...document.querySelectorAll('.uretim-user-cb:checked')].map(cb => cb.value);
-        const selectedDays  = [...document.querySelectorAll('.uretim-day-cb:checked')].map(cb => cb.value).sort();
-
-        if (selectedUsers.length === 0) { alert('En az bir temsilci seçmelisiniz.'); return; }
-        if (selectedDays.length === 0)  { alert('En az bir gün seçmelisiniz.'); return; }
-
-        // ── CWT map (user+date) ───────────────────────────────────
+        const selectedUsers = [...document.querySelectorAll('.uretim-user-cb:checked')].map(cb=>cb.value);
+        const selectedDays  = [...document.querySelectorAll('.uretim-day-cb:checked')].map(cb=>cb.value).sort();
+        if (selectedUsers.length===0) { alert('En az bir temsilci seçmelisiniz.'); return; }
+        if (selectedDays.length===0)  { alert('En az bir gün seçmelisiniz.'); return; }
         const cwtMap = {};
-        cwtAllData.forEach(d => {
-            if (!d.date) return;
-            const key = `${d.user_name}__${d.date}`;
-            cwtMap[key] = (cwtMap[key] || 0) + (parseFloat(d.cwt) || 0);
-        });
-
-        const metricLabels = {
-            login     : 'Login (Dk)',
-            mola      : 'Mola (Dk)',
-            molaorani : 'Mola Oranı',
-            eksik     : 'Eksik Süre (Dk)',
-            cwt       : 'Net Login (Dk)'
-        };
-
+        cwtAllData.forEach(d => { if(!d.date) return; const key=`${d.user_name}__${d.date}`; cwtMap[key]=(cwtMap[key]||0)+(parseFloat(d.cwt)||0); });
+        const metricLabels = { login:'Login (Dk)', mola:'Mola (Dk)', molaorani:'Mola Oranı', cwt:'Net Login (Dk)' };
         const rows = selectedUsers.map(userName => {
             const row = { "Temsilci": userName };
             selectedDays.forEach(day => {
                 let val = '';
-                if (selectedMetric === 'cwt') {
-                    val = cwtMap[`${userName}__${day}`] || '';
-                } else if (selectedMetric === 'molaorani') {
-                    const dayRow = dailyAllData.find(d => d.user_name === userName && d.date === day);
-                    if (dayRow) {
-                        const l = parseFloat(dayRow.login) || 0;
-                        const b = parseFloat(dayRow.break_total) || 0;
-                        val = l > 0 ? parseFloat((b / l).toFixed(6)) : '';
-                    }
+                if (selectedMetric==='cwt') { val = cwtMap[`${userName}__${day}`]||''; }
+                else if (selectedMetric==='molaorani') {
+                    const dayRow = dailyAllData.find(d=>d.user_name===userName&&d.date===day);
+                    if (dayRow) { const l=parseFloat(dayRow.login)||0, b=parseFloat(dayRow.break_total)||0; val=l>0?parseFloat((b/l).toFixed(6)):''; }
                 } else {
-                    const dataKey = selectedMetric === 'login' ? 'login'
-                                  : selectedMetric === 'mola'  ? 'break_total'
-                                  : 'missing_time';
-                    const dayRow = dailyAllData.find(d => d.user_name === userName && d.date === day);
-                    val = dayRow ? (parseFloat(dayRow[dataKey]) || '') : '';
+                    const dataKey = selectedMetric==='login'?'login':'break_total';
+                    const dayRow = dailyAllData.find(d=>d.user_name===userName&&d.date===day);
+                    val = dayRow?(parseFloat(dayRow[dataKey])||''):'';
                 }
                 row[formatDateShort(day)] = val;
             });
             return row;
         });
-
         const ws = XLSX.utils.json_to_sheet(rows);
-
-        // Mola oranı % formatla
-        if (selectedMetric === 'molaorani') {
+        if (selectedMetric==='molaorani') {
             const range = XLSX.utils.decode_range(ws['!ref']);
-            for (let R = range.s.r + 1; R <= range.e.r; ++R) {
-                for (let C = 1; C <= selectedDays.length; ++C) {
-                    const c = XLSX.utils.encode_cell({ r: R, c: C });
-                    if (ws[c] && ws[c].v !== '') { ws[c].t = 'n'; ws[c].z = '0.00%'; }
-                }
-            }
+            for (let R=range.s.r+1;R<=range.e.r;++R) for (let C=1;C<=selectedDays.length;++C) { const c=XLSX.utils.encode_cell({r:R,c:C}); if(ws[c]&&ws[c].v!==''){ws[c].t='n';ws[c].z='0.00%';} }
         }
-
         const wb = XLSX.utils.book_new();
-        const sheetName = metricLabels[selectedMetric].substring(0, 31);
-        XLSX.utils.book_append_sheet(wb, ws, sheetName);
+        XLSX.utils.book_append_sheet(wb, ws, metricLabels[selectedMetric].substring(0,31));
         XLSX.writeFile(wb, `Uretim_Ozel_${document.getElementById('periodFilter').value}.xlsx`);
         closeUretimOzelModal();
     }
 
     // ════════════════════════════════════════════════════════════════
-    // PERFORMANS SAYFASI
+    // PERFORMANS
     // ════════════════════════════════════════════════════════════════
     async function loadPerformans() {
-        const { data } = await _supabase.from('performance_data').select('period').order('period', { ascending: false }).limit(10000);
-        const unique = [...new Set((data || []).map(d => d.period))];
-        document.getElementById('perfPeriodFilter').innerHTML = unique.map(p => `<option value="${p}">${formatPeriodText(p)}</option>`).join('');
-        if (unique.length > 0) fetchPerformans();
+        const { data } = await _supabase.from('performance_data').select('period').order('period',{ascending:false}).limit(10000);
+        const unique = [...new Set((data||[]).map(d=>d.period))];
+        document.getElementById('perfPeriodFilter').innerHTML = unique.map(p=>`<option value="${p}">${formatPeriodText(p)}</option>`).join('');
+        if (unique.length>0) fetchPerformans();
     }
-
     async function fetchPerformans() {
         toggleLoading(true);
         const period = document.getElementById('perfPeriodFilter').value;
         try {
-            const { data } = await _supabase.from('performance_data').select('*').eq('period', period).limit(10000);
-            perfAllData = data || [];
-            const dailyDates = [...new Set(perfAllData.map(d => d.date).filter(d => d !== null && d !== undefined))].sort((a, b) => b.localeCompare(a));
-            const dateSel = document.getElementById('perfDateFilter');
-            dateSel.innerHTML = '<option value="all">Tümü (Kümülatif)</option>' +
-                dailyDates.map(d => `<option value="${d}">${formatDateTR(d)}</option>`).join('');
+            const { data } = await _supabase.from('performance_data').select('*').eq('period',period).limit(10000);
+            perfAllData = data||[];
+            const dailyDates = [...new Set(perfAllData.map(d=>d.date).filter(d=>d!==null&&d!==undefined))].sort((a,b)=>b.localeCompare(a));
+            document.getElementById('perfDateFilter').innerHTML = '<option value="all">Tümü (Kümülatif)</option>'+dailyDates.map(d=>`<option value="${d}">${formatDateTR(d)}</option>`).join('');
             applyPerfFilter();
-        } catch (err) { console.error("Perf Fetch Error:", err); }
-        finally { toggleLoading(false); }
+        } catch(err){console.error(err);} finally{toggleLoading(false);}
     }
-
     function applyPerfFilter() {
         const selectedDate = document.getElementById('perfDateFilter').value;
         const search = document.getElementById('perfSearchInput').value.toLowerCase();
-        let filtered;
-        if (selectedDate === 'all') {
-            filtered = perfAllData.filter(d => d.date === null);
-            document.getElementById('perfTableSubtitle').innerText = 'Kümülatif Veriler';
-        } else {
-            filtered = perfAllData.filter(d => d.date === selectedDate);
-            document.getElementById('perfTableSubtitle').innerText = formatDateTR(selectedDate) + ' Verileri';
-        }
-        if (search) filtered = filtered.filter(d => d.user_name.toLowerCase().includes(search));
+        let filtered = selectedDate==='all' ? perfAllData.filter(d=>d.date===null) : perfAllData.filter(d=>d.date===selectedDate);
+        document.getElementById('perfTableSubtitle').innerText = selectedDate==='all' ? 'Kümülatif Veriler' : formatDateTR(selectedDate)+' Verileri';
+        if (search) filtered = filtered.filter(d=>d.user_name.toLowerCase().includes(search));
         renderPerfTables(filtered);
     }
-
     function renderPerfTables(data) {
-        const sorted    = [...data].sort((a, b) => (parseFloat(b.performance_pct) || 0) - (parseFloat(a.performance_pct) || 0));
-        const top10     = sorted.slice(0, 10);
-        const maxActual = Math.max(...sorted.map(d => parseFloat(d.transaction_count) || 0), 1);
-
+        const sorted = [...data].sort((a,b)=>(parseFloat(b.performance_pct)||0)-(parseFloat(a.performance_pct)||0));
+        const maxActual = Math.max(...sorted.map(d=>parseFloat(d.transaction_count)||0),1);
         const top10El = document.getElementById('top10List');
         top10El.innerHTML = '';
-        top10.forEach((row, i) => {
-            const rank = i + 1;
-            const pct  = parseFloat(row.performance_pct) || 0;
-            const actual = parseFloat(row.transaction_count) || 0;
-            let badgeClass = 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300';
-            if (rank === 1) badgeClass = 'rank-1 text-white';
-            if (rank === 2) badgeClass = 'rank-2 text-white';
-            if (rank === 3) badgeClass = 'rank-3 text-white';
-            const pctColor = pct >= 100 ? 'text-emerald-500' : 'text-rose-500';
-            top10El.innerHTML += `
-                <div class="perf-row flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all" style="animation-delay:${i*0.05}s">
-                    <div class="w-7 h-7 shrink-0 rounded-lg flex items-center justify-center text-xs font-black ${badgeClass}">${rank}</div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-xs font-bold truncate">${row.user_name}</p>
-                        <div class="mt-1 h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                            <div class="bar-fill h-full rounded-full ${pct >= 100 ? 'bg-emerald-500' : 'bg-rose-400'}" style="width:${Math.min((actual/maxActual)*100,100)}%"></div>
-                        </div>
-                    </div>
-                    <span class="text-[11px] font-black ${pctColor} shrink-0">%${pct.toFixed(1)}</span>
-                </div>`;
+        sorted.slice(0,10).forEach((row,i) => {
+            const rank=i+1, pct=parseFloat(row.performance_pct)||0, actual=parseFloat(row.transaction_count)||0;
+            let badgeClass='bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300';
+            if(rank===1)badgeClass='rank-1 text-white'; if(rank===2)badgeClass='rank-2 text-white'; if(rank===3)badgeClass='rank-3 text-white';
+            top10El.innerHTML+=`<div class="perf-row flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all" style="animation-delay:${i*0.05}s">
+                <div class="w-7 h-7 shrink-0 rounded-lg flex items-center justify-center text-xs font-black ${badgeClass}">${rank}</div>
+                <div class="flex-1 min-w-0"><p class="text-xs font-bold truncate">${row.user_name}</p>
+                    <div class="mt-1 h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden"><div class="bar-fill h-full rounded-full ${pct>=100?'bg-emerald-500':'bg-rose-400'}" style="width:${Math.min((actual/maxActual)*100,100)}%"></div></div>
+                </div><span class="text-[11px] font-black ${pct>=100?'text-emerald-500':'text-rose-500'} shrink-0">%${pct.toFixed(1)}</span></div>`;
         });
-
         const tbody = document.getElementById('perfTableBody');
         tbody.innerHTML = '';
-        sorted.forEach((row, i) => {
-            const pct      = parseFloat(row.performance_pct) || 0;
-            const actual   = parseFloat(row.transaction_count) || 0;
-            const avg      = parseFloat(row.pool_average) || 0;
-            const distance = actual - avg;
-            const pctColor  = pct >= 100 ? 'text-emerald-500' : 'text-rose-500';
-            const distColor = distance >= 0 ? 'text-emerald-500' : 'text-rose-500';
-            const distSign  = distance >= 0 ? '+' : '';
-            tbody.innerHTML += `
-                <tr class="perf-row hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all" style="animation-delay:${i*0.03}s">
-                    <td class="px-5 py-3.5">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600 font-black text-[10px]">${row.user_name[0].toUpperCase()}</div>
-                            <span class="font-bold text-sm truncate">${row.user_name}</span>
-                        </div>
-                    </td>
-                    <td class="px-5 py-3.5 text-center text-slate-500 font-medium text-sm">${avg > 0 ? avg.toFixed(0) : '-'}</td>
-                    <td class="px-5 py-3.5 text-center font-black text-sm">${actual > 0 ? actual : '-'}</td>
-                    <td class="px-5 py-3.5 text-center font-black text-sm ${pctColor}">%${pct.toFixed(1)}</td>
-                    <td class="px-5 py-3.5 text-center font-black text-sm ${distColor}">${avg > 0 ? distSign + distance.toFixed(0) : '-'}</td>
-                </tr>`;
+        sorted.forEach((row,i) => {
+            const pct=parseFloat(row.performance_pct)||0, actual=parseFloat(row.transaction_count)||0, avg=parseFloat(row.pool_average)||0, distance=actual-avg;
+            tbody.innerHTML+=`<tr class="perf-row hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all" style="animation-delay:${i*0.03}s">
+                <td class="px-5 py-3.5"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600 font-black text-[10px]">${row.user_name[0].toUpperCase()}</div><span class="font-bold text-sm truncate">${row.user_name}</span></div></td>
+                <td class="px-5 py-3.5 text-center text-slate-500 font-medium text-sm">${avg>0?avg.toFixed(0):'-'}</td>
+                <td class="px-5 py-3.5 text-center font-black text-sm">${actual>0?actual:'-'}</td>
+                <td class="px-5 py-3.5 text-center font-black text-sm ${pct>=100?'text-emerald-500':'text-rose-500'}">%${pct.toFixed(1)}</td>
+                <td class="px-5 py-3.5 text-center font-black text-sm ${distance>=0?'text-emerald-500':'text-rose-500'}">${avg>0?(distance>=0?'+':'')+distance.toFixed(0):'-'}</td>
+            </tr>`;
         });
-
-        if (sorted.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="px-5 py-12 text-center text-slate-400 font-bold text-sm">Bu dönem için veri bulunamadı.</td></tr>`;
-            top10El.innerHTML = `<p class="p-4 text-center text-slate-400 text-xs font-bold">Veri yok</p>`;
-        }
+        if(sorted.length===0){tbody.innerHTML=`<tr><td colspan="5" class="px-5 py-12 text-center text-slate-400 font-bold text-sm">Bu dönem için veri bulunamadı.</td></tr>`;top10El.innerHTML=`<p class="p-4 text-center text-slate-400 text-xs font-bold">Veri yok</p>`;}
     }
 
     // ════════════════════════════════════════════════════════════════
-    // PERFORMANS EXCEL EXPORT
+    // PERFORMANS EXPORT
     // ════════════════════════════════════════════════════════════════
     function toggleExportMenu() { document.getElementById('perfExportMenu').classList.toggle('open'); }
-
     function buildPivotData(users, days) {
-        const dailyRows = perfAllData.filter(d => d.date !== null);
+        const dailyRows = perfAllData.filter(d=>d.date!==null);
         const dayStats = {};
-        days.forEach(day => {
-            const dayData = dailyRows.filter(d => d.date === day);
-            dayStats[day] = {
-                avg  : dayData.length > 0 ? (dayData[0].pool_average || 0) : 0,
-                hc   : dayData.length,
-                total: dayData.reduce((s, d) => s + (parseFloat(d.transaction_count) || 0), 0)
-            };
-        });
-        const rows = users.map(userName => {
-            const row = { "Temsilci": userName };
-            days.forEach(day => {
-                const match = dailyRows.find(d => d.user_name === userName && d.date === day);
-                row[formatDateShort(day)] = match ? (parseFloat(match.transaction_count) || '') : '';
-            });
-            return row;
-        });
-        const avgRow   = { "Temsilci": "Havuz Ortalaması" };
-        const hcRow    = { "Temsilci": "HC" };
-        const totalRow = { "Temsilci": "Toplam İşlem" };
-        days.forEach(day => {
-            avgRow[formatDateShort(day)]   = dayStats[day].avg > 0 ? parseFloat(dayStats[day].avg.toFixed(2)) : '';
-            hcRow[formatDateShort(day)]    = dayStats[day].hc || '';
-            totalRow[formatDateShort(day)] = dayStats[day].total || '';
-        });
-        return { rows, avgRow, hcRow, totalRow };
+        days.forEach(day => { const dd=dailyRows.filter(d=>d.date===day); dayStats[day]={avg:dd.length>0?(dd[0].pool_average||0):0,hc:dd.length,total:dd.reduce((s,d)=>s+(parseFloat(d.transaction_count)||0),0)}; });
+        const rows = users.map(u => { const row={"Temsilci":u}; days.forEach(day=>{const m=dailyRows.find(d=>d.user_name===u&&d.date===day);row[formatDateShort(day)]=m?(parseFloat(m.transaction_count)||''):'';});return row;});
+        const avgRow={"Temsilci":"Havuz Ortalaması"},hcRow={"Temsilci":"HC"},totalRow={"Temsilci":"Toplam İşlem"};
+        days.forEach(day=>{avgRow[formatDateShort(day)]=dayStats[day].avg>0?parseFloat(dayStats[day].avg.toFixed(2)):'';hcRow[formatDateShort(day)]=dayStats[day].hc||'';totalRow[formatDateShort(day)]=dayStats[day].total||'';});
+        return {rows,avgRow,hcRow,totalRow};
     }
-
     function exportPerfKumulatif() {
         document.getElementById('perfExportMenu').classList.remove('open');
-        const kumData = perfAllData.filter(d => d.date === null).sort((a, b) => (parseFloat(b.performance_pct) || 0) - (parseFloat(a.performance_pct) || 0));
-        const rows = kumData.map(d => {
-            const avg    = parseFloat(d.pool_average) || 0;
-            const actual = parseFloat(d.transaction_count) || 0;
-            const pct    = parseFloat(d.performance_pct) || 0;
-            return {
-                "Temsilci"         : d.user_name,
-                "Havuz Ortalaması" : avg > 0 ? parseFloat(avg.toFixed(2)) : '',
-                "Gerçekleşen"      : actual || '',
-                "Performans %"     : pct > 0 ? pct / 100 : '',
-                "Ort. Uzaklık"     : avg > 0 ? parseFloat((actual - avg).toFixed(2)) : ''
-            };
-        });
-        const ws = XLSX.utils.json_to_sheet(rows);
-        const range = XLSX.utils.decode_range(ws['!ref']);
-        for (let R = range.s.r + 1; R <= range.e.r; ++R) {
-            const pctC = XLSX.utils.encode_cell({ r: R, c: 3 });
-            if (ws[pctC]) { ws[pctC].t = 'n'; ws[pctC].z = '0.00%'; }
-        }
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Kümülatif");
-        XLSX.writeFile(wb, `Performans_Kumulatif_${document.getElementById('perfPeriodFilter').value}.xlsx`);
+        const kumData = perfAllData.filter(d=>d.date===null).sort((a,b)=>(parseFloat(b.performance_pct)||0)-(parseFloat(a.performance_pct)||0));
+        const rows = kumData.map(d=>{const avg=parseFloat(d.pool_average)||0,actual=parseFloat(d.transaction_count)||0,pct=parseFloat(d.performance_pct)||0;return{"Temsilci":d.user_name,"Havuz Ortalaması":avg>0?parseFloat(avg.toFixed(2)):'',"Gerçekleşen":actual||'',"Performans %":pct>0?pct/100:'',"Ort. Uzaklık":avg>0?parseFloat((actual-avg).toFixed(2)):''};});
+        const ws=XLSX.utils.json_to_sheet(rows);const range=XLSX.utils.decode_range(ws['!ref']);
+        for(let R=range.s.r+1;R<=range.e.r;++R){const c=XLSX.utils.encode_cell({r:R,c:3});if(ws[c]){ws[c].t='n';ws[c].z='0.00%';}}
+        const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Kümülatif");XLSX.writeFile(wb,`Performans_Kumulatif_${document.getElementById('perfPeriodFilter').value}.xlsx`);
     }
-
     function exportPerfGunluk() {
         document.getElementById('perfExportMenu').classList.remove('open');
-        const days  = [...new Set(perfAllData.map(d => d.date).filter(d => d !== null))].sort();
-        const users = [...new Set(perfAllData.filter(d => d.date !== null).map(d => d.user_name))].sort();
-        const { rows, avgRow, hcRow, totalRow } = buildPivotData(users, days);
-        const ws = XLSX.utils.json_to_sheet([...rows, {}, avgRow, hcRow, totalRow]);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Günlük");
-        XLSX.writeFile(wb, `Performans_Gunluk_${document.getElementById('perfPeriodFilter').value}.xlsx`);
+        const days=[...new Set(perfAllData.map(d=>d.date).filter(d=>d!==null))].sort();
+        const users=[...new Set(perfAllData.filter(d=>d.date!==null).map(d=>d.user_name))].sort();
+        const {rows,avgRow,hcRow,totalRow}=buildPivotData(users,days);
+        const ws=XLSX.utils.json_to_sheet([...rows,{},avgRow,hcRow,totalRow]);
+        const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Günlük");XLSX.writeFile(wb,`Performans_Gunluk_${document.getElementById('perfPeriodFilter').value}.xlsx`);
     }
-
     function openOzelModal() {
         document.getElementById('perfExportMenu').classList.remove('open');
-        const days  = [...new Set(perfAllData.map(d => d.date).filter(d => d !== null))].sort();
-        const users = [...new Set(perfAllData.filter(d => d.date !== null).map(d => d.user_name))].sort();
-        document.getElementById('modalUserList').innerHTML = users.map(u => `
-            <label class="day-checkbox"><input type="checkbox" class="modal-user-cb" value="${u}"><span>${u}</span></label>`).join('');
-        document.getElementById('modalDayList').innerHTML = days.map(d => `
-            <label class="day-checkbox"><input type="checkbox" class="modal-day-cb" value="${d}"><span>${formatDateShort(d)}</span></label>`).join('');
-        document.getElementById('ozelModal').classList.remove('hidden');
-        document.getElementById('ozelModal').classList.add('flex');
+        const days=[...new Set(perfAllData.map(d=>d.date).filter(d=>d!==null))].sort();
+        const users=[...new Set(perfAllData.filter(d=>d.date!==null).map(d=>d.user_name))].sort();
+        document.getElementById('modalUserList').innerHTML=users.map(u=>`<label class="day-checkbox"><input type="checkbox" class="modal-user-cb" value="${u}"><span>${u}</span></label>`).join('');
+        document.getElementById('modalDayList').innerHTML=days.map(d=>`<label class="day-checkbox"><input type="checkbox" class="modal-day-cb" value="${d}"><span>${formatDateShort(d)}</span></label>`).join('');
+        document.getElementById('ozelModal').classList.remove('hidden');document.getElementById('ozelModal').classList.add('flex');
     }
-
-    function closeOzelModal() {
-        document.getElementById('ozelModal').classList.add('hidden');
-        document.getElementById('ozelModal').classList.remove('flex');
-    }
-
-    function filterModalUsers() {
-        const q = document.getElementById('modalUserSearch').value.toLowerCase();
-        document.querySelectorAll('#modalUserList .day-checkbox').forEach(el => {
-            el.style.display = el.querySelector('span').textContent.toLowerCase().includes(q) ? '' : 'none';
-        });
-    }
-
-    function selectAllUsers(val) { document.querySelectorAll('.modal-user-cb').forEach(cb => cb.checked = val); }
-    function selectAllDays(val)  { document.querySelectorAll('.modal-day-cb').forEach(cb => cb.checked = val); }
-
+    function closeOzelModal() { document.getElementById('ozelModal').classList.add('hidden');document.getElementById('ozelModal').classList.remove('flex'); }
+    function filterModalUsers() { const q=document.getElementById('modalUserSearch').value.toLowerCase();document.querySelectorAll('#modalUserList .day-checkbox').forEach(el=>{el.style.display=el.querySelector('span').textContent.toLowerCase().includes(q)?'':'none';}); }
+    function selectAllUsers(val){document.querySelectorAll('.modal-user-cb').forEach(cb=>cb.checked=val);}
+    function selectAllDays(val){document.querySelectorAll('.modal-day-cb').forEach(cb=>cb.checked=val);}
     function exportPerfOzel() {
-        const selectedUsers = [...document.querySelectorAll('.modal-user-cb:checked')].map(cb => cb.value);
-        const selectedDays  = [...document.querySelectorAll('.modal-day-cb:checked')].map(cb => cb.value).sort();
-        if (selectedUsers.length === 0 || selectedDays.length === 0) { alert('En az bir temsilci ve bir gün seçmelisiniz.'); return; }
-        const { rows, avgRow, hcRow, totalRow } = buildPivotData(selectedUsers, selectedDays);
-        const ws = XLSX.utils.json_to_sheet([...rows, {}, avgRow, hcRow, totalRow]);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Özel");
-        XLSX.writeFile(wb, `Performans_Ozel_${document.getElementById('perfPeriodFilter').value}.xlsx`);
+        const selectedUsers=[...document.querySelectorAll('.modal-user-cb:checked')].map(cb=>cb.value);
+        const selectedDays=[...document.querySelectorAll('.modal-day-cb:checked')].map(cb=>cb.value).sort();
+        if(selectedUsers.length===0||selectedDays.length===0){alert('En az bir temsilci ve bir gün seçmelisiniz.');return;}
+        const {rows,avgRow,hcRow,totalRow}=buildPivotData(selectedUsers,selectedDays);
+        const ws=XLSX.utils.json_to_sheet([...rows,{},avgRow,hcRow,totalRow]);
+        const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Özel");XLSX.writeFile(wb,`Performans_Ozel_${document.getElementById('perfPeriodFilter').value}.xlsx`);
         closeOzelModal();
     }
 
@@ -997,44 +947,13 @@
     // ════════════════════════════════════════════════════════════════
     function exportToExcel() {
         document.getElementById('uretimExportMenu').classList.remove('open');
-        const tl     = document.getElementById('tlFilter').value;
-        const search = document.getElementById('searchInput').value.toLowerCase();
-        const rows   = fullData
-            .filter(d => (tl === 'all' || d.team_leader === tl) && d.user_name.toLowerCase().includes(search))
-            .map(d => ({
-                "Sicil No"          : d.reg_number,
-                "Temsilci Adı"      : d.user_name,
-                "Takım Lideri"      : d.team_leader,
-                "Login Süresi (Dk)" : parseFloat(d.total_login)   || 0,
-                "Mola Süresi (Dk)"  : parseFloat(d.total_break)   || 0,
-                "Net Login (Dk)"    : parseFloat(d.total_cwt_min) || 0,
-                "Mola Oranı"        : parseFloat(d.break_rate)    || 0,
-                "Eksik Süre (Dk)"   : parseFloat(d.missing_time)  || 0,
-                "Ham FTE"           : parseFloat(d.fte)           || 0,
-                "Capped FTE"        : parseFloat(d.capped_fte)    || 0
-            }));
-        const sumL = rows.reduce((s, r) => s + r["Login Süresi (Dk)"], 0);
-        const sumB = rows.reduce((s, r) => s + r["Mola Süresi (Dk)"], 0);
-        rows.push({
-            "Sicil No": "GENEL TOPLAM", "Temsilci Adı": "", "Takım Lideri": "",
-            "Login Süresi (Dk)" : sumL, "Mola Süresi (Dk)": sumB,
-            "Net Login (Dk)"    : rows.reduce((s, r) => s + r["Net Login (Dk)"], 0),
-            "Mola Oranı"        : sumL > 0 ? (sumB / sumL) : 0,
-            "Eksik Süre (Dk)"   : rows.reduce((s, r) => s + r["Eksik Süre (Dk)"], 0),
-            "Ham FTE"           : rows.reduce((s, r) => s + r["Ham FTE"], 0),
-            "Capped FTE"        : rows.reduce((s, r) => s + r["Capped FTE"], 0)
-        });
-        const ws = XLSX.utils.json_to_sheet(rows);
-        const range = XLSX.utils.decode_range(ws['!ref']);
-        for (let R = range.s.r + 1; R <= range.e.r; ++R) {
-            [3,4,5].forEach(C => { const c = XLSX.utils.encode_cell({r:R,c:C}); if(ws[c]){ws[c].t='n';ws[c].z='0';} });
-            const eksikC = XLSX.utils.encode_cell({r:R,c:7}); if(ws[eksikC]){ws[eksikC].t='n';ws[eksikC].z='0';}
-            const brC    = XLSX.utils.encode_cell({r:R,c:6}); if(ws[brC]){ws[brC].t='n';ws[brC].z='0.00%';}
-            [8,9].forEach(C => { const c = XLSX.utils.encode_cell({r:R,c:C}); if(ws[c]){ws[c].t='n';ws[c].z='0.00';} });
-        }
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "KPI Raporu");
-        XLSX.writeFile(wb, `Ihtilafli_KPI_${document.getElementById('periodFilter').value}.xlsx`);
+        const tl=document.getElementById('tlFilter').value, search=document.getElementById('searchInput').value.toLowerCase();
+        const rows=fullData.filter(d=>(tl==='all'||d.team_leader===tl)&&d.user_name.toLowerCase().includes(search)).map(d=>({"Sicil No":d.reg_number,"Temsilci Adı":d.user_name,"Takım Lideri":d.team_leader,"Login Süresi (Dk)":parseFloat(d.total_login)||0,"Mola Süresi (Dk)":parseFloat(d.total_break)||0,"Net Login (Dk)":parseFloat(d.total_cwt_min)||0,"Mola Oranı":parseFloat(d.break_rate)||0,"Eksik Süre (Dk)":parseFloat(d.missing_time)||0,"Ham FTE":parseFloat(d.fte)||0,"Capped FTE":parseFloat(d.capped_fte)||0}));
+        const sumL=rows.reduce((s,r)=>s+r["Login Süresi (Dk)"],0), sumB=rows.reduce((s,r)=>s+r["Mola Süresi (Dk)"],0);
+        rows.push({"Sicil No":"GENEL TOPLAM","Temsilci Adı":"","Takım Lideri":"","Login Süresi (Dk)":sumL,"Mola Süresi (Dk)":sumB,"Net Login (Dk)":rows.reduce((s,r)=>s+r["Net Login (Dk)"],0),"Mola Oranı":sumL>0?(sumB/sumL):0,"Eksik Süre (Dk)":rows.reduce((s,r)=>s+r["Eksik Süre (Dk)"],0),"Ham FTE":rows.reduce((s,r)=>s+r["Ham FTE"],0),"Capped FTE":rows.reduce((s,r)=>s+r["Capped FTE"],0)});
+        const ws=XLSX.utils.json_to_sheet(rows); const range=XLSX.utils.decode_range(ws['!ref']);
+        for(let R=range.s.r+1;R<=range.e.r;++R){[3,4,5].forEach(C=>{const c=XLSX.utils.encode_cell({r:R,c:C});if(ws[c]){ws[c].t='n';ws[c].z='0';}});const e=XLSX.utils.encode_cell({r:R,c:7});if(ws[e]){ws[e].t='n';ws[e].z='0';}const b=XLSX.utils.encode_cell({r:R,c:6});if(ws[b]){ws[b].t='n';ws[b].z='0.00%';}[8,9].forEach(C=>{const c=XLSX.utils.encode_cell({r:R,c:C});if(ws[c]){ws[c].t='n';ws[c].z='0.00';}});}
+        const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"KPI Raporu");XLSX.writeFile(wb,`Ihtilafli_KPI_${document.getElementById('periodFilter').value}.xlsx`);
     }
 
     function toggleLoading(s) { document.getElementById('loading-overlay').classList.toggle('hidden', !s); }
