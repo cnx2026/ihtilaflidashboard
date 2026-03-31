@@ -53,12 +53,16 @@
         .dark .export-menu button:hover { background: #1e293b; }
         .day-checkbox { display: flex; align-items: center; gap: 8px; padding: 4px 0; cursor: pointer; font-size: 13px; font-weight: 600; }
         .day-checkbox input { accent-color: #3b82f6; width: 14px; height: 14px; cursor: pointer; }
+        /* Metric radio toggle */
         .metric-toggle { display: flex; align-items: center; gap: 10px; padding: 8px 12px;
             border: 1px solid #e2e8f0; border-radius: 12px; cursor: pointer; transition: all 0.15s; }
         .dark .metric-toggle { border-color: #1e293b; }
-        .metric-toggle.active { background: #eff6ff; border-color: #bfdbfe; }
+        .metric-toggle.active { background: #eff6ff; border-color: #3b82f6; }
         .dark .metric-toggle.active { background: #1e3a5f; border-color: #1d4ed8; }
         .metric-toggle input { accent-color: #3b82f6; width: 15px; height: 15px; cursor: pointer; }
+        /* Gün listesi boş mesajı */
+        .days-empty { padding: 12px; text-align: center; font-size: 12px; font-weight: 700;
+            color: #94a3b8; letter-spacing: 0.05em; }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen overflow-hidden transition-colors duration-500">
@@ -313,36 +317,41 @@
     <div class="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-2xl p-8 mx-4 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-6">
             <div>
-                <!-- ── "Özel Export" → "Export" ── -->
                 <h3 class="font-black text-lg tracking-tight">Export</h3>
                 <p class="text-xs text-slate-400 font-medium mt-0.5">Metrik, temsilci ve gün seçimi yapın</p>
             </div>
             <button onclick="closeUretimOzelModal()" class="text-slate-400 hover:text-rose-500 transition-colors text-xl"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
-        <!-- Metrik seçimi — başlangıçta seçisiz -->
+        <!-- Metrik seçimi — tek seçim (radio) -->
         <div class="mb-6">
-            <label class="text-xs font-black text-slate-500 uppercase tracking-widest mb-3 block">Gösterilecek Metrikler</label>
+            <label class="text-xs font-black text-slate-500 uppercase tracking-widest mb-3 block">Metrik</label>
             <div class="grid grid-cols-2 gap-2">
-                <label class="metric-toggle" id="toggle-login">
-                    <input type="checkbox" id="metric-login" onchange="toggleMetricStyle('login')">
+                <label class="metric-toggle" id="toggle-login" onclick="onMetricSelect('login')">
+                    <input type="radio" name="uretim-metric" id="metric-login" value="login">
                     <i class="fa-solid fa-clock text-blue-500 text-sm"></i>
                     <span class="text-sm font-bold">Login Süresi</span>
                 </label>
-                <label class="metric-toggle" id="toggle-mola">
-                    <input type="checkbox" id="metric-mola" onchange="toggleMetricStyle('mola')">
+                <label class="metric-toggle" id="toggle-mola" onclick="onMetricSelect('mola')">
+                    <input type="radio" name="uretim-metric" id="metric-mola" value="mola">
                     <i class="fa-solid fa-mug-hot text-amber-500 text-sm"></i>
                     <span class="text-sm font-bold">Mola Süresi</span>
                 </label>
-                <label class="metric-toggle" id="toggle-molaorani">
-                    <input type="checkbox" id="metric-molaorani" onchange="toggleMetricStyle('molaorani')">
+                <label class="metric-toggle" id="toggle-molaorani" onclick="onMetricSelect('molaorani')">
+                    <input type="radio" name="uretim-metric" id="metric-molaorani" value="molaorani">
                     <i class="fa-solid fa-percent text-orange-500 text-sm"></i>
                     <span class="text-sm font-bold">Mola Oranı</span>
                 </label>
-                <label class="metric-toggle" id="toggle-cwt">
-                    <input type="checkbox" id="metric-cwt" onchange="toggleMetricStyle('cwt')">
+                <label class="metric-toggle" id="toggle-eksik" onclick="onMetricSelect('eksik')">
+                    <input type="radio" name="uretim-metric" id="metric-eksik" value="eksik">
+                    <i class="fa-solid fa-hourglass-half text-rose-500 text-sm"></i>
+                    <span class="text-sm font-bold">Eksik Süre</span>
+                </label>
+                <label class="metric-toggle col-span-2" id="toggle-cwt" onclick="onMetricSelect('cwt')">
+                    <input type="radio" name="uretim-metric" id="metric-cwt" value="cwt">
                     <i class="fa-solid fa-stopwatch text-emerald-500 text-sm"></i>
                     <span class="text-sm font-bold">Net Login (CWT)</span>
+                    <span class="ml-auto text-[10px] font-black text-slate-400 uppercase tracking-wider">CWT Tarihleri</span>
                 </label>
             </div>
         </div>
@@ -364,13 +373,18 @@
 
         <!-- Gün seçimi -->
         <div class="mb-6">
-            <label class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Günler</label>
+            <div class="flex items-center justify-between mb-2">
+                <label class="text-xs font-black text-slate-500 uppercase tracking-widest block">Günler</label>
+                <span id="uretimDayRangeLabel" class="text-[10px] font-bold text-blue-400 uppercase tracking-wider"></span>
+            </div>
             <div class="flex gap-2 mb-2">
                 <button onclick="selectAllUretimDays(true)" class="text-xs font-bold text-blue-500 hover:underline">Tümünü Seç</button>
                 <span class="text-slate-300">|</span>
                 <button onclick="selectAllUretimDays(false)" class="text-xs font-bold text-slate-400 hover:underline">Temizle</button>
             </div>
-            <div id="uretimModalDayList" class="max-h-36 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl p-3 grid grid-cols-4 gap-1 bg-slate-50 dark:bg-slate-800/50"></div>
+            <div id="uretimModalDayList" class="max-h-36 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl p-3 grid grid-cols-4 gap-1 bg-slate-50 dark:bg-slate-800/50">
+                <p class="days-empty col-span-4">Önce bir metrik seçin</p>
+            </div>
         </div>
 
         <button onclick="exportUretimOzel()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl text-sm uppercase tracking-widest transition-all">
@@ -384,7 +398,6 @@
     <div class="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-lg p-8 mx-4">
         <div class="flex items-center justify-between mb-6">
             <div>
-                <!-- ── "Özel Export" → "Export" ── -->
                 <h3 class="font-black text-lg tracking-tight">Export</h3>
                 <p class="text-xs text-slate-400 font-medium mt-0.5">Temsilci ve gün seçimi yapın</p>
             </div>
@@ -530,7 +543,6 @@
         toggleLoading(true);
         const period = document.getElementById('periodFilter').value;
         try {
-            // ── date kolonu da çekiliyor ──────────────────────────
             const cwtFetch = fetch(
                 `${SUPABASE_URL}/rest/v1/cwt_data?period=eq.${encodeURIComponent(period)}&select=user_name,cwt,date`,
                 { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
@@ -616,39 +628,62 @@
         document.getElementById('uretimExportMenu').classList.toggle('open');
     }
 
-    function toggleMetricStyle(key) {
-        const cb    = document.getElementById(`metric-${key}`);
-        const label = document.getElementById(`toggle-${key}`);
-        label.classList.toggle('active', cb.checked);
+    // ── Metrik seçilince gün listesini güncelle ───────────────────
+    function onMetricSelect(key) {
+        // Radio görsel aktif state
+        ['login','mola','molaorani','eksik','cwt'].forEach(k => {
+            document.getElementById(`toggle-${k}`).classList.remove('active');
+        });
+        document.getElementById(`toggle-${key}`).classList.add('active');
+
+        // CWT → cwt_data tarihleri, diğerleri → daily_data tarihleri
+        let days;
+        let rangeLabel = '';
+        if (key === 'cwt') {
+            days = [...new Set(cwtAllData.map(d => d.date).filter(Boolean))].sort();
+            if (days.length > 0) {
+                rangeLabel = `${formatDateShort(days[0])} — ${formatDateShort(days[days.length - 1])}`;
+            }
+        } else {
+            days = [...new Set(dailyAllData.map(d => d.date).filter(Boolean))].sort();
+            if (days.length > 0) {
+                rangeLabel = `${formatDateShort(days[0])} — ${formatDateShort(days[days.length - 1])}`;
+            }
+        }
+
+        document.getElementById('uretimDayRangeLabel').innerText = rangeLabel;
+
+        const dayList = document.getElementById('uretimModalDayList');
+        if (days.length === 0) {
+            dayList.innerHTML = '<p class="days-empty col-span-4">Veri bulunamadı</p>';
+            return;
+        }
+        dayList.innerHTML = days.map(d => `
+            <label class="day-checkbox">
+                <input type="checkbox" class="uretim-day-cb" value="${d}">
+                <span>${formatDateShort(d)}</span>
+            </label>`).join('');
     }
 
     function openUretimOzelModal() {
         document.getElementById('uretimExportMenu').classList.remove('open');
 
-        // ── Metrik checkboxları sıfırla ───────────────────────────
-        ['login','mola','molaorani','cwt'].forEach(k => {
-            document.getElementById(`metric-${k}`).checked = false;
+        // Radio + gün listesini sıfırla
+        ['login','mola','molaorani','eksik','cwt'].forEach(k => {
+            const el = document.getElementById(`metric-${k}`);
+            if (el) el.checked = false;
             document.getElementById(`toggle-${k}`).classList.remove('active');
         });
-
-        // ── Günleri dailyAllData'dan al (güvenilir kaynak) ────────
-        const days  = [...new Set(dailyAllData.map(d => d.date).filter(Boolean))].sort();
-        const users = [...new Set(fullData.map(d => d.user_name))].sort();
-
+        document.getElementById('uretimDayRangeLabel').innerText = '';
+        document.getElementById('uretimModalDayList').innerHTML = '<p class="days-empty col-span-4">Önce bir metrik seçin</p>';
         document.getElementById('uretimModalUserSearch').value = '';
 
-        const userList = document.getElementById('uretimModalUserList');
-        userList.innerHTML = users.map(u => `
+        // Temsilci listesi
+        const users = [...new Set(fullData.map(d => d.user_name))].sort();
+        document.getElementById('uretimModalUserList').innerHTML = users.map(u => `
             <label class="day-checkbox">
                 <input type="checkbox" class="uretim-user-cb" value="${u}">
                 <span class="truncate">${u}</span>
-            </label>`).join('');
-
-        const dayList = document.getElementById('uretimModalDayList');
-        dayList.innerHTML = days.map(d => `
-            <label class="day-checkbox">
-                <input type="checkbox" class="uretim-day-cb" value="${d}">
-                <span>${formatDateShort(d)}</span>
             </label>`).join('');
 
         document.getElementById('uretimOzelModal').classList.remove('hidden');
@@ -676,34 +711,16 @@
     }
 
     function exportUretimOzel() {
+        const selectedMetric = document.querySelector('input[name="uretim-metric"]:checked')?.value;
+        if (!selectedMetric) { alert('Lütfen bir metrik seçin.'); return; }
+
         const selectedUsers = [...document.querySelectorAll('.uretim-user-cb:checked')].map(cb => cb.value);
         const selectedDays  = [...document.querySelectorAll('.uretim-day-cb:checked')].map(cb => cb.value).sort();
 
-        if (selectedUsers.length === 0 || selectedDays.length === 0) {
-            alert('En az bir temsilci ve bir gün seçmelisiniz.');
-            return;
-        }
+        if (selectedUsers.length === 0) { alert('En az bir temsilci seçmelisiniz.'); return; }
+        if (selectedDays.length === 0)  { alert('En az bir gün seçmelisiniz.'); return; }
 
-        const showLogin     = document.getElementById('metric-login').checked;
-        const showMola      = document.getElementById('metric-mola').checked;
-        const showMolaOrani = document.getElementById('metric-molaorani').checked;
-        const showCwt       = document.getElementById('metric-cwt').checked;
-
-        if (!showLogin && !showMola && !showMolaOrani && !showCwt) {
-            alert('En az bir metrik seçmelisiniz.');
-            return;
-        }
-
-        const wb = XLSX.utils.book_new();
-
-        const metrics = [
-            { key: 'login',     label: 'Login (Dk)',     show: showLogin,     dataKey: 'login' },
-            { key: 'mola',      label: 'Mola (Dk)',      show: showMola,      dataKey: 'break_total' },
-            { key: 'molaorani', label: 'Mola Oranı',     show: showMolaOrani, dataKey: null },
-            { key: 'cwt',       label: 'Net Login (Dk)', show: showCwt,       dataKey: 'cwt' }
-        ];
-
-        // ── CWT verisini user+date map'e al (date artık geliyor) ──
+        // ── CWT map (user+date) ───────────────────────────────────
         const cwtMap = {};
         cwtAllData.forEach(d => {
             if (!d.date) return;
@@ -711,46 +728,55 @@
             cwtMap[key] = (cwtMap[key] || 0) + (parseFloat(d.cwt) || 0);
         });
 
-        metrics.forEach(metric => {
-            if (!metric.show) return;
+        const metricLabels = {
+            login     : 'Login (Dk)',
+            mola      : 'Mola (Dk)',
+            molaorani : 'Mola Oranı',
+            eksik     : 'Eksik Süre (Dk)',
+            cwt       : 'Net Login (Dk)'
+        };
 
-            const rows = selectedUsers.map(userName => {
-                const row = { "Temsilci": userName };
-                selectedDays.forEach(day => {
-                    let val = '';
-                    if (metric.key === 'cwt') {
-                        val = cwtMap[`${userName}__${day}`] || '';
-                    } else if (metric.key === 'molaorani') {
-                        const dayRow = dailyAllData.find(d => d.user_name === userName && d.date === day);
-                        if (dayRow) {
-                            const l = parseFloat(dayRow.login) || 0;
-                            const b = parseFloat(dayRow.break_total) || 0;
-                            val = l > 0 ? parseFloat((b / l).toFixed(6)) : '';
-                        }
-                    } else {
-                        const dayRow = dailyAllData.find(d => d.user_name === userName && d.date === day);
-                        val = dayRow ? (parseFloat(dayRow[metric.dataKey]) || '') : '';
+        const rows = selectedUsers.map(userName => {
+            const row = { "Temsilci": userName };
+            selectedDays.forEach(day => {
+                let val = '';
+                if (selectedMetric === 'cwt') {
+                    val = cwtMap[`${userName}__${day}`] || '';
+                } else if (selectedMetric === 'molaorani') {
+                    const dayRow = dailyAllData.find(d => d.user_name === userName && d.date === day);
+                    if (dayRow) {
+                        const l = parseFloat(dayRow.login) || 0;
+                        const b = parseFloat(dayRow.break_total) || 0;
+                        val = l > 0 ? parseFloat((b / l).toFixed(6)) : '';
                     }
-                    row[formatDateShort(day)] = val;
-                });
-                return row;
-            });
-
-            const ws = XLSX.utils.json_to_sheet(rows);
-
-            if (metric.key === 'molaorani') {
-                const range = XLSX.utils.decode_range(ws['!ref']);
-                for (let R = range.s.r + 1; R <= range.e.r; ++R) {
-                    for (let C = 1; C <= selectedDays.length; ++C) {
-                        const c = XLSX.utils.encode_cell({ r: R, c: C });
-                        if (ws[c] && ws[c].v !== '') { ws[c].t = 'n'; ws[c].z = '0.00%'; }
-                    }
+                } else {
+                    const dataKey = selectedMetric === 'login' ? 'login'
+                                  : selectedMetric === 'mola'  ? 'break_total'
+                                  : 'missing_time';
+                    const dayRow = dailyAllData.find(d => d.user_name === userName && d.date === day);
+                    val = dayRow ? (parseFloat(dayRow[dataKey]) || '') : '';
                 }
-            }
-
-            XLSX.utils.book_append_sheet(wb, ws, metric.label.substring(0, 31));
+                row[formatDateShort(day)] = val;
+            });
+            return row;
         });
 
+        const ws = XLSX.utils.json_to_sheet(rows);
+
+        // Mola oranı % formatla
+        if (selectedMetric === 'molaorani') {
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            for (let R = range.s.r + 1; R <= range.e.r; ++R) {
+                for (let C = 1; C <= selectedDays.length; ++C) {
+                    const c = XLSX.utils.encode_cell({ r: R, c: C });
+                    if (ws[c] && ws[c].v !== '') { ws[c].t = 'n'; ws[c].z = '0.00%'; }
+                }
+            }
+        }
+
+        const wb = XLSX.utils.book_new();
+        const sheetName = metricLabels[selectedMetric].substring(0, 31);
+        XLSX.utils.book_append_sheet(wb, ws, sheetName);
         XLSX.writeFile(wb, `Uretim_Ozel_${document.getElementById('periodFilter').value}.xlsx`);
         closeUretimOzelModal();
     }
