@@ -40,7 +40,6 @@
         .rank-1 { background: linear-gradient(135deg,#fbbf24,#f59e0b); box-shadow: 0 0 16px rgba(251,191,36,0.4); }
         .rank-2 { background: linear-gradient(135deg,#94a3b8,#64748b); }
         .rank-3 { background: linear-gradient(135deg,#cd7c2f,#a16207); }
-        /* Export dropdown */
         .export-dropdown { position: relative; display: inline-block; }
         .export-menu { display: none; position: absolute; right: 0; top: calc(100% + 6px); z-index: 50;
             background: white; border: 1px solid #e2e8f0; border-radius: 1rem;
@@ -52,9 +51,14 @@
             text-transform: uppercase; letter-spacing: 0.05em; transition: background 0.15s; }
         .export-menu button:hover { background: #f1f5f9; }
         .dark .export-menu button:hover { background: #1e293b; }
-        /* Özel export multi-select */
         .day-checkbox { display: flex; align-items: center; gap: 8px; padding: 4px 0; cursor: pointer; font-size: 13px; font-weight: 600; }
         .day-checkbox input { accent-color: #3b82f6; width: 14px; height: 14px; cursor: pointer; }
+        .metric-toggle { display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+            border: 1px solid #e2e8f0; border-radius: 12px; cursor: pointer; transition: all 0.15s; }
+        .dark .metric-toggle { border-color: #1e293b; }
+        .metric-toggle.active { background: #eff6ff; border-color: #bfdbfe; }
+        .dark .metric-toggle.active { background: #1e3a5f; border-color: #1d4ed8; }
+        .metric-toggle input { accent-color: #3b82f6; width: 15px; height: 15px; cursor: pointer; }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen overflow-hidden transition-colors duration-500">
@@ -147,9 +151,20 @@
                         <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                         <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Hızlı Temsilci Ara..." class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-blue-500 outline-none shadow-sm transition-all">
                     </div>
-                    <button onclick="exportToExcel()" class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-2xl shadow-lg transition-all uppercase tracking-widest">
-                        <i class="fa-solid fa-file-export"></i> Excel Export
-                    </button>
+                    <!-- ── Üretim Export Dropdown ── -->
+                    <div class="export-dropdown" id="uretimExportDropdown">
+                        <button onclick="toggleUretimExportMenu()" class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-2xl shadow-lg transition-all uppercase tracking-widest">
+                            <i class="fa-solid fa-file-export"></i> Excel Export <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                        </button>
+                        <div class="export-menu" id="uretimExportMenu">
+                            <button onclick="exportToExcel()">
+                                <i class="fa-solid fa-layer-group text-purple-500"></i> Özet
+                            </button>
+                            <button onclick="openUretimOzelModal()">
+                                <i class="fa-solid fa-sliders text-amber-500"></i> Özel
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </header>
@@ -217,7 +232,6 @@
                     <p class="text-xs text-slate-400 font-medium">Temsilci bazlı işlem performansı ve sıralama.</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-3">
-                    <!-- Filtreler -->
                     <div class="filter-container">
                         <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2">
                             <i class="fa-solid fa-calendar-day absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 text-xs"></i>
@@ -230,12 +244,10 @@
                             </select>
                         </div>
                     </div>
-                    <!-- Temsilci arama -->
                     <div class="relative min-w-[200px]">
                         <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                         <input type="text" id="perfSearchInput" onkeyup="applyPerfFilter()" placeholder="Temsilci Ara..." class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-blue-500 outline-none shadow-sm transition-all">
                     </div>
-                    <!-- Excel Export dropdown -->
                     <div class="export-dropdown" id="perfExportDropdown">
                         <button onclick="toggleExportMenu()" class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-2xl shadow-lg transition-all uppercase tracking-widest">
                             <i class="fa-solid fa-file-export"></i> Excel Export <i class="fa-solid fa-chevron-down text-[10px]"></i>
@@ -258,7 +270,6 @@
 
         <div class="flex-1 overflow-y-auto p-6">
             <div class="flex gap-6 h-full">
-                <!-- ── TOP 10 SIDEBAR ── -->
                 <div class="w-64 shrink-0">
                     <div class="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden h-full flex flex-col">
                         <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2.5">
@@ -271,8 +282,6 @@
                         <div id="top10List" class="p-3 space-y-1 overflow-y-auto flex-1"></div>
                     </div>
                 </div>
-
-                <!-- ── ANA TABLO ── -->
                 <div class="flex-1 min-w-0">
                     <div class="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
                         <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800">
@@ -300,7 +309,77 @@
     </main>
 </div>
 
-<!-- ── ÖZEL EXPORT MODAL ── -->
+<!-- ── ÜRETİM ÖZEL EXPORT MODAL ── -->
+<div id="uretimOzelModal" class="fixed inset-0 z-[120] hidden items-center justify-center bg-slate-950/70 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-2xl p-8 mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h3 class="font-black text-lg tracking-tight">Özel Export</h3>
+                <p class="text-xs text-slate-400 font-medium mt-0.5">Metrik, temsilci ve gün seçimi yapın</p>
+            </div>
+            <button onclick="closeUretimOzelModal()" class="text-slate-400 hover:text-rose-500 transition-colors text-xl"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <!-- Metrik seçimi -->
+        <div class="mb-6">
+            <label class="text-xs font-black text-slate-500 uppercase tracking-widest mb-3 block">Gösterilecek Metrikler</label>
+            <div class="grid grid-cols-2 gap-2">
+                <label class="metric-toggle active" id="toggle-login">
+                    <input type="checkbox" id="metric-login" checked onchange="toggleMetricStyle('login')">
+                    <i class="fa-solid fa-clock text-blue-500 text-sm"></i>
+                    <span class="text-sm font-bold">Login Süresi</span>
+                </label>
+                <label class="metric-toggle active" id="toggle-mola">
+                    <input type="checkbox" id="metric-mola" checked onchange="toggleMetricStyle('mola')">
+                    <i class="fa-solid fa-mug-hot text-amber-500 text-sm"></i>
+                    <span class="text-sm font-bold">Mola Süresi</span>
+                </label>
+                <label class="metric-toggle active" id="toggle-molaorani">
+                    <input type="checkbox" id="metric-molaorani" checked onchange="toggleMetricStyle('molaorani')">
+                    <i class="fa-solid fa-percent text-orange-500 text-sm"></i>
+                    <span class="text-sm font-bold">Mola Oranı</span>
+                </label>
+                <label class="metric-toggle active" id="toggle-cwt">
+                    <input type="checkbox" id="metric-cwt" checked onchange="toggleMetricStyle('cwt')">
+                    <i class="fa-solid fa-stopwatch text-emerald-500 text-sm"></i>
+                    <span class="text-sm font-bold">Net Login (CWT)</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Temsilci seçimi -->
+        <div class="mb-5">
+            <label class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Temsilciler</label>
+            <div class="flex gap-2 mb-2">
+                <button onclick="selectAllUretimUsers(true)" class="text-xs font-bold text-blue-500 hover:underline">Tümünü Seç</button>
+                <span class="text-slate-300">|</span>
+                <button onclick="selectAllUretimUsers(false)" class="text-xs font-bold text-slate-400 hover:underline">Temizle</button>
+            </div>
+            <div class="relative mb-2">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input type="text" id="uretimModalUserSearch" oninput="filterUretimModalUsers()" placeholder="Temsilci ara..." class="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div id="uretimModalUserList" class="max-h-36 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl p-3 grid grid-cols-2 gap-1 bg-slate-50 dark:bg-slate-800/50"></div>
+        </div>
+
+        <!-- Gün seçimi -->
+        <div class="mb-6">
+            <label class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Günler</label>
+            <div class="flex gap-2 mb-2">
+                <button onclick="selectAllUretimDays(true)" class="text-xs font-bold text-blue-500 hover:underline">Tümünü Seç</button>
+                <span class="text-slate-300">|</span>
+                <button onclick="selectAllUretimDays(false)" class="text-xs font-bold text-slate-400 hover:underline">Temizle</button>
+            </div>
+            <div id="uretimModalDayList" class="max-h-36 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl p-3 grid grid-cols-4 gap-1 bg-slate-50 dark:bg-slate-800/50"></div>
+        </div>
+
+        <button onclick="exportUretimOzel()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl text-sm uppercase tracking-widest transition-all">
+            <i class="fa-solid fa-file-export mr-2"></i> Export Yap
+        </button>
+    </div>
+</div>
+
+<!-- ── PERFORMANS ÖZEL EXPORT MODAL ── -->
 <div id="ozelModal" class="fixed inset-0 z-[120] hidden items-center justify-center bg-slate-950/70 backdrop-blur-sm">
     <div class="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-lg p-8 mx-4">
         <div class="flex items-center justify-between mb-6">
@@ -310,8 +389,6 @@
             </div>
             <button onclick="closeOzelModal()" class="text-slate-400 hover:text-rose-500 transition-colors text-xl"><i class="fa-solid fa-xmark"></i></button>
         </div>
-
-        <!-- Temsilci seçimi -->
         <div class="mb-5">
             <label class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Temsilciler</label>
             <div class="flex gap-2 mb-2">
@@ -325,8 +402,6 @@
             </div>
             <div id="modalUserList" class="max-h-36 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl p-3 space-y-1 bg-slate-50 dark:bg-slate-800/50"></div>
         </div>
-
-        <!-- Gün seçimi -->
         <div class="mb-6">
             <label class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Günler</label>
             <div class="flex gap-2 mb-2">
@@ -336,7 +411,6 @@
             </div>
             <div id="modalDayList" class="max-h-36 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl p-3 grid grid-cols-3 gap-1 bg-slate-50 dark:bg-slate-800/50"></div>
         </div>
-
         <button onclick="exportPerfOzel()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl text-sm uppercase tracking-widest transition-all">
             <i class="fa-solid fa-file-export mr-2"></i> Export Yap
         </button>
@@ -353,12 +427,12 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0aWtqcnR4b3dqY3B2Ym1zZ3hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDYxMDUsImV4cCI6MjA4OTc4MjEwNX0.VWOBROBGR52E9gzxx-whsJZ0J8yBn_tPBb838dYxaHU';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let fullData    = [];
-    let rawUsers    = [];
-    let cwtAllData  = [];
-    let perfAllData = [];
+    let fullData      = [];
+    let rawUsers      = [];
+    let cwtAllData    = [];
+    let perfAllData   = [];
+    let dailyAllData  = []; // günlük login/break/cwt verisi ham hali
 
-    // ── Format Helpers ────────────────────────────────────────────
     const toTr = (val, dec = 0) => {
         const num = parseFloat(val) || 0;
         if (dec === 0) return Math.round(num).toLocaleString('tr-TR');
@@ -381,7 +455,6 @@
         return `${day}/${m}`;
     };
 
-    // ── Tema ──────────────────────────────────────────────────────
     function toggleTheme() {
         const isDark = document.documentElement.classList.toggle('dark');
         localStorage.setItem('theme', isDark ? 'dark' : 'light');
@@ -393,7 +466,6 @@
         document.getElementById('theme-icon').className = saved === 'dark' ? 'fa-solid fa-sun text-lg' : 'fa-solid fa-moon text-lg';
     }
 
-    // ── Sayfa geçişi ──────────────────────────────────────────────
     function showPage(page) {
         document.getElementById('page-uretim').classList.toggle('hidden', page !== 'uretim');
         document.getElementById('page-performans').classList.toggle('hidden', page !== 'performans');
@@ -404,17 +476,15 @@
         if (page === 'performans') loadPerformans();
     }
 
-    // ── Auth ──────────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', async () => {
         initTheme();
         const { data: { session } } = await _supabase.auth.getSession();
         if (session) showDashboard(session.user);
-        // Export menu dışına tıklayınca kapat
         document.addEventListener('click', (e) => {
-            const dropdown = document.getElementById('perfExportDropdown');
-            if (dropdown && !dropdown.contains(e.target)) {
-                document.getElementById('perfExportMenu').classList.remove('open');
-            }
+            if (!document.getElementById('perfExportDropdown')?.contains(e.target))
+                document.getElementById('perfExportMenu')?.classList.remove('open');
+            if (!document.getElementById('uretimExportDropdown')?.contains(e.target))
+                document.getElementById('uretimExportMenu')?.classList.remove('open');
         });
     });
 
@@ -471,13 +541,14 @@
                 cwtFetch
             ]);
 
-            rawUsers   = userRes.data || [];
-            cwtAllData = Array.isArray(cwtData) ? cwtData : [];
+            rawUsers      = userRes.data || [];
+            cwtAllData    = Array.isArray(cwtData) ? cwtData : [];
+            dailyAllData  = dailyRes.data || []; // ← günlük ham veri saklanıyor
 
             fullData = (summaryRes.data || []).map(summary => {
                 const normName  = summary.user_name?.toLowerCase().trim();
                 const userMeta  = rawUsers.find(u => u.user_name?.toLowerCase().trim() === normName) || {};
-                const dailyRows = (dailyRes.data || []).filter(d => d.user_name?.toLowerCase().trim() === normName);
+                const dailyRows = dailyAllData.filter(d => d.user_name?.toLowerCase().trim() === normName);
                 const cwtRows   = cwtAllData.filter(d => d.user_name?.toLowerCase().trim() === normName);
                 return {
                     ...summary,
@@ -537,6 +608,148 @@
     }
 
     // ════════════════════════════════════════════════════════════════
+    // ÜRETİM ÖZEL EXPORT
+    // ════════════════════════════════════════════════════════════════
+    function toggleUretimExportMenu() {
+        document.getElementById('uretimExportMenu').classList.toggle('open');
+    }
+
+    function toggleMetricStyle(key) {
+        const cb = document.getElementById(`metric-${key}`);
+        const label = document.getElementById(`toggle-${key}`);
+        label.classList.toggle('active', cb.checked);
+    }
+
+    function openUretimOzelModal() {
+        document.getElementById('uretimExportMenu').classList.remove('open');
+
+        // Mevcut dönemdeki günleri bul
+        const days  = [...new Set(dailyAllData.map(d => d.date).filter(Boolean))].sort();
+        // Mevcut temsilcileri bul
+        const users = [...new Set(fullData.map(d => d.user_name))].sort();
+
+        // Temsilci listesi
+        const userList = document.getElementById('uretimModalUserList');
+        userList.innerHTML = users.map(u => `
+            <label class="day-checkbox">
+                <input type="checkbox" class="uretim-user-cb" value="${u}" checked>
+                <span class="truncate">${u}</span>
+            </label>`).join('');
+
+        // Gün listesi
+        const dayList = document.getElementById('uretimModalDayList');
+        dayList.innerHTML = days.map(d => `
+            <label class="day-checkbox">
+                <input type="checkbox" class="uretim-day-cb" value="${d}" checked>
+                <span>${formatDateShort(d)}</span>
+            </label>`).join('');
+
+        document.getElementById('uretimOzelModal').classList.remove('hidden');
+        document.getElementById('uretimOzelModal').classList.add('flex');
+    }
+
+    function closeUretimOzelModal() {
+        document.getElementById('uretimOzelModal').classList.add('hidden');
+        document.getElementById('uretimOzelModal').classList.remove('flex');
+    }
+
+    function filterUretimModalUsers() {
+        const q = document.getElementById('uretimModalUserSearch').value.toLowerCase();
+        document.querySelectorAll('#uretimModalUserList .day-checkbox').forEach(el => {
+            el.style.display = el.querySelector('span').textContent.toLowerCase().includes(q) ? '' : 'none';
+        });
+    }
+
+    function selectAllUretimUsers(val) {
+        document.querySelectorAll('.uretim-user-cb').forEach(cb => cb.checked = val);
+    }
+
+    function selectAllUretimDays(val) {
+        document.querySelectorAll('.uretim-day-cb').forEach(cb => cb.checked = val);
+    }
+
+    function exportUretimOzel() {
+        const selectedUsers = [...document.querySelectorAll('.uretim-user-cb:checked')].map(cb => cb.value);
+        const selectedDays  = [...document.querySelectorAll('.uretim-day-cb:checked')].map(cb => cb.value).sort();
+
+        if (selectedUsers.length === 0 || selectedDays.length === 0) {
+            alert('En az bir temsilci ve bir gün seçmelisiniz.');
+            return;
+        }
+
+        const showLogin     = document.getElementById('metric-login').checked;
+        const showMola      = document.getElementById('metric-mola').checked;
+        const showMolaOrani = document.getElementById('metric-molaorani').checked;
+        const showCwt       = document.getElementById('metric-cwt').checked;
+
+        if (!showLogin && !showMola && !showMolaOrani && !showCwt) {
+            alert('En az bir metrik seçmelisiniz.');
+            return;
+        }
+
+        const wb = XLSX.utils.book_new();
+
+        // Her seçilen metrik için ayrı pivot tablo
+        const metrics = [
+            { key: 'login',     label: 'Login (Dk)',    show: showLogin,     dataKey: 'login' },
+            { key: 'mola',      label: 'Mola (Dk)',     show: showMola,      dataKey: 'break_total' },
+            { key: 'molaorani', label: 'Mola Oranı',    show: showMolaOrani, dataKey: null },
+            { key: 'cwt',       label: 'Net Login (Dk)',show: showCwt,       dataKey: 'cwt' }
+        ];
+
+        // CWT verisini user+date ile hızlı erişim için map yap
+        const cwtMap = {};
+        cwtAllData.forEach(d => {
+            const key = `${d.user_name}__${d.date}`;
+            cwtMap[key] = (cwtMap[key] || 0) + (parseFloat(d.cwt) || 0);
+        });
+
+        metrics.forEach(metric => {
+            if (!metric.show) return;
+
+            const rows = selectedUsers.map(userName => {
+                const row = { "Temsilci": userName };
+                selectedDays.forEach(day => {
+                    let val = '';
+                    if (metric.key === 'cwt') {
+                        val = cwtMap[`${userName}__${day}`] || '';
+                    } else if (metric.key === 'molaorani') {
+                        const dayRow = dailyAllData.find(d => d.user_name === userName && d.date === day);
+                        if (dayRow) {
+                            const l = parseFloat(dayRow.login) || 0;
+                            const b = parseFloat(dayRow.break_total) || 0;
+                            val = l > 0 ? parseFloat((b / l).toFixed(6)) : '';
+                        }
+                    } else {
+                        const dayRow = dailyAllData.find(d => d.user_name === userName && d.date === day);
+                        val = dayRow ? (parseFloat(dayRow[metric.dataKey]) || '') : '';
+                    }
+                    row[formatDateShort(day)] = val;
+                });
+                return row;
+            });
+
+            const ws = XLSX.utils.json_to_sheet(rows);
+
+            // Mola oranı kolonlarını % formatla
+            if (metric.key === 'molaorani') {
+                const range = XLSX.utils.decode_range(ws['!ref']);
+                for (let R = range.s.r + 1; R <= range.e.r; ++R) {
+                    for (let C = 1; C <= selectedDays.length; ++C) {
+                        const c = XLSX.utils.encode_cell({ r: R, c: C });
+                        if (ws[c] && ws[c].v !== '') { ws[c].t = 'n'; ws[c].z = '0.00%'; }
+                    }
+                }
+            }
+
+            XLSX.utils.book_append_sheet(wb, ws, metric.label.substring(0, 31));
+        });
+
+        XLSX.writeFile(wb, `Uretim_Ozel_${document.getElementById('periodFilter').value}.xlsx`);
+        closeUretimOzelModal();
+    }
+
+    // ════════════════════════════════════════════════════════════════
     // PERFORMANS SAYFASI
     // ════════════════════════════════════════════════════════════════
     async function loadPerformans() {
@@ -552,12 +765,10 @@
         try {
             const { data } = await _supabase.from('performance_data').select('*').eq('period', period).limit(10000);
             perfAllData = data || [];
-
             const dailyDates = [...new Set(perfAllData.map(d => d.date).filter(d => d !== null && d !== undefined))].sort((a, b) => b.localeCompare(a));
             const dateSel = document.getElementById('perfDateFilter');
             dateSel.innerHTML = '<option value="all">Tümü (Kümülatif)</option>' +
                 dailyDates.map(d => `<option value="${d}">${formatDateTR(d)}</option>`).join('');
-
             applyPerfFilter();
         } catch (err) { console.error("Perf Fetch Error:", err); }
         finally { toggleLoading(false); }
@@ -567,7 +778,6 @@
         const selectedDate = document.getElementById('perfDateFilter').value;
         const search = document.getElementById('perfSearchInput').value.toLowerCase();
         let filtered;
-
         if (selectedDate === 'all') {
             filtered = perfAllData.filter(d => d.date === null);
             document.getElementById('perfTableSubtitle').innerText = 'Kümülatif Veriler';
@@ -575,10 +785,7 @@
             filtered = perfAllData.filter(d => d.date === selectedDate);
             document.getElementById('perfTableSubtitle').innerText = formatDateTR(selectedDate) + ' Verileri';
         }
-
-        // Temsilci arama filtresi
         if (search) filtered = filtered.filter(d => d.user_name.toLowerCase().includes(search));
-
         renderPerfTables(filtered);
     }
 
@@ -645,28 +852,19 @@
     // ════════════════════════════════════════════════════════════════
     // PERFORMANS EXCEL EXPORT
     // ════════════════════════════════════════════════════════════════
+    function toggleExportMenu() { document.getElementById('perfExportMenu').classList.toggle('open'); }
 
-    function toggleExportMenu() {
-        document.getElementById('perfExportMenu').classList.toggle('open');
-    }
-
-    // ── Helper: günlük verilerden pivot tablo oluştur ─────────────
     function buildPivotData(users, days) {
-        // Her user için {user_name, gün: adet, ...} satırı
         const dailyRows = perfAllData.filter(d => d.date !== null);
-
-        // Gün bazlı ortalama ve HC
         const dayStats = {};
         days.forEach(day => {
             const dayData = dailyRows.filter(d => d.date === day);
             dayStats[day] = {
-                avg : dayData.length > 0 ? (dayData[0].pool_average || 0) : 0,
-                hc  : dayData.length,
+                avg  : dayData.length > 0 ? (dayData[0].pool_average || 0) : 0,
+                hc   : dayData.length,
                 total: dayData.reduce((s, d) => s + (parseFloat(d.transaction_count) || 0), 0)
             };
         });
-
-        // Temsilci satırları
         const rows = users.map(userName => {
             const row = { "Temsilci": userName };
             days.forEach(day => {
@@ -675,38 +873,32 @@
             });
             return row;
         });
-
-        // Alt satırlar: Havuz Ort., HC, Toplam
-        const avgRow   = { "Temsilci": "Havuz Ortalaması" };
-        const hcRow    = { "Temsilci": "HC" };
+        const avgRow = { "Temsilci": "Havuz Ortalaması" };
+        const hcRow  = { "Temsilci": "HC" };
         const totalRow = { "Temsilci": "Toplam İşlem" };
         days.forEach(day => {
             avgRow[formatDateShort(day)]   = dayStats[day].avg > 0 ? parseFloat(dayStats[day].avg.toFixed(2)) : '';
             hcRow[formatDateShort(day)]    = dayStats[day].hc || '';
             totalRow[formatDateShort(day)] = dayStats[day].total || '';
         });
-
         return { rows, avgRow, hcRow, totalRow };
     }
 
-    // ── 1. KÜMÜLATİF EXPORT ──────────────────────────────────────
     function exportPerfKumulatif() {
         document.getElementById('perfExportMenu').classList.remove('open');
         const kumData = perfAllData.filter(d => d.date === null).sort((a, b) => (parseFloat(b.performance_pct) || 0) - (parseFloat(a.performance_pct) || 0));
-
         const rows = kumData.map(d => {
-            const avg      = parseFloat(d.pool_average) || 0;
-            const actual   = parseFloat(d.transaction_count) || 0;
-            const pct      = parseFloat(d.performance_pct) || 0;
+            const avg = parseFloat(d.pool_average) || 0;
+            const actual = parseFloat(d.transaction_count) || 0;
+            const pct = parseFloat(d.performance_pct) || 0;
             return {
-                "Temsilci"        : d.user_name,
+                "Temsilci": d.user_name,
                 "Havuz Ortalaması": avg > 0 ? parseFloat(avg.toFixed(2)) : '',
-                "Gerçekleşen"     : actual || '',
-                "Performans %"    : pct > 0 ? pct / 100 : '',
-                "Ort. Uzaklık"    : avg > 0 ? parseFloat((actual - avg).toFixed(2)) : ''
+                "Gerçekleşen": actual || '',
+                "Performans %": pct > 0 ? pct / 100 : '',
+                "Ort. Uzaklık": avg > 0 ? parseFloat((actual - avg).toFixed(2)) : ''
             };
         });
-
         const ws = XLSX.utils.json_to_sheet(rows);
         const range = XLSX.utils.decode_range(ws['!ref']);
         for (let R = range.s.r + 1; R <= range.e.r; ++R) {
@@ -718,44 +910,25 @@
         XLSX.writeFile(wb, `Performans_Kumulatif_${document.getElementById('perfPeriodFilter').value}.xlsx`);
     }
 
-    // ── 2. GÜNLÜK EXPORT (tüm günler) ────────────────────────────
     function exportPerfGunluk() {
         document.getElementById('perfExportMenu').classList.remove('open');
         const days  = [...new Set(perfAllData.map(d => d.date).filter(d => d !== null))].sort();
         const users = [...new Set(perfAllData.filter(d => d.date !== null).map(d => d.user_name))].sort();
-
         const { rows, avgRow, hcRow, totalRow } = buildPivotData(users, days);
-
-        const allRows = [...rows, {}, avgRow, hcRow, totalRow];
-        const ws = XLSX.utils.json_to_sheet(allRows);
+        const ws = XLSX.utils.json_to_sheet([...rows, {}, avgRow, hcRow, totalRow]);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Günlük");
         XLSX.writeFile(wb, `Performans_Gunluk_${document.getElementById('perfPeriodFilter').value}.xlsx`);
     }
 
-    // ── 3. ÖZEL EXPORT MODAL ─────────────────────────────────────
     function openOzelModal() {
         document.getElementById('perfExportMenu').classList.remove('open');
-
         const days  = [...new Set(perfAllData.map(d => d.date).filter(d => d !== null))].sort();
         const users = [...new Set(perfAllData.filter(d => d.date !== null).map(d => d.user_name))].sort();
-
-        // Kullanıcı listesi
-        const userList = document.getElementById('modalUserList');
-        userList.innerHTML = users.map(u => `
-            <label class="day-checkbox">
-                <input type="checkbox" class="modal-user-cb" value="${u}" checked>
-                <span>${u}</span>
-            </label>`).join('');
-
-        // Gün listesi
-        const dayList = document.getElementById('modalDayList');
-        dayList.innerHTML = days.map(d => `
-            <label class="day-checkbox">
-                <input type="checkbox" class="modal-day-cb" value="${d}" checked>
-                <span>${formatDateShort(d)}</span>
-            </label>`).join('');
-
+        document.getElementById('modalUserList').innerHTML = users.map(u => `
+            <label class="day-checkbox"><input type="checkbox" class="modal-user-cb" value="${u}" checked><span>${u}</span></label>`).join('');
+        document.getElementById('modalDayList').innerHTML = days.map(d => `
+            <label class="day-checkbox"><input type="checkbox" class="modal-day-cb" value="${d}" checked><span>${formatDateShort(d)}</span></label>`).join('');
         document.getElementById('ozelModal').classList.remove('hidden');
         document.getElementById('ozelModal').classList.add('flex');
     }
@@ -772,27 +945,15 @@
         });
     }
 
-    function selectAllUsers(val) {
-        document.querySelectorAll('.modal-user-cb').forEach(cb => cb.checked = val);
-    }
-
-    function selectAllDays(val) {
-        document.querySelectorAll('.modal-day-cb').forEach(cb => cb.checked = val);
-    }
+    function selectAllUsers(val) { document.querySelectorAll('.modal-user-cb').forEach(cb => cb.checked = val); }
+    function selectAllDays(val)  { document.querySelectorAll('.modal-day-cb').forEach(cb => cb.checked = val); }
 
     function exportPerfOzel() {
         const selectedUsers = [...document.querySelectorAll('.modal-user-cb:checked')].map(cb => cb.value);
         const selectedDays  = [...document.querySelectorAll('.modal-day-cb:checked')].map(cb => cb.value).sort();
-
-        if (selectedUsers.length === 0 || selectedDays.length === 0) {
-            alert('En az bir temsilci ve bir gün seçmelisiniz.');
-            return;
-        }
-
+        if (selectedUsers.length === 0 || selectedDays.length === 0) { alert('En az bir temsilci ve bir gün seçmelisiniz.'); return; }
         const { rows, avgRow, hcRow, totalRow } = buildPivotData(selectedUsers, selectedDays);
-        const allRows = [...rows, {}, avgRow, hcRow, totalRow];
-
-        const ws = XLSX.utils.json_to_sheet(allRows);
+        const ws = XLSX.utils.json_to_sheet([...rows, {}, avgRow, hcRow, totalRow]);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Özel");
         XLSX.writeFile(wb, `Performans_Ozel_${document.getElementById('perfPeriodFilter').value}.xlsx`);
@@ -800,9 +961,10 @@
     }
 
     // ════════════════════════════════════════════════════════════════
-    // ÜRETİM TAKİP EXCEL EXPORT
+    // ÜRETİM ÖZET EXPORT (mevcut)
     // ════════════════════════════════════════════════════════════════
     function exportToExcel() {
+        document.getElementById('uretimExportMenu').classList.remove('open');
         const tl     = document.getElementById('tlFilter').value;
         const search = document.getElementById('searchInput').value.toLowerCase();
         const rows   = fullData
@@ -819,19 +981,17 @@
                 "Ham FTE"           : parseFloat(d.fte)           || 0,
                 "Capped FTE"        : parseFloat(d.capped_fte)    || 0
             }));
-
         const sumL = rows.reduce((s, r) => s + r["Login Süresi (Dk)"], 0);
         const sumB = rows.reduce((s, r) => s + r["Mola Süresi (Dk)"], 0);
         rows.push({
             "Sicil No": "GENEL TOPLAM", "Temsilci Adı": "", "Takım Lideri": "",
-            "Login Süresi (Dk)" : sumL, "Mola Süresi (Dk)": sumB,
-            "Net Login (Dk)"    : rows.reduce((s, r) => s + r["Net Login (Dk)"], 0),
-            "Mola Oranı"        : sumL > 0 ? (sumB / sumL) : 0,
-            "Eksik Süre (Dk)"   : rows.reduce((s, r) => s + r["Eksik Süre (Dk)"], 0),
-            "Ham FTE"           : rows.reduce((s, r) => s + r["Ham FTE"], 0),
-            "Capped FTE"        : rows.reduce((s, r) => s + r["Capped FTE"], 0)
+            "Login Süresi (Dk)": sumL, "Mola Süresi (Dk)": sumB,
+            "Net Login (Dk)"   : rows.reduce((s, r) => s + r["Net Login (Dk)"], 0),
+            "Mola Oranı"       : sumL > 0 ? (sumB / sumL) : 0,
+            "Eksik Süre (Dk)"  : rows.reduce((s, r) => s + r["Eksik Süre (Dk)"], 0),
+            "Ham FTE"          : rows.reduce((s, r) => s + r["Ham FTE"], 0),
+            "Capped FTE"       : rows.reduce((s, r) => s + r["Capped FTE"], 0)
         });
-
         const ws = XLSX.utils.json_to_sheet(rows);
         const range = XLSX.utils.decode_range(ws['!ref']);
         for (let R = range.s.r + 1; R <= range.e.r; ++R) {
