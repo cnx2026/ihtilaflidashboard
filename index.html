@@ -151,7 +151,6 @@
                         <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                         <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Hızlı Temsilci Ara..." class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-blue-500 outline-none shadow-sm transition-all">
                     </div>
-                    <!-- ── Üretim Export Dropdown ── -->
                     <div class="export-dropdown" id="uretimExportDropdown">
                         <button onclick="toggleUretimExportMenu()" class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-2xl shadow-lg transition-all uppercase tracking-widest">
                             <i class="fa-solid fa-file-export"></i> Excel Export <i class="fa-solid fa-chevron-down text-[10px]"></i>
@@ -314,33 +313,34 @@
     <div class="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-2xl p-8 mx-4 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h3 class="font-black text-lg tracking-tight">Özel Export</h3>
+                <!-- ── "Özel Export" → "Export" ── -->
+                <h3 class="font-black text-lg tracking-tight">Export</h3>
                 <p class="text-xs text-slate-400 font-medium mt-0.5">Metrik, temsilci ve gün seçimi yapın</p>
             </div>
             <button onclick="closeUretimOzelModal()" class="text-slate-400 hover:text-rose-500 transition-colors text-xl"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
-        <!-- Metrik seçimi -->
+        <!-- Metrik seçimi — başlangıçta seçisiz -->
         <div class="mb-6">
             <label class="text-xs font-black text-slate-500 uppercase tracking-widest mb-3 block">Gösterilecek Metrikler</label>
             <div class="grid grid-cols-2 gap-2">
-                <label class="metric-toggle active" id="toggle-login">
-                    <input type="checkbox" id="metric-login" checked onchange="toggleMetricStyle('login')">
+                <label class="metric-toggle" id="toggle-login">
+                    <input type="checkbox" id="metric-login" onchange="toggleMetricStyle('login')">
                     <i class="fa-solid fa-clock text-blue-500 text-sm"></i>
                     <span class="text-sm font-bold">Login Süresi</span>
                 </label>
-                <label class="metric-toggle active" id="toggle-mola">
-                    <input type="checkbox" id="metric-mola" checked onchange="toggleMetricStyle('mola')">
+                <label class="metric-toggle" id="toggle-mola">
+                    <input type="checkbox" id="metric-mola" onchange="toggleMetricStyle('mola')">
                     <i class="fa-solid fa-mug-hot text-amber-500 text-sm"></i>
                     <span class="text-sm font-bold">Mola Süresi</span>
                 </label>
-                <label class="metric-toggle active" id="toggle-molaorani">
-                    <input type="checkbox" id="metric-molaorani" checked onchange="toggleMetricStyle('molaorani')">
+                <label class="metric-toggle" id="toggle-molaorani">
+                    <input type="checkbox" id="metric-molaorani" onchange="toggleMetricStyle('molaorani')">
                     <i class="fa-solid fa-percent text-orange-500 text-sm"></i>
                     <span class="text-sm font-bold">Mola Oranı</span>
                 </label>
-                <label class="metric-toggle active" id="toggle-cwt">
-                    <input type="checkbox" id="metric-cwt" checked onchange="toggleMetricStyle('cwt')">
+                <label class="metric-toggle" id="toggle-cwt">
+                    <input type="checkbox" id="metric-cwt" onchange="toggleMetricStyle('cwt')">
                     <i class="fa-solid fa-stopwatch text-emerald-500 text-sm"></i>
                     <span class="text-sm font-bold">Net Login (CWT)</span>
                 </label>
@@ -384,7 +384,8 @@
     <div class="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-lg p-8 mx-4">
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h3 class="font-black text-lg tracking-tight">Özel Export</h3>
+                <!-- ── "Özel Export" → "Export" ── -->
+                <h3 class="font-black text-lg tracking-tight">Export</h3>
                 <p class="text-xs text-slate-400 font-medium mt-0.5">Temsilci ve gün seçimi yapın</p>
             </div>
             <button onclick="closeOzelModal()" class="text-slate-400 hover:text-rose-500 transition-colors text-xl"><i class="fa-solid fa-xmark"></i></button>
@@ -427,11 +428,11 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0aWtqcnR4b3dqY3B2Ym1zZ3hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDYxMDUsImV4cCI6MjA4OTc4MjEwNX0.VWOBROBGR52E9gzxx-whsJZ0J8yBn_tPBb838dYxaHU';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let fullData      = [];
-    let rawUsers      = [];
-    let cwtAllData    = [];
-    let perfAllData   = [];
-    let dailyAllData  = []; // günlük login/break/cwt verisi ham hali
+    let fullData     = [];
+    let rawUsers     = [];
+    let cwtAllData   = [];
+    let perfAllData  = [];
+    let dailyAllData = [];
 
     const toTr = (val, dec = 0) => {
         const num = parseFloat(val) || 0;
@@ -529,8 +530,9 @@
         toggleLoading(true);
         const period = document.getElementById('periodFilter').value;
         try {
+            // ── date kolonu da çekiliyor ──────────────────────────
             const cwtFetch = fetch(
-                `${SUPABASE_URL}/rest/v1/cwt_data?period=eq.${encodeURIComponent(period)}&select=user_name,cwt`,
+                `${SUPABASE_URL}/rest/v1/cwt_data?period=eq.${encodeURIComponent(period)}&select=user_name,cwt,date`,
                 { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
             ).then(r => r.json());
 
@@ -541,9 +543,9 @@
                 cwtFetch
             ]);
 
-            rawUsers      = userRes.data || [];
-            cwtAllData    = Array.isArray(cwtData) ? cwtData : [];
-            dailyAllData  = dailyRes.data || []; // ← günlük ham veri saklanıyor
+            rawUsers     = userRes.data || [];
+            cwtAllData   = Array.isArray(cwtData) ? cwtData : [];
+            dailyAllData = dailyRes.data || [];
 
             fullData = (summaryRes.data || []).map(summary => {
                 const normName  = summary.user_name?.toLowerCase().trim();
@@ -615,7 +617,7 @@
     }
 
     function toggleMetricStyle(key) {
-        const cb = document.getElementById(`metric-${key}`);
+        const cb    = document.getElementById(`metric-${key}`);
         const label = document.getElementById(`toggle-${key}`);
         label.classList.toggle('active', cb.checked);
     }
@@ -623,24 +625,29 @@
     function openUretimOzelModal() {
         document.getElementById('uretimExportMenu').classList.remove('open');
 
-        // Mevcut dönemdeki günleri bul
+        // ── Metrik checkboxları sıfırla ───────────────────────────
+        ['login','mola','molaorani','cwt'].forEach(k => {
+            document.getElementById(`metric-${k}`).checked = false;
+            document.getElementById(`toggle-${k}`).classList.remove('active');
+        });
+
+        // ── Günleri dailyAllData'dan al (güvenilir kaynak) ────────
         const days  = [...new Set(dailyAllData.map(d => d.date).filter(Boolean))].sort();
-        // Mevcut temsilcileri bul
         const users = [...new Set(fullData.map(d => d.user_name))].sort();
 
-        // Temsilci listesi
+        document.getElementById('uretimModalUserSearch').value = '';
+
         const userList = document.getElementById('uretimModalUserList');
         userList.innerHTML = users.map(u => `
             <label class="day-checkbox">
-                <input type="checkbox" class="uretim-user-cb" value="${u}" checked>
+                <input type="checkbox" class="uretim-user-cb" value="${u}">
                 <span class="truncate">${u}</span>
             </label>`).join('');
 
-        // Gün listesi
         const dayList = document.getElementById('uretimModalDayList');
         dayList.innerHTML = days.map(d => `
             <label class="day-checkbox">
-                <input type="checkbox" class="uretim-day-cb" value="${d}" checked>
+                <input type="checkbox" class="uretim-day-cb" value="${d}">
                 <span>${formatDateShort(d)}</span>
             </label>`).join('');
 
@@ -689,17 +696,17 @@
 
         const wb = XLSX.utils.book_new();
 
-        // Her seçilen metrik için ayrı pivot tablo
         const metrics = [
-            { key: 'login',     label: 'Login (Dk)',    show: showLogin,     dataKey: 'login' },
-            { key: 'mola',      label: 'Mola (Dk)',     show: showMola,      dataKey: 'break_total' },
-            { key: 'molaorani', label: 'Mola Oranı',    show: showMolaOrani, dataKey: null },
-            { key: 'cwt',       label: 'Net Login (Dk)',show: showCwt,       dataKey: 'cwt' }
+            { key: 'login',     label: 'Login (Dk)',     show: showLogin,     dataKey: 'login' },
+            { key: 'mola',      label: 'Mola (Dk)',      show: showMola,      dataKey: 'break_total' },
+            { key: 'molaorani', label: 'Mola Oranı',     show: showMolaOrani, dataKey: null },
+            { key: 'cwt',       label: 'Net Login (Dk)', show: showCwt,       dataKey: 'cwt' }
         ];
 
-        // CWT verisini user+date ile hızlı erişim için map yap
+        // ── CWT verisini user+date map'e al (date artık geliyor) ──
         const cwtMap = {};
         cwtAllData.forEach(d => {
+            if (!d.date) return;
             const key = `${d.user_name}__${d.date}`;
             cwtMap[key] = (cwtMap[key] || 0) + (parseFloat(d.cwt) || 0);
         });
@@ -731,7 +738,6 @@
 
             const ws = XLSX.utils.json_to_sheet(rows);
 
-            // Mola oranı kolonlarını % formatla
             if (metric.key === 'molaorani') {
                 const range = XLSX.utils.decode_range(ws['!ref']);
                 for (let R = range.s.r + 1; R <= range.e.r; ++R) {
@@ -873,8 +879,8 @@
             });
             return row;
         });
-        const avgRow = { "Temsilci": "Havuz Ortalaması" };
-        const hcRow  = { "Temsilci": "HC" };
+        const avgRow   = { "Temsilci": "Havuz Ortalaması" };
+        const hcRow    = { "Temsilci": "HC" };
         const totalRow = { "Temsilci": "Toplam İşlem" };
         days.forEach(day => {
             avgRow[formatDateShort(day)]   = dayStats[day].avg > 0 ? parseFloat(dayStats[day].avg.toFixed(2)) : '';
@@ -888,15 +894,15 @@
         document.getElementById('perfExportMenu').classList.remove('open');
         const kumData = perfAllData.filter(d => d.date === null).sort((a, b) => (parseFloat(b.performance_pct) || 0) - (parseFloat(a.performance_pct) || 0));
         const rows = kumData.map(d => {
-            const avg = parseFloat(d.pool_average) || 0;
+            const avg    = parseFloat(d.pool_average) || 0;
             const actual = parseFloat(d.transaction_count) || 0;
-            const pct = parseFloat(d.performance_pct) || 0;
+            const pct    = parseFloat(d.performance_pct) || 0;
             return {
-                "Temsilci": d.user_name,
-                "Havuz Ortalaması": avg > 0 ? parseFloat(avg.toFixed(2)) : '',
-                "Gerçekleşen": actual || '',
-                "Performans %": pct > 0 ? pct / 100 : '',
-                "Ort. Uzaklık": avg > 0 ? parseFloat((actual - avg).toFixed(2)) : ''
+                "Temsilci"         : d.user_name,
+                "Havuz Ortalaması" : avg > 0 ? parseFloat(avg.toFixed(2)) : '',
+                "Gerçekleşen"      : actual || '',
+                "Performans %"     : pct > 0 ? pct / 100 : '',
+                "Ort. Uzaklık"     : avg > 0 ? parseFloat((actual - avg).toFixed(2)) : ''
             };
         });
         const ws = XLSX.utils.json_to_sheet(rows);
@@ -926,9 +932,9 @@
         const days  = [...new Set(perfAllData.map(d => d.date).filter(d => d !== null))].sort();
         const users = [...new Set(perfAllData.filter(d => d.date !== null).map(d => d.user_name))].sort();
         document.getElementById('modalUserList').innerHTML = users.map(u => `
-            <label class="day-checkbox"><input type="checkbox" class="modal-user-cb" value="${u}" checked><span>${u}</span></label>`).join('');
+            <label class="day-checkbox"><input type="checkbox" class="modal-user-cb" value="${u}"><span>${u}</span></label>`).join('');
         document.getElementById('modalDayList').innerHTML = days.map(d => `
-            <label class="day-checkbox"><input type="checkbox" class="modal-day-cb" value="${d}" checked><span>${formatDateShort(d)}</span></label>`).join('');
+            <label class="day-checkbox"><input type="checkbox" class="modal-day-cb" value="${d}"><span>${formatDateShort(d)}</span></label>`).join('');
         document.getElementById('ozelModal').classList.remove('hidden');
         document.getElementById('ozelModal').classList.add('flex');
     }
@@ -961,7 +967,7 @@
     }
 
     // ════════════════════════════════════════════════════════════════
-    // ÜRETİM ÖZET EXPORT (mevcut)
+    // ÜRETİM ÖZET EXPORT
     // ════════════════════════════════════════════════════════════════
     function exportToExcel() {
         document.getElementById('uretimExportMenu').classList.remove('open');
@@ -985,12 +991,12 @@
         const sumB = rows.reduce((s, r) => s + r["Mola Süresi (Dk)"], 0);
         rows.push({
             "Sicil No": "GENEL TOPLAM", "Temsilci Adı": "", "Takım Lideri": "",
-            "Login Süresi (Dk)": sumL, "Mola Süresi (Dk)": sumB,
-            "Net Login (Dk)"   : rows.reduce((s, r) => s + r["Net Login (Dk)"], 0),
-            "Mola Oranı"       : sumL > 0 ? (sumB / sumL) : 0,
-            "Eksik Süre (Dk)"  : rows.reduce((s, r) => s + r["Eksik Süre (Dk)"], 0),
-            "Ham FTE"          : rows.reduce((s, r) => s + r["Ham FTE"], 0),
-            "Capped FTE"       : rows.reduce((s, r) => s + r["Capped FTE"], 0)
+            "Login Süresi (Dk)" : sumL, "Mola Süresi (Dk)": sumB,
+            "Net Login (Dk)"    : rows.reduce((s, r) => s + r["Net Login (Dk)"], 0),
+            "Mola Oranı"        : sumL > 0 ? (sumB / sumL) : 0,
+            "Eksik Süre (Dk)"   : rows.reduce((s, r) => s + r["Eksik Süre (Dk)"], 0),
+            "Ham FTE"           : rows.reduce((s, r) => s + r["Ham FTE"], 0),
+            "Capped FTE"        : rows.reduce((s, r) => s + r["Capped FTE"], 0)
         });
         const ws = XLSX.utils.json_to_sheet(rows);
         const range = XLSX.utils.decode_range(ws['!ref']);
