@@ -90,7 +90,22 @@
         .sim-result-box { border-radius: 16px; padding: 20px; text-align: center; }
         /* ── AGENT KPI ORTALA ── */
         .kpi-grid-agent { display: flex !important; justify-content: center; gap: 1rem; flex-wrap: wrap; }
-        .kpi-grid-agent .kpi-card { width: calc(33.333% - 0.75rem); min-width: 200px; max-width: 280px; }
+        .kpi-grid-agent .kpi-card { flex: 0 1 calc(33.333% - 0.75rem); min-width: 180px; max-width: 260px; }
+        /* ── GERİ BİLDİRİM ── */
+        .fb-card { border-radius: 20px; border: 1px solid; transition: all 0.2s; }
+        .fb-msg-admin { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.15); border-radius: 14px 14px 14px 4px; }
+        .fb-msg-agent { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.15); border-radius: 14px 14px 4px 14px; }
+        .fb-badge { display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:18px; border-radius:9px; font-size:10px; font-weight:900; padding: 0 5px; }
+        .fb-input { width:100%; padding:10px 14px; border-radius:12px; font-size:13px; font-weight:600; border:1.5px solid #e2e8f0; outline:none; background:white; resize:none; transition:border-color 0.15s; }
+        .dark .fb-input { background:#1e293b; border-color:#334155; color:#f1f5f9; }
+        .fb-input:focus { border-color:#3b82f6; }
+        .fb-select { width:100%; padding:8px 12px; border-radius:10px; font-size:13px; font-weight:700; border:1.5px solid #e2e8f0; outline:none; background:white; cursor:pointer; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; background-size:14px; transition:border-color 0.15s; }
+        .dark .fb-select { background-color:#1e293b; border-color:#334155; color:#f1f5f9; }
+        .fb-select:focus { border-color:#3b82f6; }
+        .topic-kalite  { background:rgba(59,130,246,0.1);  color:#3b82f6;  border:1px solid rgba(59,130,246,0.2);  }
+        .topic-kpi     { background:rgba(245,158,11,0.1);  color:#f59e0b;  border:1px solid rgba(245,158,11,0.2);  }
+        .topic-operasyonel { background:rgba(16,185,129,0.1); color:#10b981; border:1px solid rgba(16,185,129,0.2); }
+        .unread-dot { width:8px; height:8px; border-radius:50%; background:#ef4444; display:inline-block; flex-shrink:0; }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen overflow-hidden transition-colors duration-500">
@@ -136,6 +151,12 @@
             <a href="#" id="nav-uretim" onclick="showPage('uretim')" class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-blue-500/10 text-blue-500 font-bold border border-blue-500/20 transition-all shadow-sm text-sm"><i class="fa-solid fa-chart-line"></i> Üretim Takip</a>
             <a href="#" id="nav-performans" onclick="showPage('performans')" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all text-sm"><i class="fa-solid fa-gauge-high"></i> Performans</a>
             <a href="#" id="nav-goalpex" onclick="showPage('goalpex')" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all text-sm"><i class="fa-solid fa-bullseye"></i> Goalpex</a>
+            <!-- ── GERİ BİLDİRİM NAV ── -->
+            <a href="#" id="nav-feedback" onclick="showPage('feedback')" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all text-sm">
+                <i class="fa-solid fa-comments"></i>
+                <span>Geri Bildirim</span>
+                <span id="feedback-badge" class="hidden fb-badge bg-rose-500 text-white ml-auto">0</span>
+            </a>
         </nav>
         <div class="p-5 border-t border-slate-100 dark:border-slate-800">
             <div class="flex items-center justify-between mb-4 px-1">
@@ -190,8 +211,6 @@
             </div>
         </header>
         <div class="flex-1 overflow-y-auto p-6 space-y-6">
-
-            <!-- KPI KARTLARI — id="kpi-grid" eklendi -->
             <div id="kpi-grid" class="grid grid-cols-2 lg:grid-cols-5 gap-4">
                 <div id="kpi-card-cwt" class="kpi-card bg-white dark:bg-slate-900 p-6 rounded-[2rem] shadow-sm">
                     <div class="flex justify-between items-center mb-3"><div class="p-2.5 bg-blue-500/10 text-blue-500 rounded-xl"><i class="fa-solid fa-stopwatch"></i></div><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">NET SAAT</span></div>
@@ -203,7 +222,6 @@
                 </div>
                 <div class="kpi-card bg-white dark:bg-slate-900 p-6 rounded-[2rem] shadow-sm">
                     <div class="flex justify-between items-center mb-3"><div class="p-2.5 bg-amber-500/10 text-amber-500 rounded-xl"><i class="fa-solid fa-mug-hot"></i></div>
-                    <!-- GENEL → OPERASYONEl -->
                     <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">OPERASYONEl</span></div>
                     <h3 id="kpi-break" class="text-3xl font-black tracking-tighter">0,00%</h3><p class="text-[10px] font-bold text-slate-400 mt-1.5 uppercase tracking-tight">Mola Oranı</p>
                 </div>
@@ -216,7 +234,6 @@
                     <h3 id="kpi-dvs" class="text-3xl font-black tracking-tighter">—</h3><p class="text-[10px] font-bold text-slate-400 mt-1.5 uppercase tracking-tight">Devamsızlık Oranı</p>
                 </div>
             </div>
-
             <div class="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
@@ -311,14 +328,8 @@
             <div class="flex flex-col xl:flex-row items-center justify-between gap-4">
                 <div><h2 class="text-xl font-black tracking-tighter uppercase">Goalpex</h2><p class="text-xs text-slate-400 font-medium">Temsilci bazlı prim ve performans değerlendirmesi.</p></div>
                 <div class="flex items-center gap-3">
-                    <button onclick="openScalaModal()" class="flex items-center gap-2 px-5 py-2.5 text-white text-xs font-black rounded-2xl shadow-lg transition-all uppercase tracking-widest"
-                        style="background:linear-gradient(135deg,#6366f1,#8b5cf6);box-shadow:0 4px 20px rgba(99,102,241,0.35);">
-                        <i class="fa-solid fa-table-list"></i> Goalpex Scala
-                    </button>
-                    <button onclick="openSimulatorModal()" class="flex items-center gap-2 px-5 py-2.5 text-white text-xs font-black rounded-2xl shadow-lg transition-all uppercase tracking-widest"
-                        style="background:linear-gradient(135deg,#f59e0b,#ef4444);box-shadow:0 4px 20px rgba(245,158,11,0.35);">
-                        <i class="fa-solid fa-calculator"></i> Goalpex Simulator
-                    </button>
+                    <button onclick="openScalaModal()" class="flex items-center gap-2 px-5 py-2.5 text-white text-xs font-black rounded-2xl shadow-lg transition-all uppercase tracking-widest" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);box-shadow:0 4px 20px rgba(99,102,241,0.35);"><i class="fa-solid fa-table-list"></i> Goalpex Scala</button>
+                    <button onclick="openSimulatorModal()" class="flex items-center gap-2 px-5 py-2.5 text-white text-xs font-black rounded-2xl shadow-lg transition-all uppercase tracking-widest" style="background:linear-gradient(135deg,#f59e0b,#ef4444);box-shadow:0 4px 20px rgba(245,158,11,0.35);"><i class="fa-solid fa-calculator"></i> Goalpex Simulator</button>
                 </div>
             </div>
         </header>
@@ -333,14 +344,10 @@
                         <thead class="bg-slate-50/50 dark:bg-slate-800/50 border-b font-black text-slate-400 uppercase tracking-widest text-[10px]">
                             <tr>
                                 <th class="px-5 py-4 min-w-[160px]">Temsilci Bilgisi</th>
-                                <th class="px-4 py-4 text-center">Perf. %</th>
-                                <th class="px-4 py-4 text-center">IFF</th>
-                                <th class="px-4 py-4 text-center">Kalite</th>
-                                <th class="px-4 py-4 text-center">Quiz</th>
-                                <th class="px-4 py-4 text-center">Mola %</th>
-                                <th class="px-4 py-4 text-center">Şikayet</th>
-                                <th class="px-4 py-4 text-center">Devamsızlık</th>
-                                <th class="px-4 py-4 text-center">Goalpex P</th>
+                                <th class="px-4 py-4 text-center">Perf. %</th><th class="px-4 py-4 text-center">IFF</th>
+                                <th class="px-4 py-4 text-center">Kalite</th><th class="px-4 py-4 text-center">Quiz</th>
+                                <th class="px-4 py-4 text-center">Mola %</th><th class="px-4 py-4 text-center">Şikayet</th>
+                                <th class="px-4 py-4 text-center">Devamsızlık</th><th class="px-4 py-4 text-center">Goalpex P</th>
                                 <th class="px-4 py-4 text-center">Prim Tutarı</th>
                             </tr>
                         </thead>
@@ -356,6 +363,31 @@
                     </table>
                 </div>
             </div>
+        </div>
+    </main>
+
+    <!-- ── GERİ BİLDİRİM SAYFASI ── -->
+    <main id="page-feedback" class="flex-1 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 hidden min-w-0">
+        <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b px-6 py-5 z-20">
+            <div class="flex flex-col xl:flex-row items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-black tracking-tighter uppercase">Geri Bildirim</h2>
+                    <p class="text-xs text-slate-400 font-medium">Yönetici — temsilci iletişim kanalı.</p>
+                </div>
+                <div id="fb-admin-actions" class="hidden">
+                    <button onclick="openFbNewModal()" class="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black rounded-2xl shadow-lg transition-all uppercase tracking-widest">
+                        <i class="fa-solid fa-plus"></i> Yeni Geri Bildirim
+                    </button>
+                </div>
+            </div>
+        </header>
+        <div class="flex-1 overflow-y-auto p-6 space-y-4">
+            <!-- Okunmamış banner (agent) -->
+            <div id="fb-unread-banner" class="hidden items-center gap-3 p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl">
+                <i class="fa-solid fa-bell text-blue-500"></i>
+                <p id="fb-unread-text" class="text-sm font-bold text-blue-600 dark:text-blue-400"></p>
+            </div>
+            <div id="fb-list" class="space-y-3"></div>
         </div>
     </main>
 </div>
@@ -410,6 +442,58 @@
             <div id="modalDayList" class="max-h-36 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl p-3 grid grid-cols-3 gap-1 bg-slate-50 dark:bg-slate-800/50"></div>
         </div>
         <button onclick="exportPerfOzel()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl text-sm uppercase tracking-widest transition-all"><i class="fa-solid fa-file-export mr-2"></i> Export Yap</button>
+    </div>
+</div>
+
+<!-- ── YENİ GERİ BİLDİRİM MODAL (Admin) ── -->
+<div id="fbNewModal" class="fixed inset-0 z-[120] hidden items-center justify-center bg-slate-950/70 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-lg p-8 mx-4">
+        <div class="flex items-center justify-between mb-6">
+            <div><h3 class="font-black text-lg tracking-tight">Yeni Geri Bildirim</h3><p class="text-xs text-slate-400 font-medium mt-0.5">Temsilci seç ve bildirim yaz</p></div>
+            <button onclick="closeFbNewModal()" class="text-slate-400 hover:text-rose-500 transition-colors text-xl"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="space-y-4">
+            <div>
+                <label class="sim-label">Temsilci</label>
+                <select id="fb-to-user" class="fb-select"></select>
+            </div>
+            <div>
+                <label class="sim-label">Konu</label>
+                <select id="fb-topic" class="fb-select">
+                    <option value="Kalite">Kalite</option>
+                    <option value="KPI">KPI</option>
+                    <option value="Operasyonel">Operasyonel</option>
+                </select>
+            </div>
+            <div>
+                <label class="sim-label">Açıklama</label>
+                <textarea id="fb-description" rows="4" class="fb-input" placeholder="Geri bildirim açıklamasını yazın..."></textarea>
+            </div>
+            <button onclick="submitNewFeedback()" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl text-sm uppercase tracking-widest transition-all"><i class="fa-solid fa-paper-plane mr-2"></i> Gönder</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── GERİ BİLDİRİM DETAY MODAL (Mesajlaşma) ── -->
+<div id="fbDetailModal" class="fixed inset-0 z-[120] hidden items-center justify-center bg-slate-950/70 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-lg mx-4 flex flex-col max-h-[85vh]">
+        <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
+            <div>
+                <div class="flex items-center gap-2 mb-0.5">
+                    <span id="fb-detail-topic-badge" class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg"></span>
+                    <h3 id="fb-detail-title" class="font-black text-sm tracking-tight"></h3>
+                </div>
+                <p id="fb-detail-meta" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest"></p>
+            </div>
+            <button onclick="closeFbDetailModal()" class="text-slate-400 hover:text-rose-500 transition-colors text-xl"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="fb-messages-list" class="flex-1 overflow-y-auto p-5 space-y-3"></div>
+        <div class="p-4 border-t border-slate-100 dark:border-slate-800 shrink-0">
+            <div class="flex gap-2">
+                <textarea id="fb-reply-input" rows="2" class="fb-input flex-1" placeholder="Yanıtınızı yazın..."></textarea>
+                <button onclick="sendFbMessage()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl text-xs uppercase tracking-widest transition-all shrink-0 self-end"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -567,20 +651,32 @@
     let currentUser = { role: 'agent', user_name: '', email: '' };
     let fullData = [], rawUsers = [], cwtAllData = [], perfAllData = [], dailyAllData = [];
 
+    // ── GERİ BİLDİRİM STATE ──
+    let fbAllData = [];
+    let fbCurrentId = null;
+
     const toTr = (val, dec=0) => { const n=parseFloat(val)||0; return dec===0?Math.round(n).toLocaleString('tr-TR'):n.toFixed(dec).replace('.',','); };
     const formatPeriodText = (p) => { if(!p||!p.includes('-'))return p; const[y,m]=p.split('-'); return `${["","Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"][parseInt(m)]} ${y}`; };
     const formatDateTR = (d) => { if(!d)return'-'; const[y,m,day]=d.split('-'); return `${day} ${["","Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"][parseInt(m)]} ${y}`; };
     const formatDateShort = (d) => { if(!d)return'-'; const[y,m,day]=d.split('-'); return `${day}/${m}`; };
+    const formatDateTime = (ts) => { if(!ts)return''; const d=new Date(ts); return `${d.toLocaleDateString('tr-TR')} ${d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}`; };
+    const topicClass = (t) => t==='Kalite'?'topic-kalite':t==='KPI'?'topic-kpi':'topic-operasyonel';
 
     function toggleTheme() { const isDark=document.documentElement.classList.toggle('dark'); localStorage.setItem('theme',isDark?'dark':'light'); document.getElementById('theme-icon').className=isDark?'fa-solid fa-sun text-lg':'fa-solid fa-moon text-lg'; }
     function initTheme() { const s=localStorage.getItem('theme')||'dark'; document.documentElement.classList.toggle('dark',s==='dark'); document.getElementById('theme-icon').className=s==='dark'?'fa-solid fa-sun text-lg':'fa-solid fa-moon text-lg'; }
 
     function showPage(page) {
-        ['uretim','performans','goalpex'].forEach(p=>document.getElementById(`page-${p}`).classList.toggle('hidden',p!==page));
+        ['uretim','performans','goalpex','feedback'].forEach(p=>document.getElementById(`page-${p}`).classList.toggle('hidden',p!==page));
         const a='flex items-center gap-3 px-4 py-3 rounded-2xl bg-blue-500/10 text-blue-500 font-bold border border-blue-500/20 transition-all shadow-sm text-sm';
         const i='flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all text-sm';
-        ['uretim','performans','goalpex'].forEach(p=>{ document.getElementById(`nav-${p}`).className=p===page?a:i; });
+        ['uretim','performans','goalpex','feedback'].forEach(p=>{ document.getElementById(`nav-${p}`).className=p===page?a:i; });
+        // badge nav-feedback içinde kalmalı, className reset'ten sonra tekrar ekle
+        const badge = document.getElementById('feedback-badge');
+        if (badge) {
+            document.getElementById('nav-feedback').appendChild(badge);
+        }
         if(page==='performans') loadPerformans();
+        if(page==='feedback')   loadFeedback();
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
@@ -597,10 +693,7 @@
         e.preventDefault();
         const btn=document.getElementById('loginBtn');
         btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-circle-notch fa-spin"></i>';
-        const {data,error}=await _supabase.auth.signInWithPassword({
-            email: document.getElementById('email').value,
-            password: document.getElementById('password').value
-        });
+        const {data,error}=await _supabase.auth.signInWithPassword({ email:document.getElementById('email').value, password:document.getElementById('password').value });
         if(error){ document.getElementById('loginError').classList.remove('hidden'); btn.disabled=false; btn.innerText='Giriş Yap'; }
         else { await showDashboard(data.user); }
     }
@@ -608,39 +701,191 @@
     function handleLogout(){ _supabase.auth.signOut().then(()=>location.reload()); }
 
     async function showDashboard(user) {
-        const { data: userRows } = await _supabase
-            .from('users').select('user_name, role').eq('user_mail', user.email).limit(1);
+        const { data: userRows } = await _supabase.from('users').select('user_name, role').eq('user_mail', user.email).limit(1);
         const userRow = userRows && userRows.length > 0 ? userRows[0] : null;
-        currentUser = {
-            role:      userRow?.role      || 'agent',
-            user_name: userRow?.user_name || user.email.split('@')[0].replace('.',' '),
-            email:     user.email
-        };
+        currentUser = { role: userRow?.role||'agent', user_name: userRow?.user_name||user.email.split('@')[0].replace('.',' '), email: user.email };
         const initials = currentUser.user_name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
         document.getElementById('userInitials').innerText  = initials;
         document.getElementById('userName').innerText      = currentUser.user_name;
-        document.getElementById('userRoleLabel').innerText = currentUser.role === 'admin' ? 'Yönetici Paneli' : 'Temsilci Paneli';
+        document.getElementById('userRoleLabel').innerText = currentUser.role==='admin'?'Yönetici Paneli':'Temsilci Paneli';
         document.getElementById('loginPage').classList.add('hidden');
         document.getElementById('mainDashboard').classList.remove('hidden');
         applyRoleRestrictions();
         loadPeriods();
+        checkFeedbackBadge();
     }
 
-    // ════════════════════════════════════════════════════════════════
-    // ROL KISITLAMALARI
-    // ════════════════════════════════════════════════════════════════
     function applyRoleRestrictions() {
         if (currentUser.role === 'agent') {
-            // KPI kartlarını gizle
             document.getElementById('kpi-card-cwt').classList.add('hidden');
             document.getElementById('kpi-card-fte').classList.add('hidden');
-            // FTE tablo başlığını gizle
             document.getElementById('th-fte').classList.add('hidden');
-            // Grid'i flex'e çevir, 3 kartı ortala
             const grid = document.getElementById('kpi-grid');
             grid.classList.remove('grid', 'grid-cols-2', 'lg:grid-cols-5');
             grid.classList.add('kpi-grid-agent');
         }
+        if (currentUser.role === 'admin') {
+            document.getElementById('fb-admin-actions').classList.remove('hidden');
+        }
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    // GERİ BİLDİRİM
+    // ════════════════════════════════════════════════════════════════
+
+    async function checkFeedbackBadge() {
+        if (currentUser.role !== 'agent') return;
+        const { data } = await _supabase.from('feedback').select('id').eq('to_user', currentUser.user_name).eq('is_read', false);
+        const count = data?.length || 0;
+        const badge = document.getElementById('feedback-badge');
+        if (count > 0) { badge.innerText = count; badge.classList.remove('hidden'); }
+        else { badge.classList.add('hidden'); }
+    }
+
+    async function loadFeedback() {
+        toggleLoading(true);
+        try {
+            let query = _supabase.from('feedback').select('*, feedback_messages(*)').order('created_at', {ascending: false});
+            if (currentUser.role === 'agent') query = query.eq('to_user', currentUser.user_name);
+            const { data } = await query;
+            fbAllData = data || [];
+
+            if (currentUser.role === 'agent') {
+                const unread = fbAllData.filter(f => !f.is_read);
+                const banner = document.getElementById('fb-unread-banner');
+                if (unread.length > 0) {
+                    document.getElementById('fb-unread-text').innerText = unread.length === 1 ? '1 yeni geri bildiriminiz var.' : `${unread.length} yeni geri bildiriminiz var.`;
+                    banner.classList.remove('hidden'); banner.classList.add('flex');
+                } else { banner.classList.add('hidden'); banner.classList.remove('flex'); }
+            }
+            renderFeedbackList();
+        } catch(e){ console.error(e); } finally { toggleLoading(false); }
+    }
+
+    function renderFeedbackList() {
+        const container = document.getElementById('fb-list');
+        if (fbAllData.length === 0) {
+            container.innerHTML = `<div class="flex flex-col items-center gap-3 py-16"><div class="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center"><i class="fa-solid fa-comments text-blue-500 text-2xl"></i></div><p class="text-slate-400 font-bold text-sm">Henüz geri bildirim yok</p></div>`;
+            return;
+        }
+        container.innerHTML = fbAllData.map(fb => {
+            const isUnread = !fb.is_read && currentUser.role === 'agent';
+            const msgCount = fb.feedback_messages?.length || 0;
+            const msgs = fb.feedback_messages || [];
+            const lastMsg = msgs.length > 0 ? msgs.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at))[0] : null;
+            return `<div class="fb-card bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 p-5 cursor-pointer hover:border-blue-500/40 transition-all ${isUnread?'border-l-4 border-l-blue-500':''}" onclick="openFbDetail('${fb.id}')">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        ${isUnread?'<span class="unread-dot"></span>':''}
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap mb-1">
+                                <span class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg ${topicClass(fb.topic)}">${fb.topic}</span>
+                                <span class="text-sm font-black truncate">${currentUser.role==='admin'?fb.to_user:fb.from_user}</span>
+                            </div>
+                            <p class="text-xs text-slate-500 font-medium line-clamp-1">${lastMsg?lastMsg.message:fb.description}</p>
+                        </div>
+                    </div>
+                    <div class="text-right shrink-0">
+                        <p class="text-[10px] font-bold text-slate-400 whitespace-nowrap">${formatDateTime(fb.created_at)}</p>
+                        ${msgCount>0?`<span class="text-[10px] font-black text-blue-500">${msgCount} mesaj</span>`:''}
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    async function openFbDetail(id) {
+        fbCurrentId = id;
+        const fb = fbAllData.find(f => f.id === id);
+        if (!fb) return;
+
+        if (currentUser.role === 'agent' && !fb.is_read) {
+            await _supabase.from('feedback').update({ is_read: true }).eq('id', id);
+            fb.is_read = true;
+            checkFeedbackBadge();
+            renderFeedbackList();
+            const unread = fbAllData.filter(f => !f.is_read);
+            const banner = document.getElementById('fb-unread-banner');
+            if (unread.length === 0) { banner.classList.add('hidden'); banner.classList.remove('flex'); }
+            else { document.getElementById('fb-unread-text').innerText = `${unread.length} yeni geri bildiriminiz var.`; }
+        }
+
+        const badgeEl = document.getElementById('fb-detail-topic-badge');
+        badgeEl.className = `text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg ${topicClass(fb.topic)}`;
+        badgeEl.innerText = fb.topic;
+        document.getElementById('fb-detail-title').innerText = currentUser.role==='admin'?`→ ${fb.to_user}`:`${fb.from_user}`;
+        document.getElementById('fb-detail-meta').innerText = formatDateTime(fb.created_at);
+
+        await renderFbMessages(fb);
+        document.getElementById('fb-reply-input').value = '';
+        document.getElementById('fbDetailModal').classList.remove('hidden');
+        document.getElementById('fbDetailModal').classList.add('flex');
+    }
+
+    async function renderFbMessages(fb) {
+        const { data: msgs } = await _supabase.from('feedback_messages').select('*').eq('feedback_id', fb.id).order('created_at', {ascending: true});
+        const list = document.getElementById('fb-messages-list');
+        let html = `<div class="fb-msg-admin p-3">
+            <div class="flex items-center gap-2 mb-1">
+                <span class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-wider">${fb.from_user}</span>
+                <span class="text-[9px] text-slate-400">${formatDateTime(fb.created_at)}</span>
+            </div>
+            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">${fb.description}</p>
+        </div>`;
+        (msgs||[]).forEach(msg => {
+            const isAdmin = msg.sender === fb.from_user;
+            html += `<div class="${isAdmin?'fb-msg-admin':'fb-msg-agent'} p-3">
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="text-[10px] font-black ${isAdmin?'text-blue-600 dark:text-blue-400':'text-emerald-600 dark:text-emerald-400'} uppercase tracking-wider">${msg.sender}</span>
+                    <span class="text-[9px] text-slate-400">${formatDateTime(msg.created_at)}</span>
+                </div>
+                <p class="text-sm font-medium text-slate-700 dark:text-slate-300">${msg.message}</p>
+            </div>`;
+        });
+        list.innerHTML = html;
+        list.scrollTop = list.scrollHeight;
+        const fbIdx = fbAllData.findIndex(f => f.id === fb.id);
+        if (fbIdx !== -1) fbAllData[fbIdx].feedback_messages = msgs || [];
+    }
+
+    async function sendFbMessage() {
+        const text = document.getElementById('fb-reply-input').value.trim();
+        if (!text || !fbCurrentId) return;
+        const { error } = await _supabase.from('feedback_messages').insert({ feedback_id: fbCurrentId, sender: currentUser.user_name, message: text });
+        if (!error) {
+            document.getElementById('fb-reply-input').value = '';
+            const fb = fbAllData.find(f => f.id === fbCurrentId);
+            if (fb) await renderFbMessages(fb);
+        }
+    }
+
+    function closeFbDetailModal() {
+        document.getElementById('fbDetailModal').classList.add('hidden');
+        document.getElementById('fbDetailModal').classList.remove('flex');
+        fbCurrentId = null;
+    }
+
+    function openFbNewModal() {
+        const users = [...new Set(rawUsers.map(u => u.user_name).filter(Boolean))].sort();
+        document.getElementById('fb-to-user').innerHTML = users.map(u=>`<option value="${u}">${u}</option>`).join('');
+        document.getElementById('fb-description').value = '';
+        document.getElementById('fb-topic').value = 'Kalite';
+        document.getElementById('fbNewModal').classList.remove('hidden');
+        document.getElementById('fbNewModal').classList.add('flex');
+    }
+
+    function closeFbNewModal() {
+        document.getElementById('fbNewModal').classList.add('hidden');
+        document.getElementById('fbNewModal').classList.remove('flex');
+    }
+
+    async function submitNewFeedback() {
+        const toUser      = document.getElementById('fb-to-user').value;
+        const topic       = document.getElementById('fb-topic').value;
+        const description = document.getElementById('fb-description').value.trim();
+        if (!description) { alert('Açıklama boş olamaz.'); return; }
+        const { error } = await _supabase.from('feedback').insert({ from_user: currentUser.user_name, to_user: toUser, topic: topic, description: description, is_read: false });
+        if (!error) { closeFbNewModal(); loadFeedback(); }
     }
 
     function openScalaModal()      { document.getElementById('scalaModal').classList.remove('hidden');     document.getElementById('scalaModal').classList.add('flex'); }
@@ -659,14 +904,10 @@
     function calcSikayetPuan(v){return parseInt(v)>=1?-120:0;}
     function calcDevamsizPuan(v){const d=parseInt(v);if(d===0)return 0;if(d===1)return -15;if(d===2)return -30;return -30;}
     function getPrim(puan){
-        if(puan>=116)return{prim:'₺4.200',band:'116–120 puan bandı'};
-        if(puan>=111)return{prim:'₺3.900',band:'111–115 puan bandı'};
-        if(puan>=106)return{prim:'₺3.700',band:'106–110 puan bandı'};
-        if(puan>=101)return{prim:'₺3.200',band:'101–105 puan bandı'};
-        if(puan>=95)return{prim:'₺2.800',band:'95–100 puan bandı'};
-        if(puan>=90)return{prim:'₺2.500',band:'90–94 puan bandı'};
-        if(puan>=85)return{prim:'₺2.250',band:'85–89 puan bandı'};
-        if(puan>=80)return{prim:'₺2.000',band:'80–84 puan bandı'};
+        if(puan>=116)return{prim:'₺4.200',band:'116–120 puan bandı'};if(puan>=111)return{prim:'₺3.900',band:'111–115 puan bandı'};
+        if(puan>=106)return{prim:'₺3.700',band:'106–110 puan bandı'};if(puan>=101)return{prim:'₺3.200',band:'101–105 puan bandı'};
+        if(puan>=95)return{prim:'₺2.800',band:'95–100 puan bandı'};if(puan>=90)return{prim:'₺2.500',band:'90–94 puan bandı'};
+        if(puan>=85)return{prim:'₺2.250',band:'85–89 puan bandı'};if(puan>=80)return{prim:'₺2.000',band:'80–84 puan bandı'};
         return{prim:'Prim yok',band:'80 puanın altında prim ödenmez'};
     }
     function calcSimulator(){
@@ -680,14 +921,11 @@
         const pPerf=calcPerfPuan(perfVal),pIff=calcIffPuan(iffVal),pKalite=calcKalitePuan(kaliteVal),pQuiz=calcQuizPuan(quizVal),pMola=calcMolaPuan(molaVal),pSikayet=calcSikayetPuan(sikayetVal),pDevamsiz=calcDevamsizPuan(devamsizVal);
         const fmt=(p)=>{if(p===null)return'<span style="color:#475569">—</span>';const sign=p>0?'+':'';const color=p>0?'#10b981':p<0?'#ef4444':'#64748b';return`<span style="color:${color};font-weight:900">${sign}${p}</span>`;};
         document.getElementById('sb-perf').innerHTML=fmt(pPerf);document.getElementById('sb-iff').innerHTML=fmt(pIff);document.getElementById('sb-kalite').innerHTML=fmt(pKalite);document.getElementById('sb-quiz').innerHTML=fmt(pQuiz);document.getElementById('sb-mola').innerHTML=fmt(pMola);document.getElementById('sb-sikayet').innerHTML=fmt(pSikayet);document.getElementById('sb-devamsiz').innerHTML=fmt(pDevamsiz);
-        const parts=[pPerf,pIff,pKalite,pQuiz,pMola,pSikayet,pDevamsiz];
-        const filled=parts.filter(p=>p!==null);
+        const parts=[pPerf,pIff,pKalite,pQuiz,pMola,pSikayet,pDevamsiz];const filled=parts.filter(p=>p!==null);
         if(filled.length===0){document.getElementById('sim-total-puan').innerHTML='<span style="color:#475569">—</span>';document.getElementById('sim-total-prim').innerHTML='<span style="color:#475569">—</span>';document.getElementById('sim-prim-band').innerText='';return;}
-        const total=filled.reduce((s,p)=>s+p,0);
-        const totalColor=total>=100?'#10b981':total>=80?'#f59e0b':'#ef4444';
+        const total=filled.reduce((s,p)=>s+p,0);const totalColor=total>=100?'#10b981':total>=80?'#f59e0b':'#ef4444';
         document.getElementById('sim-total-puan').innerHTML=`<span style="color:${totalColor}">${total} P</span>`;
-        const{prim,band}=getPrim(total);
-        const primColor=prim==='Prim yok'?'#ef4444':'#a78bfa';
+        const{prim,band}=getPrim(total);const primColor=prim==='Prim yok'?'#ef4444':'#a78bfa';
         document.getElementById('sim-total-prim').innerHTML=`<span style="color:${primColor}">${prim}</span>`;
         document.getElementById('sim-prim-band').innerText=band;
     }
@@ -707,20 +945,15 @@
         toggleLoading(true);
         const period = document.getElementById('periodFilter').value;
         try {
-            const cwtFetch = fetch(`${SUPABASE_URL}/rest/v1/cwt_data?period=eq.${encodeURIComponent(period)}&select=user_name,cwt,date`,
-                {headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}}).then(r=>r.json());
-            const dvsFetch = fetch(`${SUPABASE_URL}/rest/v1/dvs_data?period=eq.${encodeURIComponent(period)}&select=planned_hc,actual_hc`,
-                {headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}}).then(r=>r.json());
-
+            const cwtFetch = fetch(`${SUPABASE_URL}/rest/v1/cwt_data?period=eq.${encodeURIComponent(period)}&select=user_name,cwt,date`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}}).then(r=>r.json());
+            const dvsFetch = fetch(`${SUPABASE_URL}/rest/v1/dvs_data?period=eq.${encodeURIComponent(period)}&select=planned_hc,actual_hc`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}}).then(r=>r.json());
             const [dailyRes, summaryRes, userRes, cwtData, dvsData] = await Promise.all([
                 _supabase.from('daily_data').select('*').eq('period',period).limit(10000),
                 _supabase.from('period_summary').select('*').eq('period',period).limit(10000),
                 _supabase.from('users').select('*').limit(10000),
                 cwtFetch, dvsFetch
             ]);
-
             rawUsers=userRes.data||[]; cwtAllData=Array.isArray(cwtData)?cwtData:[]; dailyAllData=dailyRes.data||[];
-
             const dvsArr=Array.isArray(dvsData)?dvsData:[];
             const totalPlanned=dvsArr.reduce((s,d)=>s+(parseFloat(d.planned_hc)||0),0);
             const totalActual =dvsArr.reduce((s,d)=>s+(parseFloat(d.actual_hc)||0),0);
@@ -728,7 +961,6 @@
             const dvsEl=document.getElementById('kpi-dvs');
             if(dvsRate!==null){dvsEl.innerText=toTr(dvsRate*100,2)+'%';dvsEl.className=`text-3xl font-black tracking-tighter ${dvsRate>0.05?'text-rose-500':'text-emerald-500'}`;}
             else{dvsEl.innerText='—';dvsEl.className='text-3xl font-black tracking-tighter';}
-
             fullData=(summaryRes.data||[]).map(summary=>{
                 const normName=summary.user_name?.toLowerCase().trim();
                 const userMeta=rawUsers.find(u=>u.user_name?.toLowerCase().trim()===normName)||{};
@@ -757,17 +989,14 @@
         document.getElementById('kpi-fte').innerText=toTr(filtered.reduce((s,d)=>s+d.capped_fte,0),2);
         document.getElementById('kpi-break').innerText=toTr(sumL>0?(sumB/sumL)*100:0,2)+'%';
         document.getElementById('kpi-missing').innerText=toTr(filtered.reduce((s,d)=>s+(parseFloat(d.missing_time)||0),0));
-
-        const isAgent = currentUser.role === 'agent';
+        const isAgent=currentUser.role==='agent';
         const tbody=document.getElementById('dataTableBody'); tbody.innerHTML='';
         filtered.sort((a,b)=>b.fte-a.fte).forEach(row=>{
             const m=Math.round(parseFloat(row.missing_time)||0), bR=(parseFloat(row.break_rate)||0)*100;
             let sC='text-emerald-500 bg-emerald-500/10 border-emerald-500/20',sT='HEDEFTE';
             if(m>60||row.capped_fte<0.85){sC='text-rose-500 bg-rose-500/10 border-rose-500/20';sT='KRİTİK';}
             else if(m>0){sC='text-amber-500 bg-amber-500/10 border-amber-500/20';sT='TAKİPTE';}
-            const fteTd=isAgent
-                ?`<td class="px-6 py-4 text-center font-black text-sm hidden"></td>`
-                :`<td class="px-6 py-4 text-center font-black text-sm">${toTr(row.capped_fte,2)}</td>`;
+            const fteTd=isAgent?`<td class="px-6 py-4 text-center font-black text-sm hidden"></td>`:`<td class="px-6 py-4 text-center font-black text-sm">${toTr(row.capped_fte,2)}</td>`;
             tbody.innerHTML+=`<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all">
                 <td class="px-6 py-4 flex items-center gap-3"><div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600 font-black text-[10px]">${row.user_name[0]}</div><span class="tracking-tight truncate text-sm">${row.user_name}</span></td>
                 <td class="px-6 py-4 text-slate-400 font-medium text-sm">${row.team_leader}</td>
