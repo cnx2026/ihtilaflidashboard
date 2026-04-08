@@ -26,8 +26,12 @@
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         .fade-in { animation: fadeIn 0.5s ease-out forwards; }
         @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-        select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='C19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 0.75rem center; background-size:1rem; }
-        .filter-container { @apply flex items-center gap-3 bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm; }
+        select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 0.75rem center; background-size:1rem; }
+
+        /* ── FIX A: filter-container — @apply kaldırıldı, düz CSS ── */
+        .filter-container { display:flex; align-items:center; gap:0.75rem; background:white; padding:0.5rem; border-radius:1rem; border:1px solid #e2e8f0; box-shadow:0 1px 2px rgba(0,0,0,0.05); }
+        .dark .filter-container { background:#0f172a; border-color:#1e293b; }
+
         .perf-row { animation: slideIn 0.4s ease-out forwards; }
         @keyframes slideIn { from { opacity:0; transform:translateX(-16px); } to { opacity:1; transform:translateX(0); } }
         .bar-fill { transition: width 1s cubic-bezier(0.4,0,0.2,1); }
@@ -43,11 +47,18 @@
         .dark .export-menu button:hover { background: #1e293b; }
         .day-checkbox { display:flex; align-items:center; gap:8px; padding:4px 0; cursor:pointer; font-size:13px; font-weight:600; }
         .day-checkbox input { accent-color:#3b82f6; width:14px; height:14px; cursor:pointer; }
-        .metric-toggle { display:flex; align-items:center; gap:10px; padding:8px 12px; border:1px solid #e2e8f0; border-radius:12px; cursor:pointer; transition:all 0.15s; }
-        .dark .metric-toggle { border-color: #1e293b; }
-        .metric-toggle.active { background:#eff6ff; border-color:#3b82f6; }
+
+        /* ── FIX B: metric-toggle — görsel buton, radio YOK, JS global state ── */
+        .metric-toggle { display:flex; align-items:center; gap:10px; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:12px; cursor:pointer; transition:all 0.2s; user-select:none; }
+        .dark .metric-toggle { border-color:#334155; }
+        .metric-toggle:hover { border-color:#94a3b8; }
+        .metric-toggle.active { background:#eff6ff; border-color:#3b82f6; box-shadow:0 0 0 3px rgba(59,130,246,0.1); }
         .dark .metric-toggle.active { background:#1e3a5f; border-color:#1d4ed8; }
-        .metric-toggle input { accent-color:#3b82f6; width:15px; height:15px; cursor:pointer; }
+        .m-radio { width:15px; height:15px; border-radius:50%; border:2px solid #cbd5e1; display:flex; align-items:center; justify-content:center; margin-left:auto; flex-shrink:0; transition:border-color 0.15s; }
+        .metric-toggle.active .m-radio { border-color:#3b82f6; }
+        .m-dot { width:7px; height:7px; border-radius:50%; background:#3b82f6; display:none; }
+        .metric-toggle.active .m-dot { display:block; }
+
         .days-empty { padding:12px; text-align:center; font-size:12px; font-weight:700; color:#94a3b8; letter-spacing:0.05em; }
         /* ── SCALA ── */
         .scala-card { border-radius:16px; padding:16px; border:1px solid; }
@@ -76,29 +87,31 @@
         .kpi-grid-agent .kpi-card { flex:0 1 calc(33.333% - 0.75rem); min-width:180px; max-width:260px; }
         /* ── FEEDBACK ── */
         .fb-badge { display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:18px; border-radius:9px; font-size:10px; font-weight:900; padding:0 5px; }
-        .fb-input { width:100%; padding:10px 14px; border-radius:12px; font-size:13px; font-weight:600; border:1.5px solid #e2e8f0; outline:none; background:white; resize:none; transition:border-color 0.15s; }
+        .fb-input { width:100%; padding:10px 14px; border-radius:10px; font-size:13px; font-weight:600; border:1.5px solid #e2e8f0; outline:none; background:white; resize:none; transition:border-color 0.15s; }
         .dark .fb-input { background:#1e293b; border-color:#334155; color:#f1f5f9; }
         .fb-input:focus { border-color:#3b82f6; }
         .fb-select { width:100%; padding:8px 12px; border-radius:10px; font-size:13px; font-weight:700; border:1.5px solid #e2e8f0; outline:none; background:white; cursor:pointer; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; background-size:14px; transition:border-color 0.15s; }
         .dark .fb-select { background-color:#1e293b; border-color:#334155; color:#f1f5f9; }
         .fb-select:focus { border-color:#3b82f6; }
-        /* Konu renkleri */
+        /* Konu / tip renkleri */
         .topic-kalite  { background:rgba(59,130,246,0.1);  color:#3b82f6;  border:1px solid rgba(59,130,246,0.25); }
         .topic-kpi     { background:rgba(245,158,11,0.1);  color:#d97706;  border:1px solid rgba(245,158,11,0.25); }
         .topic-operasyonel { background:rgba(16,185,129,0.1); color:#059669; border:1px solid rgba(16,185,129,0.25); }
-        /* Tip renkleri */
-        .type-olumlu       { background:rgba(16,185,129,0.12); color:#059669; border:1px solid rgba(16,185,129,0.3); }
-        .type-bilgilendirme{ background:rgba(99,102,241,0.12); color:#6366f1; border:1px solid rgba(99,102,241,0.3); }
-        .type-olumsuz      { background:rgba(239,68,68,0.1);   color:#dc2626; border:1px solid rgba(239,68,68,0.3); }
-        /* Kurumsal mail stili */
-        .fb-mail-card { background:white; border:1px solid #e2e8f0; border-radius:16px; overflow:hidden; cursor:pointer; transition:all 0.2s; }
-        .dark .fb-mail-card { background:#0f172a; border-color:#1e293b; }
-        .fb-mail-card:hover { border-color:#3b82f6; box-shadow:0 4px 20px rgba(59,130,246,0.1); }
-        .fb-mail-card.unread { border-left:4px solid #3b82f6; }
-        .fb-detail-body { background:white; border:1px solid #e2e8f0; border-radius:12px; padding:24px; line-height:1.7; }
-        .dark .fb-detail-body { background:#0f172a; border-color:#1e293b; }
-        .fb-reply-card { background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:16px; margin-top:12px; }
-        .dark .fb-reply-card { background:#1e293b; border-color:#334155; }
+        .type-olumlu        { background:rgba(16,185,129,0.12); color:#059669; border:1px solid rgba(16,185,129,0.3); }
+        .type-bilgilendirme { background:rgba(99,102,241,0.12); color:#6366f1; border:1px solid rgba(99,102,241,0.3); }
+        .type-olumsuz       { background:rgba(239,68,68,0.1);   color:#dc2626; border:1px solid rgba(239,68,68,0.3); }
+
+        /* ── FIX C: Feedback split-view ── */
+        .fb-item { border-left:3px solid transparent; cursor:pointer; transition:all 0.15s; }
+        .fb-item:hover { background:rgba(59,130,246,0.05); border-left-color:#94a3b8; }
+        .fb-item.fb-active { background:rgba(59,130,246,0.08); border-left-color:#3b82f6; }
+        .fb-item.fb-new { border-left-color:#3b82f6; }
+        .fb-pip { width:7px; height:7px; border-radius:50%; background:#3b82f6; flex-shrink:0; }
+        .fb-bubble { border-radius:14px; padding:12px 16px; max-width:78%; }
+        .fb-bubble-me    { background:rgba(59,130,246,0.1);  border:1px solid rgba(59,130,246,0.2);  border-bottom-right-radius:4px; }
+        .fb-bubble-other { background:rgba(100,116,139,0.08); border:1px solid rgba(100,116,139,0.14); border-bottom-left-radius:4px; }
+        .dark .fb-bubble-me    { background:rgba(59,130,246,0.15); }
+        .dark .fb-bubble-other { background:rgba(100,116,139,0.12); }
         .unread-dot { width:8px; height:8px; border-radius:50%; background:#3b82f6; display:inline-block; flex-shrink:0; }
     </style>
 </head>
@@ -144,8 +157,7 @@
             <a href="#" id="nav-performans" onclick="showPage('performans')" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all text-sm"><i class="fa-solid fa-gauge-high"></i> Performans</a>
             <a href="#" id="nav-goalpex" onclick="showPage('goalpex')" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all text-sm"><i class="fa-solid fa-bullseye"></i> Goalpex</a>
             <a href="#" id="nav-feedback" onclick="showPage('feedback')" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all text-sm">
-                <i class="fa-solid fa-envelope"></i>
-                <span>Geri Bildirim</span>
+                <i class="fa-solid fa-envelope"></i><span>Geri Bildirim</span>
                 <span id="feedback-badge" class="hidden fb-badge bg-rose-500 text-white ml-auto">0</span>
             </a>
         </nav>
@@ -154,7 +166,7 @@
                 <button onclick="toggleTheme()" class="text-slate-400 hover:text-blue-500 transition-colors"><i id="theme-icon" class="fa-solid fa-moon text-lg"></i></button>
                 <button onclick="handleLogout()" class="text-slate-400 hover:text-rose-500 transition-colors"><i class="fa-solid fa-right-from-bracket text-lg"></i></button>
             </div>
-            <div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-850 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden">
+            <div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden">
                 <div id="userInitials" class="w-9 h-9 shrink-0 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-xs uppercase tracking-tighter">--</div>
                 <div class="truncate">
                     <p id="userName" class="text-xs font-bold truncate tracking-tight">Kullanıcı</p>
@@ -166,7 +178,7 @@
 
     <!-- ── ÜRETİM TAKİP ── -->
     <main id="page-uretim" class="flex-1 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 min-w-0">
-        <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b px-6 py-5 z-20">
+        <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 px-6 py-5 z-20">
             <div class="flex flex-col xl:flex-row items-center justify-between gap-4">
                 <div>
                     <h2 class="text-xl font-black tracking-tighter uppercase">Üretim Takip</h2>
@@ -175,26 +187,25 @@
                 <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
                     <div class="filter-container">
                         <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2">
-                            <i class="fa-solid fa-calendar-day absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 text-xs"></i>
-                            <select id="periodFilter" onchange="fetchAndRender()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[160px]"></select>
+                            <i class="fa-solid fa-calendar-day absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 text-xs pointer-events-none"></i>
+                            <select id="periodFilter" onchange="fetchAndRender()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[160px] text-slate-800 dark:text-slate-100"></select>
                         </div>
-                        <!-- ── EKİP FİLTRESİ — YENİ ── -->
                         <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2">
-                            <i class="fa-solid fa-layer-group absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                            <select id="teamFilter" onchange="applyFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[130px]">
+                            <i class="fa-solid fa-layer-group absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                            <select id="teamFilter" onchange="applyFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[130px] text-slate-800 dark:text-slate-100">
                                 <option value="all">Tüm Ekipler</option>
                             </select>
                         </div>
                         <div class="relative">
-                            <i class="fa-solid fa-user-tie absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                            <select id="tlFilter" onchange="applyFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[140px]">
+                            <i class="fa-solid fa-user-tie absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                            <select id="tlFilter" onchange="applyFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[140px] text-slate-800 dark:text-slate-100">
                                 <option value="all">Tüm Liderler</option>
                             </select>
                         </div>
                     </div>
                     <div class="relative min-w-[220px]">
-                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                        <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Hızlı Temsilci Ara..." class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-blue-500 outline-none shadow-sm transition-all">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                        <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Hızlı Temsilci Ara..." class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-blue-500 outline-none shadow-sm transition-all text-slate-800 dark:text-slate-100">
                     </div>
                     <div class="export-dropdown" id="uretimExportDropdown">
                         <button onclick="toggleUretimExportMenu()" class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-2xl shadow-lg transition-all uppercase tracking-widest">
@@ -210,41 +221,23 @@
         </header>
         <div class="flex-1 overflow-y-auto p-6 space-y-6">
             <div id="kpi-grid" class="grid grid-cols-2 lg:grid-cols-5 gap-4">
-                <div id="kpi-card-cwt" class="kpi-card bg-white dark:bg-slate-900 p-6 rounded-[2rem] shadow-sm">
-                    <div class="flex justify-between items-center mb-3"><div class="p-2.5 bg-blue-500/10 text-blue-500 rounded-xl"><i class="fa-solid fa-stopwatch"></i></div><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">NET SAAT</span></div>
-                    <h3 id="kpi-cwt" class="text-3xl font-black tracking-tighter">0</h3><p class="text-[10px] font-bold text-slate-400 mt-1.5 uppercase tracking-tight">Toplam Net Çalışma</p>
-                </div>
-                <div id="kpi-card-fte" class="kpi-card bg-white dark:bg-slate-900 p-6 rounded-[2rem] shadow-sm">
-                    <div class="flex justify-between items-center mb-3"><div class="p-2.5 bg-purple-500/10 text-purple-500 rounded-xl"><i class="fa-solid fa-users"></i></div><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">GÜNCEL</span></div>
-                    <h3 id="kpi-fte" class="text-3xl font-black tracking-tighter">0,00</h3><p class="text-[10px] font-bold text-slate-400 mt-1.5 uppercase tracking-tight">Kümülatif FTE</p>
-                </div>
-                <div class="kpi-card bg-white dark:bg-slate-900 p-6 rounded-[2rem] shadow-sm">
-                    <div class="flex justify-between items-center mb-3"><div class="p-2.5 bg-amber-500/10 text-amber-500 rounded-xl"><i class="fa-solid fa-mug-hot"></i></div><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">OPERASYONEl</span></div>
-                    <h3 id="kpi-break" class="text-3xl font-black tracking-tighter">0,00%</h3><p class="text-[10px] font-bold text-slate-400 mt-1.5 uppercase tracking-tight">Mola Oranı</p>
-                </div>
-                <div class="kpi-card bg-white dark:bg-slate-900 p-6 rounded-[2rem] shadow-sm">
-                    <div class="flex justify-between items-center mb-3"><div class="p-2.5 bg-rose-500/10 text-rose-500 rounded-xl"><i class="fa-solid fa-hourglass-half"></i></div><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">DAKİKA</span></div>
-                    <h3 id="kpi-missing" class="text-3xl font-black tracking-tighter">0</h3><p class="text-[10px] font-bold text-slate-400 mt-1.5 uppercase tracking-tight">Toplam Eksik Süre</p>
-                </div>
-                <div class="kpi-card bg-white dark:bg-slate-900 p-6 rounded-[2rem] shadow-sm">
-                    <div class="flex justify-between items-center mb-3"><div class="p-2.5 bg-indigo-500/10 text-indigo-500 rounded-xl"><i class="fa-solid fa-user-slash"></i></div><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">DÖNEM</span></div>
-                    <h3 id="kpi-dvs" class="text-3xl font-black tracking-tighter">—</h3><p class="text-[10px] font-bold text-slate-400 mt-1.5 uppercase tracking-tight">Devamsızlık Oranı</p>
-                </div>
+                <div id="kpi-card-cwt" class="kpi-card bg-white dark:bg-slate-900 p-6 rounded-[2rem] shadow-sm"><div class="flex justify-between items-center mb-3"><div class="p-2.5 bg-blue-500/10 text-blue-500 rounded-xl"><i class="fa-solid fa-stopwatch"></i></div><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">NET SAAT</span></div><h3 id="kpi-cwt" class="text-3xl font-black tracking-tighter">0</h3><p class="text-[10px] font-bold text-slate-400 mt-1.5 uppercase tracking-tight">Toplam Net Çalışma</p></div>
+                <div id="kpi-card-fte" class="kpi-card bg-white dark:bg-slate-900 p-6 rounded-[2rem] shadow-sm"><div class="flex justify-between items-center mb-3"><div class="p-2.5 bg-purple-500/10 text-purple-500 rounded-xl"><i class="fa-solid fa-users"></i></div><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">GÜNCEL</span></div><h3 id="kpi-fte" class="text-3xl font-black tracking-tighter">0,00</h3><p class="text-[10px] font-bold text-slate-400 mt-1.5 uppercase tracking-tight">Kümülatif FTE</p></div>
+                <div class="kpi-card bg-white dark:bg-slate-900 p-6 rounded-[2rem] shadow-sm"><div class="flex justify-between items-center mb-3"><div class="p-2.5 bg-amber-500/10 text-amber-500 rounded-xl"><i class="fa-solid fa-mug-hot"></i></div><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">OPERASYONEl</span></div><h3 id="kpi-break" class="text-3xl font-black tracking-tighter">0,00%</h3><p class="text-[10px] font-bold text-slate-400 mt-1.5 uppercase tracking-tight">Mola Oranı</p></div>
+                <div class="kpi-card bg-white dark:bg-slate-900 p-6 rounded-[2rem] shadow-sm"><div class="flex justify-between items-center mb-3"><div class="p-2.5 bg-rose-500/10 text-rose-500 rounded-xl"><i class="fa-solid fa-hourglass-half"></i></div><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">DAKİKA</span></div><h3 id="kpi-missing" class="text-3xl font-black tracking-tighter">0</h3><p class="text-[10px] font-bold text-slate-400 mt-1.5 uppercase tracking-tight">Toplam Eksik Süre</p></div>
+                <div class="kpi-card bg-white dark:bg-slate-900 p-6 rounded-[2rem] shadow-sm"><div class="flex justify-between items-center mb-3"><div class="p-2.5 bg-indigo-500/10 text-indigo-500 rounded-xl"><i class="fa-solid fa-user-slash"></i></div><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">DÖNEM</span></div><h3 id="kpi-dvs" class="text-3xl font-black tracking-tighter">—</h3><p class="text-[10px] font-bold text-slate-400 mt-1.5 uppercase tracking-tight">Devamsızlık Oranı</p></div>
             </div>
             <div class="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
-                        <thead id="uretim-thead" class="bg-slate-50/50 dark:bg-slate-800/50 border-b font-black text-slate-400 uppercase tracking-widest text-[10px]">
+                        <thead id="uretim-thead" class="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 font-black text-slate-400 uppercase tracking-widest text-[10px]">
                             <tr>
-                                <th class="px-6 py-5">Temsilci Bilgisi</th>
-                                <th class="px-6 py-5">Yönetici</th>
-                                <th id="th-fte" class="px-6 py-5 text-center">FTE (Cap)</th>
-                                <th class="px-6 py-5 text-center">Mola Oranı</th>
-                                <th class="px-6 py-5 text-center">Eksik Süre</th>
-                                <th class="px-6 py-5 text-right">Durum</th>
+                                <th class="px-6 py-5">Temsilci Bilgisi</th><th class="px-6 py-5">Yönetici</th>
+                                <th id="th-fte" class="px-6 py-5 text-center">FTE (Cap)</th><th class="px-6 py-5 text-center">Mola Oranı</th>
+                                <th class="px-6 py-5 text-center">Eksik Süre</th><th class="px-6 py-5 text-right">Durum</th>
                             </tr>
                         </thead>
-                        <tbody id="dataTableBody" class="divide-y text-sm font-bold text-slate-700 dark:text-slate-300"></tbody>
+                        <tbody id="dataTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 text-sm font-bold text-slate-700 dark:text-slate-300"></tbody>
                     </table>
                 </div>
             </div>
@@ -253,28 +246,26 @@
 
     <!-- ── PERFORMANS ── -->
     <main id="page-performans" class="flex-1 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 hidden min-w-0">
-        <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b px-6 py-5 z-20">
+        <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 px-6 py-5 z-20">
             <div class="flex flex-col xl:flex-row items-center justify-between gap-4">
                 <div><h2 class="text-xl font-black tracking-tighter uppercase">Performans</h2><p class="text-xs text-slate-400 font-medium">Temsilci bazlı işlem performansı ve sıralama.</p></div>
                 <div class="flex flex-wrap items-center gap-3">
                     <div class="filter-container">
                         <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2">
-                            <i class="fa-solid fa-calendar-day absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 text-xs"></i>
-                            <select id="perfPeriodFilter" onchange="fetchPerformans()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[150px]"></select>
+                            <i class="fa-solid fa-calendar-day absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 text-xs pointer-events-none"></i>
+                            <select id="perfPeriodFilter" onchange="fetchPerformans()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[150px] text-slate-800 dark:text-slate-100"></select>
                         </div>
                         <div class="relative">
-                            <i class="fa-solid fa-calendar-check absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                            <select id="perfDateFilter" onchange="applyPerfFilter()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[170px]"><option value="all">Tümü (Kümülatif)</option></select>
+                            <i class="fa-solid fa-calendar-check absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                            <select id="perfDateFilter" onchange="applyPerfFilter()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[170px] text-slate-800 dark:text-slate-100"><option value="all">Tümü (Kümülatif)</option></select>
                         </div>
                     </div>
                     <div class="relative min-w-[200px]">
-                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                        <input type="text" id="perfSearchInput" onkeyup="applyPerfFilter()" placeholder="Temsilci Ara..." class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-blue-500 outline-none shadow-sm transition-all">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                        <input type="text" id="perfSearchInput" onkeyup="applyPerfFilter()" placeholder="Temsilci Ara..." class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-blue-500 outline-none shadow-sm transition-all text-slate-800 dark:text-slate-100">
                     </div>
                     <div class="export-dropdown" id="perfExportDropdown">
-                        <button onclick="toggleExportMenu()" class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-2xl shadow-lg transition-all uppercase tracking-widest">
-                            <i class="fa-solid fa-file-export"></i> Excel Export <i class="fa-solid fa-chevron-down text-[10px]"></i>
-                        </button>
+                        <button onclick="toggleExportMenu()" class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-2xl shadow-lg transition-all uppercase tracking-widest"><i class="fa-solid fa-file-export"></i> Excel Export <i class="fa-solid fa-chevron-down text-[10px]"></i></button>
                         <div class="export-menu" id="perfExportMenu">
                             <button onclick="exportPerfKumulatif()"><i class="fa-solid fa-layer-group text-purple-500"></i> Kümülatif</button>
                             <button onclick="exportPerfGunluk()"><i class="fa-solid fa-calendar-days text-blue-500"></i> Günlük (Tüm)</button>
@@ -288,29 +279,19 @@
             <div class="flex gap-6 h-full">
                 <div class="w-64 shrink-0">
                     <div class="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden h-full flex flex-col">
-                        <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2.5">
-                            <div class="p-2 bg-amber-500/10 rounded-xl text-amber-500 text-sm"><i class="fa-solid fa-trophy"></i></div>
-                            <div><h3 class="font-black tracking-tight text-sm">Top 10</h3><p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Performans Sıralaması</p></div>
-                        </div>
+                        <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2.5"><div class="p-2 bg-amber-500/10 rounded-xl text-amber-500 text-sm"><i class="fa-solid fa-trophy"></i></div><div><h3 class="font-black tracking-tight text-sm">Top 10</h3><p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Performans Sıralaması</p></div></div>
                         <div id="top10List" class="p-3 space-y-1 overflow-y-auto flex-1"></div>
                     </div>
                 </div>
                 <div class="flex-1 min-w-0">
                     <div class="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
-                        <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800">
-                            <h3 class="font-black tracking-tight text-sm">Temsilci Performans Detayı</h3>
-                            <p id="perfTableSubtitle" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Kümülatif Veriler</p>
-                        </div>
+                        <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800"><h3 class="font-black tracking-tight text-sm">Temsilci Performans Detayı</h3><p id="perfTableSubtitle" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Kümülatif Veriler</p></div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left">
-                                <thead class="bg-slate-50/50 dark:bg-slate-800/50 border-b font-black text-slate-400 uppercase tracking-widest text-[10px]">
-                                    <tr>
-                                        <th class="px-5 py-4">Temsilci Bilgisi</th><th class="px-5 py-4 text-center">Havuz Ort.</th>
-                                        <th class="px-5 py-4 text-center">Gerçekleşen</th><th class="px-5 py-4 text-center">Performans %</th>
-                                        <th class="px-5 py-4 text-center">Ort. Uzaklık</th>
-                                    </tr>
+                                <thead class="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 font-black text-slate-400 uppercase tracking-widest text-[10px]">
+                                    <tr><th class="px-5 py-4">Temsilci Bilgisi</th><th class="px-5 py-4 text-center">Havuz Ort.</th><th class="px-5 py-4 text-center">Gerçekleşen</th><th class="px-5 py-4 text-center">Performans %</th><th class="px-5 py-4 text-center">Ort. Uzaklık</th></tr>
                                 </thead>
-                                <tbody id="perfTableBody" class="divide-y text-sm font-bold text-slate-700 dark:text-slate-300"></tbody>
+                                <tbody id="perfTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 text-sm font-bold text-slate-700 dark:text-slate-300"></tbody>
                             </table>
                         </div>
                     </div>
@@ -321,7 +302,7 @@
 
     <!-- ── GOALPEX ── -->
     <main id="page-goalpex" class="flex-1 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 hidden min-w-0">
-        <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b px-6 py-5 z-20">
+        <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 px-6 py-5 z-20">
             <div class="flex flex-col xl:flex-row items-center justify-between gap-4">
                 <div><h2 class="text-xl font-black tracking-tighter uppercase">Goalpex</h2><p class="text-xs text-slate-400 font-medium">Temsilci bazlı prim ve performans değerlendirmesi.</p></div>
                 <div class="flex items-center gap-3">
@@ -332,30 +313,14 @@
         </header>
         <div class="flex-1 overflow-y-auto p-6">
             <div class="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
-                <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800">
-                    <h3 class="font-black tracking-tight text-sm">Temsilci Goalpex Detayı</h3>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Dönem Değerlendirmesi</p>
-                </div>
+                <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800"><h3 class="font-black tracking-tight text-sm">Temsilci Goalpex Detayı</h3><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Dönem Değerlendirmesi</p></div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
-                        <thead class="bg-slate-50/50 dark:bg-slate-800/50 border-b font-black text-slate-400 uppercase tracking-widest text-[10px]">
-                            <tr>
-                                <th class="px-5 py-4 min-w-[160px]">Temsilci Bilgisi</th>
-                                <th class="px-4 py-4 text-center">Perf. %</th><th class="px-4 py-4 text-center">IFF</th>
-                                <th class="px-4 py-4 text-center">Kalite</th><th class="px-4 py-4 text-center">Quiz</th>
-                                <th class="px-4 py-4 text-center">Mola %</th><th class="px-4 py-4 text-center">Şikayet</th>
-                                <th class="px-4 py-4 text-center">Devamsızlık</th><th class="px-4 py-4 text-center">Goalpex P</th>
-                                <th class="px-4 py-4 text-center">Prim Tutarı</th>
-                            </tr>
+                        <thead class="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 font-black text-slate-400 uppercase tracking-widest text-[10px]">
+                            <tr><th class="px-5 py-4 min-w-[160px]">Temsilci Bilgisi</th><th class="px-4 py-4 text-center">Perf. %</th><th class="px-4 py-4 text-center">IFF</th><th class="px-4 py-4 text-center">Kalite</th><th class="px-4 py-4 text-center">Quiz</th><th class="px-4 py-4 text-center">Mola %</th><th class="px-4 py-4 text-center">Şikayet</th><th class="px-4 py-4 text-center">Devamsızlık</th><th class="px-4 py-4 text-center">Goalpex P</th><th class="px-4 py-4 text-center">Prim Tutarı</th></tr>
                         </thead>
-                        <tbody id="goalpexTableBody" class="divide-y text-sm font-bold text-slate-700 dark:text-slate-300">
-                            <tr><td colspan="10" class="px-5 py-16 text-center">
-                                <div class="flex flex-col items-center gap-3">
-                                    <div class="w-14 h-14 rounded-2xl bg-violet-500/10 flex items-center justify-center"><i class="fa-solid fa-bullseye text-violet-500 text-2xl"></i></div>
-                                    <p class="text-slate-400 font-bold text-sm">Goalpex verileri yakında eklenecek</p>
-                                    <p class="text-slate-300 dark:text-slate-600 font-medium text-xs">Bu alan şu an geliştirme aşamasındadır</p>
-                                </div>
-                            </td></tr>
+                        <tbody id="goalpexTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 text-sm font-bold text-slate-700 dark:text-slate-300">
+                            <tr><td colspan="10" class="px-5 py-16 text-center"><div class="flex flex-col items-center gap-3"><div class="w-14 h-14 rounded-2xl bg-violet-500/10 flex items-center justify-center"><i class="fa-solid fa-bullseye text-violet-500 text-2xl"></i></div><p class="text-slate-400 font-bold text-sm">Goalpex verileri yakında eklenecek</p><p class="text-slate-300 dark:text-slate-600 font-medium text-xs">Bu alan şu an geliştirme aşamasındadır</p></div></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -363,62 +328,113 @@
         </div>
     </main>
 
-    <!-- ── GERİ BİLDİRİM SAYFASI ── -->
+    <!-- ════════════════════════════════════════════════════════
+         GERİ BİLDİRİM — SPLIT-VIEW  (modal yok)
+    ════════════════════════════════════════════════════════ -->
     <main id="page-feedback" class="flex-1 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 hidden min-w-0">
-        <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b px-6 py-5 z-20">
-            <div class="flex flex-col xl:flex-row items-start justify-between gap-4">
-                <div>
-                    <h2 class="text-xl font-black tracking-tighter uppercase">Geri Bildirim</h2>
-                    <p class="text-xs text-slate-400 font-medium">Yönetici — temsilci değerlendirme sistemi.</p>
-                </div>
-                <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
-                    <!-- Admin filtreler -->
+        <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 px-6 py-4 z-20 shrink-0">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div><h2 class="text-xl font-black tracking-tighter uppercase">Geri Bildirim</h2><p class="text-xs text-slate-400 font-medium">Yönetici — temsilci değerlendirme sistemi.</p></div>
+                <div class="flex flex-wrap items-center gap-2">
                     <div id="fb-admin-filters" class="hidden flex-wrap items-center gap-2">
                         <div class="filter-container">
                             <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2">
-                                <i class="fa-solid fa-user absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                                <select id="fb-filter-user" onchange="applyFbFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[140px]">
-                                    <option value="all">Tüm Temsilciler</option>
-                                </select>
+                                <i class="fa-solid fa-user absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                                <select id="fb-filter-user" onchange="applyFbFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[140px] text-slate-800 dark:text-slate-100"><option value="all">Tüm Temsilciler</option></select>
                             </div>
                             <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2">
-                                <i class="fa-solid fa-tag absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                                <select id="fb-filter-topic" onchange="applyFbFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[120px]">
-                                    <option value="all">Tüm Konular</option>
-                                    <option value="Kalite">Kalite</option>
-                                    <option value="KPI">KPI</option>
-                                    <option value="Operasyonel">Operasyonel</option>
+                                <i class="fa-solid fa-tag absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                                <select id="fb-filter-topic" onchange="applyFbFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[120px] text-slate-800 dark:text-slate-100">
+                                    <option value="all">Tüm Konular</option><option value="Kalite">Kalite</option><option value="KPI">KPI</option><option value="Operasyonel">Operasyonel</option>
                                 </select>
                             </div>
                             <div class="relative">
-                                <i class="fa-solid fa-circle-dot absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                                <select id="fb-filter-type" onchange="applyFbFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[130px]">
-                                    <option value="all">Tüm Tipler</option>
-                                    <option value="Olumlu">Olumlu</option>
-                                    <option value="Bilgilendirme">Bilgilendirme</option>
-                                    <option value="Olumsuz">Olumsuz</option>
+                                <i class="fa-solid fa-circle-dot absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                                <select id="fb-filter-type" onchange="applyFbFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[130px] text-slate-800 dark:text-slate-100">
+                                    <option value="all">Tüm Tipler</option><option value="Olumlu">Olumlu</option><option value="Bilgilendirme">Bilgilendirme</option><option value="Olumsuz">Olumsuz</option>
                                 </select>
                             </div>
                         </div>
-                        <button onclick="exportFbExcel()" class="flex items-center gap-2 px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white text-xs font-black rounded-2xl transition-all uppercase tracking-widest">
-                            <i class="fa-solid fa-file-excel"></i> Rapor
-                        </button>
+                        <button onclick="exportFbExcel()" class="flex items-center gap-2 px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white text-xs font-black rounded-2xl transition-all uppercase tracking-widest"><i class="fa-solid fa-file-excel"></i> Rapor</button>
                     </div>
                     <div id="fb-admin-actions" class="hidden">
-                        <button onclick="openFbNewModal()" class="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black rounded-2xl shadow-lg transition-all uppercase tracking-widest">
-                            <i class="fa-solid fa-pen-to-square"></i> Yeni Bildirim
-                        </button>
+                        <button onclick="openFbNewModal()" class="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black rounded-2xl shadow-lg transition-all uppercase tracking-widest"><i class="fa-solid fa-pen-to-square"></i> Yeni Bildirim</button>
                     </div>
                 </div>
             </div>
         </header>
-        <div class="flex-1 overflow-y-auto p-6">
-            <!-- Agent: okunmamış banner -->
-            <div id="fb-unread-banner" class="hidden items-center gap-3 p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl mb-4">
-                <i class="fa-solid fa-envelope text-blue-500"></i>
-                <p id="fb-unread-text" class="text-sm font-bold text-blue-600 dark:text-blue-400"></p>
+
+        <div class="flex-1 flex overflow-hidden">
+            <!-- SOL: Liste -->
+            <div class="w-80 xl:w-96 shrink-0 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-white dark:bg-slate-900">
+                <div id="fb-unread-banner" class="hidden items-center gap-2.5 px-4 py-3 bg-blue-500/10 border-b border-blue-500/20 shrink-0">
+                    <i class="fa-solid fa-bell text-blue-500 text-sm"></i>
+                    <p id="fb-unread-text" class="text-xs font-bold text-blue-600 dark:text-blue-400"></p>
+                </div>
+                <div id="fb-list" class="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800"></div>
             </div>
-            <div id="fb-list" class="space-y-2 max-w-3xl mx-auto"></div>
+
+            <!-- SAĞ: Detay -->
+            <div class="flex-1 flex flex-col overflow-hidden">
+                <!-- Boş state -->
+                <div id="fb-detail-empty" class="flex-1 flex flex-col items-center justify-center gap-4 bg-slate-50 dark:bg-slate-950">
+                    <div class="w-20 h-20 rounded-3xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                        <i class="fa-solid fa-envelope-open-text text-slate-400 text-3xl"></i>
+                    </div>
+                    <div class="text-center">
+                        <p class="font-black text-slate-500 dark:text-slate-400 tracking-tight">Bir bildirim seçin</p>
+                        <p class="text-xs text-slate-400 dark:text-slate-600 font-medium mt-1">Listeden bir geri bildirim seçerek detaylarını görüntüleyin.</p>
+                    </div>
+                </div>
+                <!-- Dolu state -->
+                <div id="fb-detail-content" class="hidden flex-col flex-1 overflow-hidden bg-slate-50 dark:bg-slate-950">
+                    <!-- Detay header -->
+                    <div class="px-8 py-5 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shrink-0">
+                        <div class="flex items-start justify-between gap-4">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 flex-wrap mb-1.5">
+                                    <span id="fb-det-type-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg"></span>
+                                    <span id="fb-det-topic-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg"></span>
+                                </div>
+                                <h3 id="fb-det-title" class="font-black text-base tracking-tight leading-tight"></h3>
+                                <div class="flex items-center gap-3 mt-1.5 flex-wrap">
+                                    <span class="text-xs text-slate-500 font-medium flex items-center gap-1.5">
+                                        <span id="fb-det-from-av" class="w-5 h-5 rounded-md bg-blue-600 inline-flex items-center justify-center text-white font-black text-[9px]"></span>
+                                        <span id="fb-det-from"></span>
+                                    </span>
+                                    <i class="fa-solid fa-arrow-right text-slate-300 text-[10px]"></i>
+                                    <span class="text-xs text-slate-500 font-medium flex items-center gap-1.5">
+                                        <span id="fb-det-to-av" class="w-5 h-5 rounded-md bg-slate-500 inline-flex items-center justify-center text-white font-black text-[9px]"></span>
+                                        <span id="fb-det-to"></span>
+                                    </span>
+                                    <span class="text-[10px] text-slate-400 ml-auto" id="fb-det-date"></span>
+                                </div>
+                            </div>
+                            <button id="fb-det-del-btn" onclick="deleteFeedback()" class="hidden items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all shrink-0">
+                                <i class="fa-solid fa-trash-can"></i> Sil
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Scroll -->
+                    <div class="flex-1 overflow-y-auto">
+                        <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-800/60">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Bildirim İçeriği</p>
+                            <p id="fb-det-body" class="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed"></p>
+                        </div>
+                        <div class="px-8 py-6"><div id="fb-det-replies" class="space-y-4"></div></div>
+                    </div>
+                    <!-- Yanıt kutusu -->
+                    <div class="px-8 py-5 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shrink-0">
+                        <div class="flex gap-3 items-end">
+                            <div id="fb-reply-av" class="w-8 h-8 shrink-0 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-xs mb-0.5"></div>
+                            <div class="flex-1">
+                                <textarea id="fb-reply-input" rows="2" class="fb-input mb-2 text-sm" placeholder="Yanıtınızı yazın..."></textarea>
+                                <button onclick="sendFbReply()" class="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl text-xs uppercase tracking-widest transition-all"><i class="fa-solid fa-reply"></i> Yanıtla</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 </div>
@@ -430,19 +446,32 @@
             <div><h3 class="font-black text-lg tracking-tight">Export</h3><p class="text-xs text-slate-400 font-medium mt-0.5">Metrik, temsilci ve gün seçimi yapın</p></div>
             <button onclick="closeUretimOzelModal()" class="text-slate-400 hover:text-rose-500 transition-colors text-xl"><i class="fa-solid fa-xmark"></i></button>
         </div>
+        <!-- Metrik — radio YOK, JS global _selectedMetric -->
         <div class="mb-6">
-            <label class="text-xs font-black text-slate-500 uppercase tracking-widest mb-3 block">Metrik</label>
+            <label class="text-xs font-black text-slate-500 uppercase tracking-widest mb-3 block">Metrik Seçin</label>
             <div class="grid grid-cols-2 gap-2">
-                <label class="metric-toggle" id="toggle-login" onclick="onMetricSelect('login')"><input type="radio" name="uretim-metric" id="metric-login" value="login"><i class="fa-solid fa-clock text-blue-500 text-sm"></i><span class="text-sm font-bold">Login Süresi</span></label>
-                <label class="metric-toggle" id="toggle-mola" onclick="onMetricSelect('mola')"><input type="radio" name="uretim-metric" id="metric-mola" value="mola"><i class="fa-solid fa-mug-hot text-amber-500 text-sm"></i><span class="text-sm font-bold">Mola Süresi</span></label>
-                <label class="metric-toggle" id="toggle-molaorani" onclick="onMetricSelect('molaorani')"><input type="radio" name="uretim-metric" id="metric-molaorani" value="molaorani"><i class="fa-solid fa-percent text-orange-500 text-sm"></i><span class="text-sm font-bold">Mola Oranı</span></label>
-                <label class="metric-toggle" id="toggle-cwt" onclick="onMetricSelect('cwt')"><input type="radio" name="uretim-metric" id="metric-cwt" value="cwt"><i class="fa-solid fa-stopwatch text-emerald-500 text-sm"></i><span class="text-sm font-bold">Net Login (CWT)</span><span class="ml-auto text-[10px] font-black text-slate-400 uppercase tracking-wider">CWT</span></label>
+                <div class="metric-toggle" id="toggle-login" onclick="onMetricSelect('login')">
+                    <i class="fa-solid fa-clock text-blue-500 text-sm"></i><span class="text-sm font-bold flex-1">Login Süresi</span>
+                    <div class="m-radio"><div class="m-dot"></div></div>
+                </div>
+                <div class="metric-toggle" id="toggle-mola" onclick="onMetricSelect('mola')">
+                    <i class="fa-solid fa-mug-hot text-amber-500 text-sm"></i><span class="text-sm font-bold flex-1">Mola Süresi</span>
+                    <div class="m-radio"><div class="m-dot"></div></div>
+                </div>
+                <div class="metric-toggle" id="toggle-molaorani" onclick="onMetricSelect('molaorani')">
+                    <i class="fa-solid fa-percent text-orange-500 text-sm"></i><span class="text-sm font-bold flex-1">Mola Oranı</span>
+                    <div class="m-radio"><div class="m-dot"></div></div>
+                </div>
+                <div class="metric-toggle" id="toggle-cwt" onclick="onMetricSelect('cwt')">
+                    <i class="fa-solid fa-stopwatch text-emerald-500 text-sm"></i><span class="text-sm font-bold flex-1">Net Login (CWT)</span>
+                    <div class="m-radio"><div class="m-dot"></div></div>
+                </div>
             </div>
         </div>
         <div class="mb-5">
             <label class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Temsilciler <span class="text-blue-400 normal-case font-medium">(aktif filtre uygulandı)</span></label>
             <div class="flex gap-2 mb-2"><button onclick="selectAllUretimUsers(true)" class="text-xs font-bold text-blue-500 hover:underline">Tümünü Seç</button><span class="text-slate-300">|</span><button onclick="selectAllUretimUsers(false)" class="text-xs font-bold text-slate-400 hover:underline">Temizle</button></div>
-            <div class="relative mb-2"><i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i><input type="text" id="uretimModalUserSearch" oninput="filterUretimModalUsers()" placeholder="Temsilci ara..." class="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500"></div>
+            <div class="relative mb-2"><i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i><input type="text" id="uretimModalUserSearch" oninput="filterUretimModalUsers()" placeholder="Temsilci ara..." class="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100"></div>
             <div id="uretimModalUserList" class="max-h-36 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl p-3 grid grid-cols-2 gap-1 bg-slate-50 dark:bg-slate-800/50"></div>
         </div>
         <div class="mb-6">
@@ -457,111 +486,29 @@
 <!-- ── PERFORMANS ÖZEL EXPORT MODAL ── -->
 <div id="ozelModal" class="fixed inset-0 z-[120] hidden items-center justify-center bg-slate-950/70 backdrop-blur-sm">
     <div class="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-lg p-8 mx-4">
-        <div class="flex items-center justify-between mb-6">
-            <div><h3 class="font-black text-lg tracking-tight">Export</h3><p class="text-xs text-slate-400 font-medium mt-0.5">Temsilci ve gün seçimi yapın</p></div>
-            <button onclick="closeOzelModal()" class="text-slate-400 hover:text-rose-500 transition-colors text-xl"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div class="mb-5">
-            <label class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Temsilciler</label>
-            <div class="flex gap-2 mb-2"><button onclick="selectAllUsers(true)" class="text-xs font-bold text-blue-500 hover:underline">Tümünü Seç</button><span class="text-slate-300">|</span><button onclick="selectAllUsers(false)" class="text-xs font-bold text-slate-400 hover:underline">Temizle</button></div>
-            <div class="relative mb-2"><i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i><input type="text" id="modalUserSearch" oninput="filterModalUsers()" placeholder="Temsilci ara..." class="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500"></div>
-            <div id="modalUserList" class="max-h-36 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl p-3 space-y-1 bg-slate-50 dark:bg-slate-800/50"></div>
-        </div>
-        <div class="mb-6">
-            <label class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Günler</label>
-            <div class="flex gap-2 mb-2"><button onclick="selectAllDays(true)" class="text-xs font-bold text-blue-500 hover:underline">Tümünü Seç</button><span class="text-slate-300">|</span><button onclick="selectAllDays(false)" class="text-xs font-bold text-slate-400 hover:underline">Temizle</button></div>
-            <div id="modalDayList" class="max-h-36 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl p-3 grid grid-cols-3 gap-1 bg-slate-50 dark:bg-slate-800/50"></div>
-        </div>
+        <div class="flex items-center justify-between mb-6"><div><h3 class="font-black text-lg tracking-tight">Export</h3><p class="text-xs text-slate-400 font-medium mt-0.5">Temsilci ve gün seçimi yapın</p></div><button onclick="closeOzelModal()" class="text-slate-400 hover:text-rose-500 transition-colors text-xl"><i class="fa-solid fa-xmark"></i></button></div>
+        <div class="mb-5"><label class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Temsilciler</label><div class="flex gap-2 mb-2"><button onclick="selectAllUsers(true)" class="text-xs font-bold text-blue-500 hover:underline">Tümünü Seç</button><span class="text-slate-300">|</span><button onclick="selectAllUsers(false)" class="text-xs font-bold text-slate-400 hover:underline">Temizle</button></div><div class="relative mb-2"><i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i><input type="text" id="modalUserSearch" oninput="filterModalUsers()" placeholder="Temsilci ara..." class="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100"></div><div id="modalUserList" class="max-h-36 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl p-3 space-y-1 bg-slate-50 dark:bg-slate-800/50"></div></div>
+        <div class="mb-6"><label class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Günler</label><div class="flex gap-2 mb-2"><button onclick="selectAllDays(true)" class="text-xs font-bold text-blue-500 hover:underline">Tümünü Seç</button><span class="text-slate-300">|</span><button onclick="selectAllDays(false)" class="text-xs font-bold text-slate-400 hover:underline">Temizle</button></div><div id="modalDayList" class="max-h-36 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl p-3 grid grid-cols-3 gap-1 bg-slate-50 dark:bg-slate-800/50"></div></div>
         <button onclick="exportPerfOzel()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl text-sm uppercase tracking-widest transition-all"><i class="fa-solid fa-file-export mr-2"></i> Export Yap</button>
     </div>
 </div>
 
 <!-- ── YENİ GERİ BİLDİRİM MODAL ── -->
 <div id="fbNewModal" class="fixed inset-0 z-[120] hidden items-center justify-center bg-slate-950/70 backdrop-blur-sm">
-    <div class="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-lg p-8 mx-4">
-        <div class="flex items-center justify-between mb-6">
-            <div><h3 class="font-black text-lg tracking-tight">Yeni Geri Bildirim</h3><p class="text-xs text-slate-400 font-medium mt-0.5">Temsilci seç, bildirim oluştur</p></div>
-            <button onclick="closeFbNewModal()" class="text-slate-400 hover:text-rose-500 transition-colors text-xl"><i class="fa-solid fa-xmark"></i></button>
-        </div>
+    <div class="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-lg p-8 mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-6"><div><h3 class="font-black text-lg tracking-tight">Yeni Geri Bildirim</h3><p class="text-xs text-slate-400 font-medium mt-0.5">Temsilci seç, konu ve başlık belirle</p></div><button onclick="closeFbNewModal()" class="text-slate-400 hover:text-rose-500 transition-colors text-xl"><i class="fa-solid fa-xmark"></i></button></div>
         <div class="space-y-4">
             <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="sim-label">Temsilci</label>
-                    <select id="fb-to-user" class="fb-select"></select>
-                </div>
-                <div>
-                    <label class="sim-label">Tip</label>
-                    <select id="fb-type" class="fb-select" onchange="updateFbPreview()">
-                        <option value="Olumlu">✅ Olumlu</option>
-                        <option value="Bilgilendirme" selected>ℹ️ Bilgilendirme</option>
-                        <option value="Olumsuz">⚠️ Olumsuz</option>
-                    </select>
-                </div>
+                <div><label class="sim-label">Temsilci</label><select id="fb-to-user" class="fb-select"></select></div>
+                <div><label class="sim-label">Tip</label><select id="fb-type" class="fb-select"><option value="Olumlu">✅ Olumlu</option><option value="Bilgilendirme" selected>ℹ️ Bilgilendirme</option><option value="Olumsuz">⚠️ Olumsuz</option></select></div>
             </div>
             <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="sim-label">Konu</label>
-                    <select id="fb-topic" class="fb-select" onchange="updateFbPreview()">
-                        <option value="Kalite">Kalite</option>
-                        <option value="KPI">KPI</option>
-                        <option value="Operasyonel">Operasyonel</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="sim-label">Başlık</label>
-                    <input type="text" id="fb-title" class="fb-input" placeholder="Kısa başlık...">
-                </div>
+                <div><label class="sim-label">Konu</label><select id="fb-topic" class="fb-select" onchange="updateFbTitleOptions()"><option value="Kalite">Kalite</option><option value="KPI">KPI</option><option value="Operasyonel">Operasyonel</option></select></div>
+                <!-- FIX C: Başlık artık dropdown, konuya göre dinamik -->
+                <div><label class="sim-label">Başlık</label><select id="fb-title-select" class="fb-select"></select></div>
             </div>
-            <div>
-                <label class="sim-label">Açıklama</label>
-                <textarea id="fb-description" rows="5" class="fb-input" placeholder="Geri bildirim detaylarını yazın..."></textarea>
-            </div>
+            <div><label class="sim-label">Açıklama</label><textarea id="fb-description" rows="5" class="fb-input" placeholder="Geri bildirim detaylarını yazın..."></textarea></div>
             <button onclick="submitNewFeedback()" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl text-sm uppercase tracking-widest transition-all"><i class="fa-solid fa-paper-plane mr-2"></i> Gönder</button>
-        </div>
-    </div>
-</div>
-
-<!-- ── GERİ BİLDİRİM DETAY MODAL ── -->
-<div id="fbDetailModal" class="fixed inset-0 z-[120] hidden items-center justify-center bg-slate-950/70 backdrop-blur-sm">
-    <div class="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-2xl mx-4 flex flex-col max-h-[90vh]">
-        <!-- Header -->
-        <div class="px-8 py-5 border-b border-slate-100 dark:border-slate-800 flex items-start justify-between shrink-0">
-            <div class="flex-1 min-w-0 pr-4">
-                <div class="flex items-center gap-2 flex-wrap mb-2">
-                    <span id="fb-detail-type-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg"></span>
-                    <span id="fb-detail-topic-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg"></span>
-                </div>
-                <h3 id="fb-detail-title" class="font-black text-base tracking-tight text-slate-800 dark:text-slate-100"></h3>
-                <div class="flex items-center gap-3 mt-1.5 flex-wrap">
-                    <span class="text-xs text-slate-500 font-medium flex items-center gap-1"><i class="fa-solid fa-user text-slate-400 text-[10px]"></i><span id="fb-detail-from"></span></span>
-                    <span class="text-slate-300 dark:text-slate-700">→</span>
-                    <span class="text-xs text-slate-500 font-medium flex items-center gap-1"><i class="fa-solid fa-user-tag text-slate-400 text-[10px]"></i><span id="fb-detail-to"></span></span>
-                    <span class="text-xs text-slate-400 font-medium ml-auto" id="fb-detail-date"></span>
-                </div>
-            </div>
-            <div class="flex items-center gap-2 shrink-0">
-                <button id="fb-delete-btn" onclick="deleteFeedback()" class="hidden text-slate-400 hover:text-rose-500 transition-colors text-sm px-3 py-1.5 rounded-lg hover:bg-rose-500/10"><i class="fa-solid fa-trash-can mr-1"></i><span class="text-xs font-bold">Sil</span></button>
-                <button onclick="closeFbDetailModal()" class="text-slate-400 hover:text-rose-500 transition-colors text-xl"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-        </div>
-        <!-- İçerik -->
-        <div class="flex-1 overflow-y-auto p-8">
-            <!-- Ana mesaj -->
-            <div class="fb-detail-body mb-6">
-                <p id="fb-detail-body-text" class="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap"></p>
-            </div>
-            <!-- Yanıtlar -->
-            <div id="fb-replies-container" class="space-y-3"></div>
-        </div>
-        <!-- Yanıt kutusu -->
-        <div class="p-6 border-t border-slate-100 dark:border-slate-800 shrink-0">
-            <div class="flex gap-3">
-                <div class="w-8 h-8 shrink-0 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-xs mt-1" id="fb-reply-initials">—</div>
-                <div class="flex-1">
-                    <textarea id="fb-reply-input" rows="2" class="fb-input mb-2" placeholder="Yanıtınızı yazın..."></textarea>
-                    <button onclick="sendFbMessage()" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl text-xs uppercase tracking-widest transition-all"><i class="fa-solid fa-reply mr-1.5"></i>Yanıtla</button>
-                </div>
-            </div>
         </div>
     </div>
 </div>
@@ -570,105 +517,27 @@
 <div id="scalaModal" class="fixed inset-0 z-[130] hidden items-center justify-center bg-slate-950/80 backdrop-blur-sm">
     <div class="bg-white dark:bg-slate-950 rounded-[2rem] shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-5xl mx-4 max-h-[90vh] overflow-y-auto fade-in">
         <div class="px-8 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between sticky top-0 bg-white dark:bg-slate-950 z-10 rounded-t-[2rem]">
-            <div class="flex items-center gap-3">
-                <div class="p-2.5 rounded-xl" style="background:rgba(99,102,241,0.15)"><i class="fa-solid fa-table-list text-indigo-400 text-lg"></i></div>
-                <div><h3 class="font-black text-lg tracking-tight">Goalpex Scala</h3><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Prim Değerlendirme Kriterleri</p></div>
-            </div>
+            <div class="flex items-center gap-3"><div class="p-2.5 rounded-xl" style="background:rgba(99,102,241,0.15)"><i class="fa-solid fa-table-list text-indigo-400 text-lg"></i></div><div><h3 class="font-black text-lg tracking-tight">Goalpex Scala</h3><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Prim Değerlendirme Kriterleri</p></div></div>
             <button onclick="closeScalaModal()" class="text-slate-400 hover:text-rose-500 transition-colors text-xl"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="p-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="scala-card bg-slate-900 border-emerald-500/30" style="box-shadow:0 0 20px rgba(16,185,129,0.08)">
-                <div class="scala-card-header border-emerald-500/20"><div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(16,185,129,0.15)"><i class="fa-solid fa-gauge-high text-emerald-400 text-sm"></i></div><span class="scala-cat-label text-emerald-400">Performans %</span><span class="ml-auto text-[11px] font-black text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-500/30">45P</span></div>
-                <div class="scala-col-headers"><span class="scala-col-h">KPI</span><span class="scala-col-h right">PUAN</span></div>
-                <div class="space-y-1.5">
-                    <div class="scala-row pos"><span class="scala-kpi text-slate-200">%120+</span><span class="scala-puan puan-pos">+45</span></div>
-                    <div class="scala-row pos"><span class="scala-kpi text-slate-200">%110–%120</span><span class="scala-puan puan-pos">+30</span></div>
-                    <div class="scala-row pos"><span class="scala-kpi text-slate-200">%95–%99</span><span class="scala-puan puan-pos">+20</span></div>
-                    <div class="scala-row pos"><span class="scala-kpi text-slate-200">%90–%94</span><span class="scala-puan puan-pos">+10</span></div>
-                    <div class="scala-row neu"><span class="scala-kpi text-slate-400">%90 altı</span><span class="scala-puan puan-neu">0</span></div>
-                </div>
-            </div>
-            <div class="scala-card bg-slate-900 border-amber-500/30" style="box-shadow:0 0 20px rgba(245,158,11,0.08)">
-                <div class="scala-card-header border-amber-500/20"><div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(245,158,11,0.15)"><i class="fa-solid fa-turkish-lira-sign text-amber-400 text-sm"></i></div><span class="scala-cat-label text-amber-400">IFF</span><span class="ml-auto text-[11px] font-black text-amber-400 bg-amber-500/15 px-2 py-0.5 rounded-full border border-amber-500/30">40P</span></div>
-                <div class="scala-col-headers"><span class="scala-col-h">KPI</span><span class="scala-col-h right">PUAN</span></div>
-                <div class="space-y-1.5">
-                    <div class="scala-row pos"><span class="scala-kpi text-slate-200">₺0</span><span class="scala-puan puan-pos">+40</span></div>
-                    <div class="scala-row pos"><span class="scala-kpi text-slate-200">₺0–₺199</span><span class="scala-puan puan-pos">+35</span></div>
-                    <div class="scala-row pos"><span class="scala-kpi text-slate-200">₺200–₺399</span><span class="scala-puan puan-pos">+20</span></div>
-                    <div class="scala-row pos"><span class="scala-kpi text-slate-200">₺400–₺499</span><span class="scala-puan puan-pos">+10</span></div>
-                    <div class="scala-row neu"><span class="scala-kpi text-slate-400">₺500–₺999</span><span class="scala-puan puan-neu">0</span></div>
-                    <div class="scala-row neg"><span class="scala-kpi text-slate-300">&gt; ₺1000</span><span class="scala-puan puan-neg">−120</span></div>
-                </div>
-            </div>
-            <div class="scala-card bg-slate-900 border-blue-500/30" style="box-shadow:0 0 20px rgba(59,130,246,0.08)">
-                <div class="scala-card-header border-blue-500/20"><div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(59,130,246,0.15)"><i class="fa-solid fa-star text-blue-400 text-sm"></i></div><span class="scala-cat-label text-blue-400">Kalite</span><span class="ml-auto text-[11px] font-black text-blue-400 bg-blue-500/15 px-2 py-0.5 rounded-full border border-blue-500/30">25P</span></div>
-                <div class="scala-col-headers"><span class="scala-col-h">KPI</span><span class="scala-col-h right">PUAN</span></div>
-                <div class="space-y-1.5">
-                    <div class="scala-row pos"><span class="scala-kpi text-slate-200">97–100</span><span class="scala-puan puan-pos">+25</span></div>
-                    <div class="scala-row neu"><span class="scala-kpi text-slate-400">&lt; 97</span><span class="scala-puan puan-neu">0</span></div>
-                </div>
-            </div>
-            <div class="scala-card bg-slate-900 border-purple-500/30" style="box-shadow:0 0 20px rgba(168,85,247,0.08)">
-                <div class="scala-card-header border-purple-500/20"><div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(168,85,247,0.15)"><i class="fa-solid fa-circle-question text-purple-400 text-sm"></i></div><span class="scala-cat-label text-purple-400">Quiz</span><span class="ml-auto text-[11px] font-black text-purple-400 bg-purple-500/15 px-2 py-0.5 rounded-full border border-purple-500/30">10P</span></div>
-                <div class="scala-col-headers"><span class="scala-col-h">KPI</span><span class="scala-col-h right">PUAN</span></div>
-                <div class="space-y-1.5">
-                    <div class="scala-row pos"><span class="scala-kpi text-slate-200">95–100</span><span class="scala-puan puan-pos">+10</span></div>
-                    <div class="scala-row pos"><span class="scala-kpi text-slate-200">90–95</span><span class="scala-puan puan-pos">+5</span></div>
-                    <div class="scala-row neu"><span class="scala-kpi text-slate-400">&lt; 90</span><span class="scala-puan puan-neu">0</span></div>
-                </div>
-            </div>
-            <div class="scala-card bg-slate-900 border-orange-500/30" style="box-shadow:0 0 20px rgba(249,115,22,0.08)">
-                <div class="scala-card-header border-orange-500/20"><div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(249,115,22,0.15)"><i class="fa-solid fa-mug-hot text-orange-400 text-sm"></i></div><span class="scala-cat-label text-orange-400">Mola %</span></div>
-                <div class="scala-col-headers"><span class="scala-col-h">KPI</span><span class="scala-col-h right">PUAN</span></div>
-                <div class="space-y-1.5">
-                    <div class="scala-row neu"><span class="scala-kpi text-slate-400">%15–%16</span><span class="scala-puan puan-neu">0</span></div>
-                    <div class="scala-row neg"><span class="scala-kpi text-slate-300">&gt; %16</span><span class="scala-puan puan-neg">−10</span></div>
-                    <div class="scala-row neg"><span class="scala-kpi text-slate-300">&lt; %15</span><span class="scala-puan puan-neg">−10</span></div>
-                </div>
-            </div>
-            <div class="scala-card bg-slate-900 border-rose-500/30" style="box-shadow:0 0 20px rgba(244,63,94,0.08)">
-                <div class="scala-card-header border-rose-500/20"><div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(244,63,94,0.15)"><i class="fa-solid fa-triangle-exclamation text-rose-400 text-sm"></i></div><span class="scala-cat-label text-rose-400">Şikayet</span></div>
-                <div class="scala-col-headers"><span class="scala-col-h">KPI</span><span class="scala-col-h right">PUAN</span></div>
-                <div class="space-y-1.5">
-                    <div class="scala-row neu"><span class="scala-kpi text-slate-400">0 şikayet</span><span class="scala-puan puan-neu">0</span></div>
-                    <div class="scala-row neg"><span class="scala-kpi text-slate-300">≥ 1 şikayet</span><span class="scala-puan puan-neg">−120</span></div>
-                </div>
-            </div>
-            <div class="scala-card bg-slate-900 border-slate-500/30" style="box-shadow:0 0 20px rgba(100,116,139,0.08)">
-                <div class="scala-card-header border-slate-500/20"><div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(100,116,139,0.15)"><i class="fa-solid fa-user-xmark text-slate-400 text-sm"></i></div><span class="scala-cat-label text-slate-400">Devamsızlık</span></div>
-                <div class="scala-col-headers"><span class="scala-col-h">KPI</span><span class="scala-col-h right">PUAN</span></div>
-                <div class="space-y-1.5">
-                    <div class="scala-row neu"><span class="scala-kpi text-slate-400">0 gün</span><span class="scala-puan puan-neu">0</span></div>
-                    <div class="scala-row neg"><span class="scala-kpi text-slate-300">1 gün</span><span class="scala-puan puan-neg">−15</span></div>
-                    <div class="scala-row neg"><span class="scala-kpi text-slate-300">2 gün</span><span class="scala-puan puan-neg">−30</span></div>
-                </div>
-            </div>
-            <div class="scala-card border-indigo-500/40" style="background:linear-gradient(135deg,rgba(99,102,241,0.12),rgba(139,92,246,0.12));box-shadow:0 0 24px rgba(99,102,241,0.15)">
-                <div class="scala-card-header border-indigo-500/30"><div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(99,102,241,0.2)"><i class="fa-solid fa-trophy text-indigo-400 text-sm"></i></div><span class="scala-cat-label text-indigo-400">Prim Tablosu</span></div>
-                <div class="space-y-1.5 mt-1">
-                    <div class="scala-row" style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2)"><span class="scala-kpi text-slate-200">116–120P</span><span class="scala-puan" style="color:#a78bfa;font-size:11px">₺4.200</span></div>
-                    <div class="scala-row" style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.15)"><span class="scala-kpi text-slate-300">111–115P</span><span class="scala-puan" style="color:#a78bfa;font-size:11px">₺3.900</span></div>
-                    <div class="scala-row" style="background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.12)"><span class="scala-kpi text-slate-300">106–110P</span><span class="scala-puan" style="color:#a78bfa;font-size:11px">₺3.700</span></div>
-                    <div class="scala-row" style="background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.12)"><span class="scala-kpi text-slate-300">101–105P</span><span class="scala-puan" style="color:#a78bfa;font-size:11px">₺3.200</span></div>
-                    <div class="scala-row" style="background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.12)"><span class="scala-kpi text-slate-300">95–100P</span><span class="scala-puan" style="color:#a78bfa;font-size:11px">₺2.800</span></div>
-                    <div class="scala-row" style="background:rgba(99,102,241,0.04);border:1px solid rgba(99,102,241,0.1)"><span class="scala-kpi text-slate-400">90–94P</span><span class="scala-puan" style="color:#818cf8;font-size:11px">₺2.500</span></div>
-                    <div class="scala-row" style="background:rgba(99,102,241,0.04);border:1px solid rgba(99,102,241,0.1)"><span class="scala-kpi text-slate-400">85–89P</span><span class="scala-puan" style="color:#818cf8;font-size:11px">₺2.250</span></div>
-                    <div class="scala-row" style="background:rgba(99,102,241,0.04);border:1px solid rgba(99,102,241,0.1)"><span class="scala-kpi text-slate-400">80–84P</span><span class="scala-puan" style="color:#818cf8;font-size:11px">₺2.000</span></div>
-                    <div class="mt-1 pt-2 border-t border-indigo-500/20 flex justify-between text-xs font-black px-1"><span class="text-slate-300">Max Puan</span><span class="text-indigo-400">120 P</span></div>
-                </div>
-            </div>
+            <div class="scala-card bg-slate-900 border-emerald-500/30"><div class="scala-card-header border-emerald-500/20"><div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(16,185,129,0.15)"><i class="fa-solid fa-gauge-high text-emerald-400 text-sm"></i></div><span class="scala-cat-label text-emerald-400">Performans %</span><span class="ml-auto text-[11px] font-black text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-500/30">45P</span></div><div class="scala-col-headers"><span class="scala-col-h">KPI</span><span class="scala-col-h right">PUAN</span></div><div class="space-y-1.5"><div class="scala-row pos"><span class="scala-kpi text-slate-200">%120+</span><span class="scala-puan puan-pos">+45</span></div><div class="scala-row pos"><span class="scala-kpi text-slate-200">%110–%120</span><span class="scala-puan puan-pos">+30</span></div><div class="scala-row pos"><span class="scala-kpi text-slate-200">%95–%99</span><span class="scala-puan puan-pos">+20</span></div><div class="scala-row pos"><span class="scala-kpi text-slate-200">%90–%94</span><span class="scala-puan puan-pos">+10</span></div><div class="scala-row neu"><span class="scala-kpi text-slate-400">%90 altı</span><span class="scala-puan puan-neu">0</span></div></div></div>
+            <div class="scala-card bg-slate-900 border-amber-500/30"><div class="scala-card-header border-amber-500/20"><div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(245,158,11,0.15)"><i class="fa-solid fa-turkish-lira-sign text-amber-400 text-sm"></i></div><span class="scala-cat-label text-amber-400">IFF</span><span class="ml-auto text-[11px] font-black text-amber-400 bg-amber-500/15 px-2 py-0.5 rounded-full border border-amber-500/30">40P</span></div><div class="scala-col-headers"><span class="scala-col-h">KPI</span><span class="scala-col-h right">PUAN</span></div><div class="space-y-1.5"><div class="scala-row pos"><span class="scala-kpi text-slate-200">₺0</span><span class="scala-puan puan-pos">+40</span></div><div class="scala-row pos"><span class="scala-kpi text-slate-200">₺0–₺199</span><span class="scala-puan puan-pos">+35</span></div><div class="scala-row pos"><span class="scala-kpi text-slate-200">₺200–₺399</span><span class="scala-puan puan-pos">+20</span></div><div class="scala-row pos"><span class="scala-kpi text-slate-200">₺400–₺499</span><span class="scala-puan puan-pos">+10</span></div><div class="scala-row neu"><span class="scala-kpi text-slate-400">₺500–₺999</span><span class="scala-puan puan-neu">0</span></div><div class="scala-row neg"><span class="scala-kpi text-slate-300">&gt; ₺1000</span><span class="scala-puan puan-neg">−120</span></div></div></div>
+            <div class="scala-card bg-slate-900 border-blue-500/30"><div class="scala-card-header border-blue-500/20"><div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(59,130,246,0.15)"><i class="fa-solid fa-star text-blue-400 text-sm"></i></div><span class="scala-cat-label text-blue-400">Kalite</span><span class="ml-auto text-[11px] font-black text-blue-400 bg-blue-500/15 px-2 py-0.5 rounded-full border border-blue-500/30">25P</span></div><div class="scala-col-headers"><span class="scala-col-h">KPI</span><span class="scala-col-h right">PUAN</span></div><div class="space-y-1.5"><div class="scala-row pos"><span class="scala-kpi text-slate-200">97–100</span><span class="scala-puan puan-pos">+25</span></div><div class="scala-row neu"><span class="scala-kpi text-slate-400">&lt; 97</span><span class="scala-puan puan-neu">0</span></div></div></div>
+            <div class="scala-card bg-slate-900 border-purple-500/30"><div class="scala-card-header border-purple-500/20"><div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(168,85,247,0.15)"><i class="fa-solid fa-circle-question text-purple-400 text-sm"></i></div><span class="scala-cat-label text-purple-400">Quiz</span><span class="ml-auto text-[11px] font-black text-purple-400 bg-purple-500/15 px-2 py-0.5 rounded-full border border-purple-500/30">10P</span></div><div class="scala-col-headers"><span class="scala-col-h">KPI</span><span class="scala-col-h right">PUAN</span></div><div class="space-y-1.5"><div class="scala-row pos"><span class="scala-kpi text-slate-200">95–100</span><span class="scala-puan puan-pos">+10</span></div><div class="scala-row pos"><span class="scala-kpi text-slate-200">90–95</span><span class="scala-puan puan-pos">+5</span></div><div class="scala-row neu"><span class="scala-kpi text-slate-400">&lt; 90</span><span class="scala-puan puan-neu">0</span></div></div></div>
+            <div class="scala-card bg-slate-900 border-orange-500/30"><div class="scala-card-header border-orange-500/20"><div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(249,115,22,0.15)"><i class="fa-solid fa-mug-hot text-orange-400 text-sm"></i></div><span class="scala-cat-label text-orange-400">Mola %</span></div><div class="scala-col-headers"><span class="scala-col-h">KPI</span><span class="scala-col-h right">PUAN</span></div><div class="space-y-1.5"><div class="scala-row neu"><span class="scala-kpi text-slate-400">%15–%16</span><span class="scala-puan puan-neu">0</span></div><div class="scala-row neg"><span class="scala-kpi text-slate-300">&gt; %16</span><span class="scala-puan puan-neg">−10</span></div><div class="scala-row neg"><span class="scala-kpi text-slate-300">&lt; %15</span><span class="scala-puan puan-neg">−10</span></div></div></div>
+            <div class="scala-card bg-slate-900 border-rose-500/30"><div class="scala-card-header border-rose-500/20"><div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(244,63,94,0.15)"><i class="fa-solid fa-triangle-exclamation text-rose-400 text-sm"></i></div><span class="scala-cat-label text-rose-400">Şikayet</span></div><div class="scala-col-headers"><span class="scala-col-h">KPI</span><span class="scala-col-h right">PUAN</span></div><div class="space-y-1.5"><div class="scala-row neu"><span class="scala-kpi text-slate-400">0 şikayet</span><span class="scala-puan puan-neu">0</span></div><div class="scala-row neg"><span class="scala-kpi text-slate-300">≥ 1 şikayet</span><span class="scala-puan puan-neg">−120</span></div></div></div>
+            <div class="scala-card bg-slate-900 border-slate-500/30"><div class="scala-card-header border-slate-500/20"><div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(100,116,139,0.15)"><i class="fa-solid fa-user-xmark text-slate-400 text-sm"></i></div><span class="scala-cat-label text-slate-400">Devamsızlık</span></div><div class="scala-col-headers"><span class="scala-col-h">KPI</span><span class="scala-col-h right">PUAN</span></div><div class="space-y-1.5"><div class="scala-row neu"><span class="scala-kpi text-slate-400">0 gün</span><span class="scala-puan puan-neu">0</span></div><div class="scala-row neg"><span class="scala-kpi text-slate-300">1 gün</span><span class="scala-puan puan-neg">−15</span></div><div class="scala-row neg"><span class="scala-kpi text-slate-300">2 gün</span><span class="scala-puan puan-neg">−30</span></div></div></div>
+            <div class="scala-card border-indigo-500/40" style="background:linear-gradient(135deg,rgba(99,102,241,0.12),rgba(139,92,246,0.12));box-shadow:0 0 24px rgba(99,102,241,0.15)"><div class="scala-card-header border-indigo-500/30"><div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(99,102,241,0.2)"><i class="fa-solid fa-trophy text-indigo-400 text-sm"></i></div><span class="scala-cat-label text-indigo-400">Prim Tablosu</span></div><div class="space-y-1.5 mt-1"><div class="scala-row" style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2)"><span class="scala-kpi text-slate-200">116–120P</span><span class="scala-puan" style="color:#a78bfa;font-size:11px">₺4.200</span></div><div class="scala-row" style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.15)"><span class="scala-kpi text-slate-300">111–115P</span><span class="scala-puan" style="color:#a78bfa;font-size:11px">₺3.900</span></div><div class="scala-row" style="background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.12)"><span class="scala-kpi text-slate-300">106–110P</span><span class="scala-puan" style="color:#a78bfa;font-size:11px">₺3.700</span></div><div class="scala-row" style="background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.12)"><span class="scala-kpi text-slate-300">101–105P</span><span class="scala-puan" style="color:#a78bfa;font-size:11px">₺3.200</span></div><div class="scala-row" style="background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.12)"><span class="scala-kpi text-slate-300">95–100P</span><span class="scala-puan" style="color:#a78bfa;font-size:11px">₺2.800</span></div><div class="scala-row" style="background:rgba(99,102,241,0.04);border:1px solid rgba(99,102,241,0.1)"><span class="scala-kpi text-slate-400">90–94P</span><span class="scala-puan" style="color:#818cf8;font-size:11px">₺2.500</span></div><div class="scala-row" style="background:rgba(99,102,241,0.04);border:1px solid rgba(99,102,241,0.1)"><span class="scala-kpi text-slate-400">85–89P</span><span class="scala-puan" style="color:#818cf8;font-size:11px">₺2.250</span></div><div class="scala-row" style="background:rgba(99,102,241,0.04);border:1px solid rgba(99,102,241,0.1)"><span class="scala-kpi text-slate-400">80–84P</span><span class="scala-puan" style="color:#818cf8;font-size:11px">₺2.000</span></div><div class="mt-1 pt-2 border-t border-indigo-500/20 flex justify-between text-xs font-black px-1"><span class="text-slate-300">Max Puan</span><span class="text-indigo-400">120 P</span></div></div></div>
         </div>
     </div>
 </div>
 
-<!-- ── GOALPEX SIMULATOR MODAL ── -->
+<!-- ── SIMULATOR MODAL ── -->
 <div id="simulatorModal" class="fixed inset-0 z-[130] hidden items-center justify-center bg-slate-950/80 backdrop-blur-sm">
     <div class="bg-white dark:bg-slate-950 rounded-[2rem] shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-2xl mx-4 max-h-[92vh] overflow-y-auto fade-in">
         <div class="px-8 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between sticky top-0 bg-white dark:bg-slate-950 z-10 rounded-t-[2rem]">
-            <div class="flex items-center gap-3">
-                <div class="p-2.5 rounded-xl" style="background:rgba(245,158,11,0.15)"><i class="fa-solid fa-calculator text-amber-400 text-lg"></i></div>
-                <div><h3 class="font-black text-lg tracking-tight">Goalpex Simulator</h3><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Hedef senaryolarını hesapla</p></div>
-            </div>
+            <div class="flex items-center gap-3"><div class="p-2.5 rounded-xl" style="background:rgba(245,158,11,0.15)"><i class="fa-solid fa-calculator text-amber-400 text-lg"></i></div><div><h3 class="font-black text-lg tracking-tight">Goalpex Simulator</h3><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Hedef senaryolarını hesapla</p></div></div>
             <button onclick="closeSimulatorModal()" class="text-slate-400 hover:text-rose-500 transition-colors text-xl"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="p-6">
@@ -682,25 +551,8 @@
                 <div class="col-span-2"><span class="sim-label"><i class="fa-solid fa-user-xmark text-slate-400 mr-1"></i>Devamsızlık (Gün)</span><select id="sim-devamsiz" class="sim-select" onchange="calcSimulator()"><option value="0">0 gün</option><option value="1">1 gün</option><option value="2">2 gün</option><option value="3">3+ gün</option></select></div>
             </div>
             <div id="sim-result" class="rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-                <div class="p-5 bg-slate-50 dark:bg-slate-900">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Puan Dökümü</p>
-                    <div class="grid grid-cols-2 gap-2 mb-4">
-                        <div class="flex justify-between text-xs font-bold px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700"><span class="text-slate-500">Performans %</span><span id="sb-perf" class="text-slate-400">—</span></div>
-                        <div class="flex justify-between text-xs font-bold px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700"><span class="text-slate-500">IFF</span><span id="sb-iff" class="text-slate-400">—</span></div>
-                        <div class="flex justify-between text-xs font-bold px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700"><span class="text-slate-500">Kalite</span><span id="sb-kalite" class="text-slate-400">—</span></div>
-                        <div class="flex justify-between text-xs font-bold px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700"><span class="text-slate-500">Quiz</span><span id="sb-quiz" class="text-slate-400">—</span></div>
-                        <div class="flex justify-between text-xs font-bold px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700"><span class="text-slate-500">Mola %</span><span id="sb-mola" class="text-slate-400">—</span></div>
-                        <div class="flex justify-between text-xs font-bold px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700"><span class="text-slate-500">Şikayet</span><span id="sb-sikayet" class="text-slate-400">—</span></div>
-                        <div class="col-span-2 flex justify-between text-xs font-bold px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700"><span class="text-slate-500">Devamsızlık</span><span id="sb-devamsiz" class="text-slate-400">—</span></div>
-                    </div>
-                </div>
-                <div class="p-5 border-t border-slate-200 dark:border-slate-800" style="background:linear-gradient(135deg,rgba(99,102,241,0.06),rgba(139,92,246,0.06))">
-                    <div class="flex items-center justify-between">
-                        <div><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Goalpex Puanı</p><p id="sim-total-puan" class="text-4xl font-black tracking-tighter mt-1 text-slate-300">—</p></div>
-                        <div class="text-right"><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tahmini Prim</p><p id="sim-total-prim" class="text-4xl font-black tracking-tighter mt-1 text-slate-300">—</p></div>
-                    </div>
-                    <div id="sim-prim-band" class="mt-3 text-[10px] font-bold text-slate-500 text-center"></div>
-                </div>
+                <div class="p-5 bg-slate-50 dark:bg-slate-900"><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Puan Dökümü</p><div class="grid grid-cols-2 gap-2 mb-4"><div class="flex justify-between text-xs font-bold px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700"><span class="text-slate-500">Performans %</span><span id="sb-perf" class="text-slate-400">—</span></div><div class="flex justify-between text-xs font-bold px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700"><span class="text-slate-500">IFF</span><span id="sb-iff" class="text-slate-400">—</span></div><div class="flex justify-between text-xs font-bold px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700"><span class="text-slate-500">Kalite</span><span id="sb-kalite" class="text-slate-400">—</span></div><div class="flex justify-between text-xs font-bold px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700"><span class="text-slate-500">Quiz</span><span id="sb-quiz" class="text-slate-400">—</span></div><div class="flex justify-between text-xs font-bold px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700"><span class="text-slate-500">Mola %</span><span id="sb-mola" class="text-slate-400">—</span></div><div class="flex justify-between text-xs font-bold px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700"><span class="text-slate-500">Şikayet</span><span id="sb-sikayet" class="text-slate-400">—</span></div><div class="col-span-2 flex justify-between text-xs font-bold px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700"><span class="text-slate-500">Devamsızlık</span><span id="sb-devamsiz" class="text-slate-400">—</span></div></div></div>
+                <div class="p-5 border-t border-slate-200 dark:border-slate-800" style="background:linear-gradient(135deg,rgba(99,102,241,0.06),rgba(139,92,246,0.06))"><div class="flex items-center justify-between"><div><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Goalpex Puanı</p><p id="sim-total-puan" class="text-4xl font-black tracking-tighter mt-1 text-slate-300">—</p></div><div class="text-right"><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tahmini Prim</p><p id="sim-total-prim" class="text-4xl font-black tracking-tighter mt-1 text-slate-300">—</p></div></div><div id="sim-prim-band" class="mt-3 text-[10px] font-bold text-slate-500 text-center"></div></div>
             </div>
             <button onclick="resetSimulator()" class="mt-4 w-full py-2.5 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-slate-600 font-bold rounded-xl text-xs uppercase tracking-widest transition-all"><i class="fa-solid fa-rotate-left mr-1"></i> Sıfırla</button>
         </div>
@@ -721,6 +573,24 @@ let currentUser = { role:'agent', user_name:'', email:'' };
 let fullData=[], rawUsers=[], cwtAllData=[], perfAllData=[], dailyAllData=[];
 let fbAllData=[], fbFilteredData=[], fbCurrentId=null;
 
+// ══ FIX B: Global metrik state — radio yok ══
+let _selectedMetric = null;
+
+// ══ FIX C: Başlık haritası ══
+const FB_TITLES = {
+    KPI: ['Kalite Puanı','Devamsızlık Oranı','İşlem Adedi','SL Oranı','Şikayet Oranı','İFF Toplamı (TL)'],
+    Operasyonel: ['Ekip İçi Uyumsuzluk','Mola Kullanımı','Vardiya Uyumsuzluğu','Fraud İşlem'],
+    Kalite: [
+        'KVKK Anonsu','Kendini Tanıtmama','Müşteri Açıklaması Kırılımı',
+        'Satıcı Hatası Kırılımı','Script Düzenleme','Hatalı Ret','Hatalı Onay',
+        'Hatalı Cezai İşlem & Paketleme Ruleseti',
+        'Hatalı Cezai İşlem & Hatalı Analiz Raporu',
+        'Hatalı Cezai İşlem & Yanlış Ürün İncelemesi',
+        'Arama Ruleseti Uyumsuzluk & Aramadan Ret',
+        'Arama Ruleseti Uyumsuzluk & < 30 Saniye Arama'
+    ]
+};
+
 // ── YARDIMCI ──────────────────────────────────────────────────────
 const toTr=(val,dec=0)=>{const n=parseFloat(val)||0;return dec===0?Math.round(n).toLocaleString('tr-TR'):n.toFixed(dec).replace('.',',');};
 const formatPeriodText=(p)=>{if(!p||!p.includes('-'))return p;const[y,m]=p.split('-');return`${["","Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"][parseInt(m)]} ${y}`;};
@@ -730,19 +600,20 @@ const formatDateTime=(ts)=>{if(!ts)return'';const d=new Date(ts);return`${d.toLo
 const topicClass=(t)=>t==='Kalite'?'topic-kalite':t==='KPI'?'topic-kpi':'topic-operasyonel';
 const typeClass=(t)=>t==='Olumlu'?'type-olumlu':t==='Olumsuz'?'type-olumsuz':'type-bilgilendirme';
 const typeIcon=(t)=>t==='Olumlu'?'fa-circle-check':t==='Olumsuz'?'fa-circle-exclamation':'fa-circle-info';
+const mkIni=(name)=>(name||'?').split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
 
-function toggleTheme(){const isDark=document.documentElement.classList.toggle('dark');localStorage.setItem('theme',isDark?'dark':'light');document.getElementById('theme-icon').className=isDark?'fa-solid fa-sun text-lg':'fa-solid fa-moon text-lg';}
+function toggleTheme(){const d=document.documentElement.classList.toggle('dark');localStorage.setItem('theme',d?'dark':'light');document.getElementById('theme-icon').className=d?'fa-solid fa-sun text-lg':'fa-solid fa-moon text-lg';}
 function initTheme(){const s=localStorage.getItem('theme')||'dark';document.documentElement.classList.toggle('dark',s==='dark');document.getElementById('theme-icon').className=s==='dark'?'fa-solid fa-sun text-lg':'fa-solid fa-moon text-lg';}
 
-function showPage(page){
-    ['uretim','performans','goalpex','feedback'].forEach(p=>document.getElementById(`page-${p}`).classList.toggle('hidden',p!==page));
+function showPage(p){
+    ['uretim','performans','goalpex','feedback'].forEach(x=>document.getElementById(`page-${x}`).classList.toggle('hidden',x!==p));
     const a='flex items-center gap-3 px-4 py-3 rounded-2xl bg-blue-500/10 text-blue-500 font-bold border border-blue-500/20 transition-all shadow-sm text-sm';
     const i='flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all text-sm';
-    ['uretim','performans','goalpex','feedback'].forEach(p=>{document.getElementById(`nav-${p}`).className=p===page?a:i;});
+    ['uretim','performans','goalpex','feedback'].forEach(x=>{document.getElementById(`nav-${x}`).className=x===p?a:i;});
     const badge=document.getElementById('feedback-badge');
     if(badge)document.getElementById('nav-feedback').appendChild(badge);
-    if(page==='performans')loadPerformans();
-    if(page==='feedback')loadFeedback();
+    if(p==='performans')loadPerformans();
+    if(p==='feedback')loadFeedback();
 }
 
 document.addEventListener('DOMContentLoaded',async()=>{
@@ -756,9 +627,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
 });
 
 async function handleLogin(e){
-    e.preventDefault();
-    const btn=document.getElementById('loginBtn');
-    btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-circle-notch fa-spin"></i>';
+    e.preventDefault();const btn=document.getElementById('loginBtn');btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-circle-notch fa-spin"></i>';
     const{data,error}=await _supabase.auth.signInWithPassword({email:document.getElementById('email').value,password:document.getElementById('password').value});
     if(error){document.getElementById('loginError').classList.remove('hidden');btn.disabled=false;btn.innerText='Giriş Yap';}
     else{await showDashboard(data.user);}
@@ -766,20 +635,17 @@ async function handleLogin(e){
 function handleLogout(){_supabase.auth.signOut().then(()=>location.reload());}
 
 async function showDashboard(user){
-    const{data:userRows}=await _supabase.from('users').select('user_name,role').eq('user_mail',user.email).limit(1);
-    const userRow=userRows&&userRows.length>0?userRows[0]:null;
-    currentUser={role:userRow?.role||'agent',user_name:userRow?.user_name||user.email.split('@')[0].replace('.',' '),email:user.email};
-    const initials=currentUser.user_name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
-    document.getElementById('userInitials').innerText=initials;
+    const{data:rows}=await _supabase.from('users').select('user_name,role').eq('user_mail',user.email).limit(1);
+    const r=rows&&rows.length>0?rows[0]:null;
+    currentUser={role:r?.role||'agent',user_name:r?.user_name||user.email.split('@')[0].replace('.',' '),email:user.email};
+    const ini=mkIni(currentUser.user_name);
+    document.getElementById('userInitials').innerText=ini;
     document.getElementById('userName').innerText=currentUser.user_name;
     document.getElementById('userRoleLabel').innerText=currentUser.role==='admin'?'Yönetici Paneli':'Temsilci Paneli';
     document.getElementById('loginPage').classList.add('hidden');
     document.getElementById('mainDashboard').classList.remove('hidden');
-    // fb-reply-initials
-    document.getElementById('fb-reply-initials').innerText=initials;
-    applyRoleRestrictions();
-    loadPeriods();
-    checkFeedbackBadge();
+    document.getElementById('fb-reply-av').innerText=ini;
+    applyRoleRestrictions();loadPeriods();checkFeedbackBadge();
 }
 
 function applyRoleRestrictions(){
@@ -787,9 +653,7 @@ function applyRoleRestrictions(){
         document.getElementById('kpi-card-cwt').classList.add('hidden');
         document.getElementById('kpi-card-fte').classList.add('hidden');
         document.getElementById('th-fte').classList.add('hidden');
-        const grid=document.getElementById('kpi-grid');
-        grid.classList.remove('grid','grid-cols-2','lg:grid-cols-5');
-        grid.classList.add('kpi-grid-agent');
+        const g=document.getElementById('kpi-grid');g.classList.remove('grid','grid-cols-2','lg:grid-cols-5');g.classList.add('kpi-grid-agent');
     }
     if(currentUser.role==='admin'){
         document.getElementById('fb-admin-actions').classList.remove('hidden');
@@ -798,95 +662,78 @@ function applyRoleRestrictions(){
     }
 }
 
-// ════════════════════════════════════════════════════════════════
-// GERİ BİLDİRİM
-// ════════════════════════════════════════════════════════════════
+// ════ GERİ BİLDİRİM ════════════════════════════════════════════
 
 async function checkFeedbackBadge(){
     if(currentUser.role!=='agent')return;
     const{data}=await _supabase.from('feedback').select('id').eq('to_user',currentUser.user_name).eq('is_read',false);
-    const count=data?.length||0;
-    const badge=document.getElementById('feedback-badge');
-    if(count>0){badge.innerText=count;badge.classList.remove('hidden');}
-    else{badge.classList.add('hidden');}
+    const c=data?.length||0;const b=document.getElementById('feedback-badge');
+    if(c>0){b.innerText=c;b.classList.remove('hidden');}else{b.classList.add('hidden');}
 }
 
 async function loadFeedback(){
     toggleLoading(true);
     try{
-        let query=_supabase.from('feedback').select('*, feedback_messages(*)').order('created_at',{ascending:false});
-        if(currentUser.role==='agent')query=query.eq('to_user',currentUser.user_name);
-        const{data}=await query;
-        fbAllData=data||[];
-
-        // Admin: temsilci dropdown doldur
+        let q=_supabase.from('feedback').select('*, feedback_messages(*)').order('created_at',{ascending:false});
+        if(currentUser.role==='agent')q=q.eq('to_user',currentUser.user_name);
+        const{data}=await q;fbAllData=data||[];
         if(currentUser.role==='admin'){
             const users=[...new Set(fbAllData.map(f=>f.to_user).filter(Boolean))].sort();
-            const sel=document.getElementById('fb-filter-user');
-            const cur=sel.value;
+            const sel=document.getElementById('fb-filter-user');const cur=sel.value;
             sel.innerHTML='<option value="all">Tüm Temsilciler</option>'+users.map(u=>`<option value="${u}">${u}</option>`).join('');
             if(cur&&cur!=='all')sel.value=cur;
         }
-
-        // Agent: okunmamış banner
         if(currentUser.role==='agent'){
             const unread=fbAllData.filter(f=>!f.is_read);
             const banner=document.getElementById('fb-unread-banner');
-            if(unread.length>0){
-                document.getElementById('fb-unread-text').innerText=unread.length===1?'1 yeni geri bildiriminiz var.':`${unread.length} yeni geri bildiriminiz var.`;
-                banner.classList.remove('hidden');banner.classList.add('flex');
-            }else{banner.classList.add('hidden');banner.classList.remove('flex');}
+            if(unread.length>0){document.getElementById('fb-unread-text').innerText=unread.length===1?'1 yeni geri bildiriminiz var.':`${unread.length} yeni geri bildiriminiz var.`;banner.classList.remove('hidden');banner.classList.add('flex');}
+            else{banner.classList.add('hidden');banner.classList.remove('flex');}
         }
         applyFbFilters();
     }catch(e){console.error(e);}finally{toggleLoading(false);}
 }
 
 function applyFbFilters(){
-    const filterUser=document.getElementById('fb-filter-user')?.value||'all';
-    const filterTopic=document.getElementById('fb-filter-topic')?.value||'all';
-    const filterType=document.getElementById('fb-filter-type')?.value||'all';
+    const fu=document.getElementById('fb-filter-user')?.value||'all';
+    const ft=document.getElementById('fb-filter-topic')?.value||'all';
+    const ftype=document.getElementById('fb-filter-type')?.value||'all';
     fbFilteredData=fbAllData.filter(fb=>{
-        if(filterUser!=='all'&&fb.to_user!==filterUser)return false;
-        if(filterTopic!=='all'&&fb.topic!==filterTopic)return false;
-        if(filterType!=='all'&&fb.type!==filterType)return false;
+        if(fu!=='all'&&fb.to_user!==fu)return false;
+        if(ft!=='all'&&fb.topic!==ft)return false;
+        if(ftype!=='all'&&fb.type!==ftype)return false;
         return true;
     });
-    renderFeedbackList();
+    renderFbList();
 }
 
-function renderFeedbackList(){
-    const container=document.getElementById('fb-list');
-    if(fbFilteredData.length===0){
-        container.innerHTML=`<div class="flex flex-col items-center gap-3 py-20"><div class="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center"><i class="fa-solid fa-envelope-open text-slate-400 text-2xl"></i></div><p class="text-slate-400 font-bold text-sm">Geri bildirim bulunamadı</p></div>`;
-        return;
-    }
-    container.innerHTML=fbFilteredData.map(fb=>{
+function renderFbList(){
+    const c=document.getElementById('fb-list');
+    if(fbFilteredData.length===0){c.innerHTML=`<div class="flex flex-col items-center gap-3 py-16 px-4 text-center"><div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center"><i class="fa-solid fa-inbox text-slate-400 text-xl"></i></div><p class="text-slate-400 font-bold text-sm">Geri bildirim bulunamadı</p></div>`;return;}
+    c.innerHTML=fbFilteredData.map(fb=>{
         const isUnread=!fb.is_read&&currentUser.role==='agent';
-        const msgCount=fb.feedback_messages?.length||0;
-        const lastMsg=fb.feedback_messages?.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at))[0];
-        const preview=lastMsg?lastMsg.message:fb.description;
-        return`<div class="fb-mail-card ${isUnread?'unread':''}" onclick="openFbDetail('${fb.id}')">
-            <div class="px-5 py-4 flex items-start gap-4">
-                <div class="shrink-0 mt-0.5">
-                    <div class="w-10 h-10 rounded-xl flex items-center justify-center ${typeClass(fb.type||'Bilgilendirme')}">
-                        <i class="fa-solid ${typeIcon(fb.type||'Bilgilendirme')} text-base"></i>
-                    </div>
-                </div>
+        const mc=fb.feedback_messages?.length||0;
+        const last=fb.feedback_messages?.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at))[0];
+        const prev=((last?last.message:fb.description)||'').substring(0,55);
+        const isActive=fb.id===fbCurrentId;
+        return`<div class="fb-item px-4 py-3.5 ${isActive?'fb-active':''} ${isUnread?'fb-new':''}" onclick="openFbDetail('${fb.id}')">
+            <div class="flex items-start gap-3">
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center text-sm shrink-0 mt-0.5 ${typeClass(fb.type||'Bilgilendirme')}"><i class="fa-solid ${typeIcon(fb.type||'Bilgilendirme')}"></i></div>
                 <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-2 mb-1 flex-wrap">
-                        ${isUnread?'<span class="unread-dot"></span>':''}
-                        <span class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md ${topicClass(fb.topic)}">${fb.topic}</span>
-                        <span class="text-sm font-black text-slate-800 dark:text-slate-100 truncate">${fb.title||fb.topic}</span>
+                    <div class="flex items-center gap-1.5 mb-0.5">
+                        ${isUnread?'<span class="fb-pip"></span>':''}
+                        <span class="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">${fb.title||fb.topic}</span>
                     </div>
-                    <div class="flex items-center gap-2 text-xs text-slate-500 mb-1.5">
-                        <span class="font-semibold">${currentUser.role==='admin'?fb.to_user:fb.from_user}</span>
-                        ${msgCount>0?`<span class="text-slate-300 dark:text-slate-600">·</span><span class="text-blue-500 font-bold">${msgCount} yanıt</span>`:''}
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md ${topicClass(fb.topic)}">${fb.topic}</span>
+                        <span class="text-xs text-slate-400 truncate">${currentUser.role==='admin'?fb.to_user:fb.from_user}</span>
                     </div>
-                    <p class="text-xs text-slate-400 font-medium line-clamp-1">${preview}</p>
-                </div>
-                <div class="shrink-0 text-right">
-                    <p class="text-[10px] text-slate-400 font-medium whitespace-nowrap">${formatDateTime(fb.created_at)}</p>
-                    ${isUnread?'<span class="text-[10px] font-black text-blue-500 mt-0.5 block">Yeni</span>':''}
+                    <div class="flex items-center justify-between gap-2">
+                        <p class="text-xs text-slate-400 truncate">${prev}</p>
+                        <div class="shrink-0 text-right">
+                            <p class="text-[10px] text-slate-400 whitespace-nowrap">${formatDateTime(fb.created_at).split(' ')[0]}</p>
+                            ${mc>0?`<p class="text-[10px] font-bold text-blue-500">${mc} yanıt</p>`:''}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>`;
@@ -894,143 +741,119 @@ function renderFeedbackList(){
 }
 
 async function openFbDetail(id){
-    fbCurrentId=id;
-    const fb=fbAllData.find(f=>f.id===id);
-    if(!fb)return;
-
-    // Okundu işaretle
+    fbCurrentId=id;const fb=fbAllData.find(f=>f.id===id);if(!fb)return;
     if(currentUser.role==='agent'&&!fb.is_read){
-        await _supabase.from('feedback').update({is_read:true}).eq('id',id);
-        fb.is_read=true;
+        await _supabase.from('feedback').update({is_read:true}).eq('id',id);fb.is_read=true;
         checkFeedbackBadge();
-        applyFbFilters();
         const unread=fbAllData.filter(f=>!f.is_read);
         const banner=document.getElementById('fb-unread-banner');
         if(unread.length===0){banner.classList.add('hidden');banner.classList.remove('flex');}
-        else{document.getElementById('fb-unread-text').innerText=`${unread.length} yeni geri bildiriminiz var.`;}
+        else document.getElementById('fb-unread-text').innerText=`${unread.length} yeni geri bildiriminiz var.`;
     }
+    renderFbList();
 
-    // Tip badge
-    const typeBadge=document.getElementById('fb-detail-type-badge');
-    typeBadge.className=`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg ${typeClass(fb.type||'Bilgilendirme')}`;
-    typeBadge.innerHTML=`<i class="fa-solid ${typeIcon(fb.type||'Bilgilendirme')} mr-1"></i>${fb.type||'Bilgilendirme'}`;
+    const tb=document.getElementById('fb-det-type-badge');
+    tb.className=`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg ${typeClass(fb.type||'Bilgilendirme')}`;
+    tb.innerHTML=`<i class="fa-solid ${typeIcon(fb.type||'Bilgilendirme')} mr-1"></i>${fb.type||'Bilgilendirme'}`;
+    const topb=document.getElementById('fb-det-topic-badge');
+    topb.className=`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg ${topicClass(fb.topic)}`;
+    topb.innerText=fb.topic;
 
-    // Konu badge
-    const topicBadge=document.getElementById('fb-detail-topic-badge');
-    topicBadge.className=`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg ${topicClass(fb.topic)}`;
-    topicBadge.innerText=fb.topic;
+    document.getElementById('fb-det-title').innerText=fb.title||fb.topic;
+    document.getElementById('fb-det-from').innerText=fb.from_user;
+    document.getElementById('fb-det-from-av').innerText=mkIni(fb.from_user);
+    document.getElementById('fb-det-to').innerText=fb.to_user;
+    document.getElementById('fb-det-to-av').innerText=mkIni(fb.to_user);
+    document.getElementById('fb-det-date').innerText=formatDateTime(fb.created_at);
+    document.getElementById('fb-det-body').innerText=fb.description;
 
-    document.getElementById('fb-detail-title').innerText=fb.title||fb.topic;
-    document.getElementById('fb-detail-from').innerText=fb.from_user;
-    document.getElementById('fb-detail-to').innerText=fb.to_user;
-    document.getElementById('fb-detail-date').innerText=formatDateTime(fb.created_at);
-    document.getElementById('fb-detail-body-text').innerText=fb.description;
-
-    // Silme butonu — sadece kendi yazdığı
-    const delBtn=document.getElementById('fb-delete-btn');
-    if(fb.from_user===currentUser.user_name){delBtn.classList.remove('hidden');}
-    else{delBtn.classList.add('hidden');}
+    const del=document.getElementById('fb-det-del-btn');
+    if(fb.from_user===currentUser.user_name){del.classList.remove('hidden');del.classList.add('flex');}
+    else{del.classList.add('hidden');del.classList.remove('flex');}
 
     await renderFbReplies(fb);
     document.getElementById('fb-reply-input').value='';
-    document.getElementById('fbDetailModal').classList.remove('hidden');
-    document.getElementById('fbDetailModal').classList.add('flex');
+    document.getElementById('fb-detail-empty').classList.add('hidden');
+    document.getElementById('fb-detail-content').classList.remove('hidden');
+    document.getElementById('fb-detail-content').classList.add('flex');
 }
 
 async function renderFbReplies(fb){
     const{data:msgs}=await _supabase.from('feedback_messages').select('*').eq('feedback_id',fb.id).order('created_at',{ascending:true});
-    const container=document.getElementById('fb-replies-container');
-    if(!msgs||msgs.length===0){container.innerHTML='';return;}
-    container.innerHTML=`<p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">${msgs.length} Yanıt</p>`+
+    const wrap=document.getElementById('fb-det-replies');
+    if(!msgs||msgs.length===0){wrap.innerHTML='';return;}
+    wrap.innerHTML=`<p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">${msgs.length} Yanıt</p>`+
     msgs.map(msg=>{
         const isMe=msg.sender===currentUser.user_name;
-        const ini=msg.sender.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
-        return`<div class="fb-reply-card">
-            <div class="flex items-center gap-2.5 mb-2">
-                <div class="w-7 h-7 rounded-lg flex items-center justify-center text-white font-black text-[10px] ${isMe?'bg-blue-600':'bg-slate-500'}">${ini}</div>
-                <span class="text-xs font-black text-slate-700 dark:text-slate-300">${msg.sender}</span>
-                <span class="text-[10px] text-slate-400 ml-auto">${formatDateTime(msg.created_at)}</span>
+        return`<div class="flex ${isMe?'justify-end':'justify-start'} gap-2 mb-3">
+            ${!isMe?`<div class="w-7 h-7 rounded-lg bg-slate-500 flex items-center justify-center text-white font-black text-[10px] shrink-0 mt-1">${mkIni(msg.sender)}</div>`:''}
+            <div class="max-w-[75%]">
+                <div class="fb-bubble ${isMe?'fb-bubble-me':'fb-bubble-other'}">
+                    <p class="text-sm text-slate-700 dark:text-slate-200 whitespace-pre-wrap">${msg.message}</p>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-1 ${isMe?'text-right':'text-left'}">${msg.sender} · ${formatDateTime(msg.created_at)}</p>
             </div>
-            <p class="text-sm text-slate-600 dark:text-slate-400 whitespace-pre-wrap pl-9">${msg.message}</p>
+            ${isMe?`<div class="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-[10px] shrink-0 mt-1">${mkIni(msg.sender)}</div>`:''}
         </div>`;
     }).join('');
-    const fbIdx=fbAllData.findIndex(f=>f.id===fb.id);
-    if(fbIdx!==-1)fbAllData[fbIdx].feedback_messages=msgs||[];
+    const idx=fbAllData.findIndex(f=>f.id===fb.id);
+    if(idx!==-1)fbAllData[idx].feedback_messages=msgs||[];
 }
 
-async function sendFbMessage(){
-    const text=document.getElementById('fb-reply-input').value.trim();
-    if(!text||!fbCurrentId)return;
+async function sendFbReply(){
+    const text=document.getElementById('fb-reply-input').value.trim();if(!text||!fbCurrentId)return;
     const{error}=await _supabase.from('feedback_messages').insert({feedback_id:fbCurrentId,sender:currentUser.user_name,message:text});
     if(!error){
         document.getElementById('fb-reply-input').value='';
-        const fb=fbAllData.find(f=>f.id===fbCurrentId);
-        if(fb)await renderFbReplies(fb);
-        // Güncelle list
+        const fb=fbAllData.find(f=>f.id===fbCurrentId);if(fb)await renderFbReplies(fb);
         const{data}=await _supabase.from('feedback_messages').select('*').eq('feedback_id',fbCurrentId).order('created_at',{ascending:true});
-        const idx=fbAllData.findIndex(f=>f.id===fbCurrentId);
-        if(idx!==-1)fbAllData[idx].feedback_messages=data||[];
-        applyFbFilters();
+        const idx=fbAllData.findIndex(f=>f.id===fbCurrentId);if(idx!==-1)fbAllData[idx].feedback_messages=data||[];
+        renderFbList();
     }
 }
 
 async function deleteFeedback(){
-    if(!fbCurrentId)return;
-    if(!confirm('Bu geri bildirimi silmek istediğinize emin misiniz?'))return;
+    if(!fbCurrentId)return;if(!confirm('Bu geri bildirimi silmek istediğinize emin misiniz?'))return;
     await _supabase.from('feedback_messages').delete().eq('feedback_id',fbCurrentId);
     await _supabase.from('feedback').delete().eq('id',fbCurrentId);
-    closeFbDetailModal();
-    fbAllData=fbAllData.filter(f=>f.id!==fbCurrentId);
+    fbAllData=fbAllData.filter(f=>f.id!==fbCurrentId);fbCurrentId=null;
+    document.getElementById('fb-detail-empty').classList.remove('hidden');
+    document.getElementById('fb-detail-content').classList.add('hidden');document.getElementById('fb-detail-content').classList.remove('flex');
     applyFbFilters();
 }
 
-function closeFbDetailModal(){
-    document.getElementById('fbDetailModal').classList.add('hidden');
-    document.getElementById('fbDetailModal').classList.remove('flex');
-    fbCurrentId=null;
+function updateFbTitleOptions(){
+    const topic=document.getElementById('fb-topic').value;
+    const titles=FB_TITLES[topic]||[];
+    document.getElementById('fb-title-select').innerHTML=titles.map(t=>`<option value="${t}">${t}</option>`).join('');
 }
 
 function openFbNewModal(){
     const users=[...new Set(rawUsers.map(u=>u.user_name).filter(Boolean))].sort();
     document.getElementById('fb-to-user').innerHTML=users.map(u=>`<option value="${u}">${u}</option>`).join('');
     document.getElementById('fb-description').value='';
-    document.getElementById('fb-title').value='';
-    document.getElementById('fb-topic').value='Kalite';
-    document.getElementById('fb-type').value='Bilgilendirme';
-    document.getElementById('fbNewModal').classList.remove('hidden');
-    document.getElementById('fbNewModal').classList.add('flex');
+    document.getElementById('fb-topic').value='Kalite';document.getElementById('fb-type').value='Bilgilendirme';
+    updateFbTitleOptions();
+    document.getElementById('fbNewModal').classList.remove('hidden');document.getElementById('fbNewModal').classList.add('flex');
 }
 function closeFbNewModal(){document.getElementById('fbNewModal').classList.add('hidden');document.getElementById('fbNewModal').classList.remove('flex');}
 
 async function submitNewFeedback(){
     const toUser=document.getElementById('fb-to-user').value;
-    const topic=document.getElementById('fb-topic').value;
-    const type=document.getElementById('fb-type').value;
-    const title=document.getElementById('fb-title').value.trim();
+    const topic=document.getElementById('fb-topic').value;const type=document.getElementById('fb-type').value;
+    const title=document.getElementById('fb-title-select').value;
     const description=document.getElementById('fb-description').value.trim();
     if(!description){alert('Açıklama boş olamaz.');return;}
-    const{error}=await _supabase.from('feedback').insert({
-        from_user:currentUser.user_name,to_user:toUser,topic,type,
-        title:title||topic,description,is_read:false
-    });
+    const{error}=await _supabase.from('feedback').insert({from_user:currentUser.user_name,to_user:toUser,topic,type,title:title||topic,description,is_read:false});
     if(!error){closeFbNewModal();await loadFeedback();}
 }
 
 function exportFbExcel(){
-    const rows=fbFilteredData.map(fb=>({
-        "Gönderen":fb.from_user,"Alıcı":fb.to_user,"Tip":fb.type||'Bilgilendirme',
-        "Konu":fb.topic,"Başlık":fb.title||'','Açıklama':fb.description,
-        "Tarih":formatDateTime(fb.created_at),"Yanıt Sayısı":fb.feedback_messages?.length||0
-    }));
-    const ws=XLSX.utils.json_to_sheet(rows);
-    const wb=XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb,ws,"Geri Bildirimler");
-    XLSX.writeFile(wb,'GeriBildirimler.xlsx');
+    const rows=fbFilteredData.map(fb=>({"Gönderen":fb.from_user,"Alıcı":fb.to_user,"Tip":fb.type||'Bilgilendirme',"Konu":fb.topic,"Başlık":fb.title||'','Açıklama':fb.description,"Tarih":formatDateTime(fb.created_at),"Yanıt Sayısı":fb.feedback_messages?.length||0}));
+    const ws=XLSX.utils.json_to_sheet(rows);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Geri Bildirimler");XLSX.writeFile(wb,'GeriBildirimler.xlsx');
 }
 
-// ════════════════════════════════════════════════════════════════
-// GOALPEX SIMULATOR
-// ════════════════════════════════════════════════════════════════
+// ════ GOALPEX SIMULATOR ════════════════════════════════════════
 function calcPerfPuan(v){if(v===null||v==='')return null;if(v>=120)return 45;if(v>=110)return 30;if(v>=95)return 20;if(v>=90)return 10;return 0;}
 function calcIffPuan(v){if(v===null||v==='')return null;if(v===0)return 40;if(v<=199)return 35;if(v<=399)return 20;if(v<=499)return 10;if(v<=999)return 0;return -120;}
 function calcKalitePuan(v){if(v===null||v==='')return null;return v>=97?25:0;}
@@ -1038,42 +861,31 @@ function calcQuizPuan(v){if(v===null||v==='')return null;if(v>=95)return 10;if(v
 function calcMolaPuan(v){if(v===null||v==='')return null;if(v>=15&&v<=16)return 0;return -10;}
 function calcSikayetPuan(v){return parseInt(v)>=1?-120:0;}
 function calcDevamsizPuan(v){const d=parseInt(v);if(d===0)return 0;if(d===1)return -15;if(d===2)return -30;return -30;}
-function getPrim(puan){
-    if(puan>=116)return{prim:'₺4.200',band:'116–120 puan bandı'};if(puan>=111)return{prim:'₺3.900',band:'111–115 puan bandı'};
-    if(puan>=106)return{prim:'₺3.700',band:'106–110 puan bandı'};if(puan>=101)return{prim:'₺3.200',band:'101–105 puan bandı'};
-    if(puan>=95)return{prim:'₺2.800',band:'95–100 puan bandı'};if(puan>=90)return{prim:'₺2.500',band:'90–94 puan bandı'};
-    if(puan>=85)return{prim:'₺2.250',band:'85–89 puan bandı'};if(puan>=80)return{prim:'₺2.000',band:'80–84 puan bandı'};
-    return{prim:'Prim yok',band:'80 puanın altında prim ödenmez'};
-}
+function getPrim(p){if(p>=116)return{prim:'₺4.200',band:'116–120 puan bandı'};if(p>=111)return{prim:'₺3.900',band:'111–115 puan bandı'};if(p>=106)return{prim:'₺3.700',band:'106–110 puan bandı'};if(p>=101)return{prim:'₺3.200',band:'101–105 puan bandı'};if(p>=95)return{prim:'₺2.800',band:'95–100 puan bandı'};if(p>=90)return{prim:'₺2.500',band:'90–94 puan bandı'};if(p>=85)return{prim:'₺2.250',band:'85–89 puan bandı'};if(p>=80)return{prim:'₺2.000',band:'80–84 puan bandı'};return{prim:'Prim yok',band:'80 puanın altında prim ödenmez'};}
 function calcSimulator(){
-    const perfVal=document.getElementById('sim-perf').value!==''?parseFloat(document.getElementById('sim-perf').value):null;
-    const iffVal=document.getElementById('sim-iff').value!==''?parseFloat(document.getElementById('sim-iff').value):null;
-    const kaliteVal=document.getElementById('sim-kalite').value!==''?parseFloat(document.getElementById('sim-kalite').value):null;
-    const quizVal=document.getElementById('sim-quiz').value!==''?parseFloat(document.getElementById('sim-quiz').value):null;
-    const molaVal=document.getElementById('sim-mola').value!==''?parseFloat(document.getElementById('sim-mola').value):null;
-    const sikayetVal=document.getElementById('sim-sikayet').value;
-    const devamsizVal=document.getElementById('sim-devamsiz').value;
-    const pPerf=calcPerfPuan(perfVal),pIff=calcIffPuan(iffVal),pKalite=calcKalitePuan(kaliteVal),pQuiz=calcQuizPuan(quizVal),pMola=calcMolaPuan(molaVal),pSikayet=calcSikayetPuan(sikayetVal),pDevamsiz=calcDevamsizPuan(devamsizVal);
-    const fmt=(p)=>{if(p===null)return'<span style="color:#475569">—</span>';const sign=p>0?'+':'';const color=p>0?'#10b981':p<0?'#ef4444':'#64748b';return`<span style="color:${color};font-weight:900">${sign}${p}</span>`;};
-    document.getElementById('sb-perf').innerHTML=fmt(pPerf);document.getElementById('sb-iff').innerHTML=fmt(pIff);document.getElementById('sb-kalite').innerHTML=fmt(pKalite);document.getElementById('sb-quiz').innerHTML=fmt(pQuiz);document.getElementById('sb-mola').innerHTML=fmt(pMola);document.getElementById('sb-sikayet').innerHTML=fmt(pSikayet);document.getElementById('sb-devamsiz').innerHTML=fmt(pDevamsiz);
-    const parts=[pPerf,pIff,pKalite,pQuiz,pMola,pSikayet,pDevamsiz];const filled=parts.filter(p=>p!==null);
+    const pv=document.getElementById('sim-perf').value!==''?parseFloat(document.getElementById('sim-perf').value):null;
+    const iv=document.getElementById('sim-iff').value!==''?parseFloat(document.getElementById('sim-iff').value):null;
+    const kv=document.getElementById('sim-kalite').value!==''?parseFloat(document.getElementById('sim-kalite').value):null;
+    const qv=document.getElementById('sim-quiz').value!==''?parseFloat(document.getElementById('sim-quiz').value):null;
+    const mv=document.getElementById('sim-mola').value!==''?parseFloat(document.getElementById('sim-mola').value):null;
+    const pp=calcPerfPuan(pv),pi=calcIffPuan(iv),pk=calcKalitePuan(kv),pq=calcQuizPuan(qv),pm=calcMolaPuan(mv),ps=calcSikayetPuan(document.getElementById('sim-sikayet').value),pd=calcDevamsizPuan(document.getElementById('sim-devamsiz').value);
+    const fmt=(p)=>{if(p===null)return'<span style="color:#475569">—</span>';const s=p>0?'+':'';const c=p>0?'#10b981':p<0?'#ef4444':'#64748b';return`<span style="color:${c};font-weight:900">${s}${p}</span>`;};
+    document.getElementById('sb-perf').innerHTML=fmt(pp);document.getElementById('sb-iff').innerHTML=fmt(pi);document.getElementById('sb-kalite').innerHTML=fmt(pk);document.getElementById('sb-quiz').innerHTML=fmt(pq);document.getElementById('sb-mola').innerHTML=fmt(pm);document.getElementById('sb-sikayet').innerHTML=fmt(ps);document.getElementById('sb-devamsiz').innerHTML=fmt(pd);
+    const filled=[pp,pi,pk,pq,pm,ps,pd].filter(x=>x!==null);
     if(filled.length===0){document.getElementById('sim-total-puan').innerHTML='<span style="color:#475569">—</span>';document.getElementById('sim-total-prim').innerHTML='<span style="color:#475569">—</span>';document.getElementById('sim-prim-band').innerText='';return;}
-    const total=filled.reduce((s,p)=>s+p,0);const totalColor=total>=100?'#10b981':total>=80?'#f59e0b':'#ef4444';
-    document.getElementById('sim-total-puan').innerHTML=`<span style="color:${totalColor}">${total} P</span>`;
-    const{prim,band}=getPrim(total);const primColor=prim==='Prim yok'?'#ef4444':'#a78bfa';
-    document.getElementById('sim-total-prim').innerHTML=`<span style="color:${primColor}">${prim}</span>`;
+    const total=filled.reduce((s,x)=>s+x,0);
+    document.getElementById('sim-total-puan').innerHTML=`<span style="color:${total>=100?'#10b981':total>=80?'#f59e0b':'#ef4444'}">${total} P</span>`;
+    const{prim,band}=getPrim(total);
+    document.getElementById('sim-total-prim').innerHTML=`<span style="color:${prim==='Prim yok'?'#ef4444':'#a78bfa'}">${prim}</span>`;
     document.getElementById('sim-prim-band').innerText=band;
 }
 function resetSimulator(){['sim-perf','sim-iff','sim-kalite','sim-quiz','sim-mola'].forEach(id=>document.getElementById(id).value='');document.getElementById('sim-sikayet').value='0';document.getElementById('sim-devamsiz').value='0';calcSimulator();}
-
 function openScalaModal(){document.getElementById('scalaModal').classList.remove('hidden');document.getElementById('scalaModal').classList.add('flex');}
 function closeScalaModal(){document.getElementById('scalaModal').classList.add('hidden');document.getElementById('scalaModal').classList.remove('flex');}
 function openSimulatorModal(){document.getElementById('simulatorModal').classList.remove('hidden');document.getElementById('simulatorModal').classList.add('flex');}
 function closeSimulatorModal(){document.getElementById('simulatorModal').classList.add('hidden');document.getElementById('simulatorModal').classList.remove('flex');}
 
-// ════════════════════════════════════════════════════════════════
-// ÜRETİM TAKİP
-// ════════════════════════════════════════════════════════════════
+// ════ ÜRETİM TAKİP ════════════════════════════════════════════
 async function loadPeriods(){
     const{data}=await _supabase.from('period_summary').select('period').order('period',{ascending:false}).limit(10000);
     const unique=[...new Set((data||[]).map(d=>d.period))];
@@ -1082,51 +894,37 @@ async function loadPeriods(){
 }
 
 async function fetchAndRender(){
-    toggleLoading(true);
-    const period=document.getElementById('periodFilter').value;
+    toggleLoading(true);const period=document.getElementById('periodFilter').value;
     try{
         const cwtFetch=fetch(`${SUPABASE_URL}/rest/v1/cwt_data?period=eq.${encodeURIComponent(period)}&select=user_name,cwt,date`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}}).then(r=>r.json());
         const dvsFetch=fetch(`${SUPABASE_URL}/rest/v1/dvs_data?period=eq.${encodeURIComponent(period)}&select=planned_hc,actual_hc`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}}).then(r=>r.json());
         const[dailyRes,summaryRes,userRes,cwtData,dvsData]=await Promise.all([
             _supabase.from('daily_data').select('*').eq('period',period).limit(10000),
             _supabase.from('period_summary').select('*').eq('period',period).limit(10000),
-            _supabase.from('users').select('*').limit(10000),
-            cwtFetch,dvsFetch
-        ]);
+            _supabase.from('users').select('*').limit(10000),cwtFetch,dvsFetch]);
         rawUsers=userRes.data||[];cwtAllData=Array.isArray(cwtData)?cwtData:[];dailyAllData=dailyRes.data||[];
-
-        // DVS
         const dvsArr=Array.isArray(dvsData)?dvsData:[];
-        const totalPlanned=dvsArr.reduce((s,d)=>s+(parseFloat(d.planned_hc)||0),0);
-        const totalActual=dvsArr.reduce((s,d)=>s+(parseFloat(d.actual_hc)||0),0);
-        const dvsRate=totalPlanned>0?(totalPlanned-totalActual)/totalPlanned:null;
+        const tp=dvsArr.reduce((s,d)=>s+(parseFloat(d.planned_hc)||0),0);
+        const ta=dvsArr.reduce((s,d)=>s+(parseFloat(d.actual_hc)||0),0);
+        const dvsRate=tp>0?(tp-ta)/tp:null;
         const dvsEl=document.getElementById('kpi-dvs');
         if(dvsRate!==null){dvsEl.innerText=toTr(dvsRate*100,2)+'%';dvsEl.className=`text-3xl font-black tracking-tighter ${dvsRate>0.05?'text-rose-500':'text-emerald-500'}`;}
         else{dvsEl.innerText='—';dvsEl.className='text-3xl font-black tracking-tighter';}
-
         fullData=(summaryRes.data||[]).map(summary=>{
-            const normName=summary.user_name?.toLowerCase().trim();
-            const userMeta=rawUsers.find(u=>u.user_name?.toLowerCase().trim()===normName)||{};
-            const dailyRows=dailyAllData.filter(d=>d.user_name?.toLowerCase().trim()===normName);
-            const cwtRows=cwtAllData.filter(d=>d.user_name?.toLowerCase().trim()===normName);
-            return{...summary,
-                team:userMeta.team||'-',
-                team_leader:userMeta.team_leader||'-',
-                reg_number:userMeta.register_number||'-',
-                total_login:dailyRows.reduce((s,d)=>s+(parseFloat(d.login)||0),0),
-                total_break:dailyRows.reduce((s,d)=>s+(parseFloat(d.break_total)||0),0),
-                total_cwt_min:cwtRows.reduce((s,d)=>s+(parseFloat(d.cwt)||0),0),
+            const nm=summary.user_name?.toLowerCase().trim();
+            const um=rawUsers.find(u=>u.user_name?.toLowerCase().trim()===nm)||{};
+            const dr=dailyAllData.filter(d=>d.user_name?.toLowerCase().trim()===nm);
+            const cr=cwtAllData.filter(d=>d.user_name?.toLowerCase().trim()===nm);
+            return{...summary,team:um.team||'-',team_leader:um.team_leader||'-',reg_number:um.register_number||'-',
+                total_login:dr.reduce((s,d)=>s+(parseFloat(d.login)||0),0),
+                total_break:dr.reduce((s,d)=>s+(parseFloat(d.break_total)||0),0),
+                total_cwt_min:cr.reduce((s,d)=>s+(parseFloat(d.cwt)||0),0),
                 capped_fte:Math.min(1.0,parseFloat(summary.fte)||0)};
         });
-
-        // Ekip filtresi — dinamik
         const teams=[...new Set(rawUsers.map(u=>u.team).filter(t=>t&&t!=='-'))].sort();
         document.getElementById('teamFilter').innerHTML='<option value="all">Tüm Ekipler</option>'+teams.map(t=>`<option value="${t}">${t}</option>`).join('');
-
-        // Lider filtresi
         const tls=[...new Set(fullData.map(d=>d.team_leader).filter(t=>t&&t!=='-'))].sort();
         document.getElementById('tlFilter').innerHTML='<option value="all">Tüm Liderler</option>'+tls.map(t=>`<option value="${t}">${t}</option>`).join('');
-
         applyFilters();
     }catch(err){console.error(err);}finally{toggleLoading(false);}
 }
@@ -1135,32 +933,26 @@ function applyFilters(){
     const team=document.getElementById('teamFilter').value;
     const tl=document.getElementById('tlFilter').value;
     const search=document.getElementById('searchInput').value.toLowerCase();
-
-    // Ekip değişince lider filtresini güncelle
     if(team!=='all'){
-        const teamUsers=fullData.filter(d=>d.team===team);
-        const tls=[...new Set(teamUsers.map(d=>d.team_leader).filter(t=>t&&t!=='-'))].sort();
-        const curTl=document.getElementById('tlFilter').value;
+        const tu=fullData.filter(d=>d.team===team);
+        const tls=[...new Set(tu.map(d=>d.team_leader).filter(t=>t&&t!=='-'))].sort();
+        const cur=document.getElementById('tlFilter').value;
         document.getElementById('tlFilter').innerHTML='<option value="all">Tüm Liderler</option>'+tls.map(t=>`<option value="${t}">${t}</option>`).join('');
-        if(tls.includes(curTl))document.getElementById('tlFilter').value=curTl;
+        if(tls.includes(cur))document.getElementById('tlFilter').value=cur;
     }
-
     const filtered=fullData.filter(d=>{
         if(team!=='all'&&d.team!==team)return false;
         if(tl!=='all'&&d.team_leader!==tl)return false;
         if(search&&!d.user_name.toLowerCase().includes(search))return false;
         return true;
     });
-
-    const filteredNames=new Set(filtered.map(d=>d.user_name?.toLowerCase().trim()));
-    const cwtFiltered=(team==='all'&&tl==='all'&&search==='')?cwtAllData:cwtAllData.filter(d=>filteredNames.has(d.user_name?.toLowerCase().trim()));
-    const totalCwtHrs=cwtFiltered.reduce((s,d)=>s+(parseFloat(d.cwt)||0),0)/60;
+    const fn=new Set(filtered.map(d=>d.user_name?.toLowerCase().trim()));
+    const cwtF=(team==='all'&&tl==='all'&&search==='')?cwtAllData:cwtAllData.filter(d=>fn.has(d.user_name?.toLowerCase().trim()));
     const sumL=filtered.reduce((s,d)=>s+d.total_login,0),sumB=filtered.reduce((s,d)=>s+d.total_break,0);
-    document.getElementById('kpi-cwt').innerText=toTr(totalCwtHrs);
+    document.getElementById('kpi-cwt').innerText=toTr(cwtF.reduce((s,d)=>s+(parseFloat(d.cwt)||0),0)/60);
     document.getElementById('kpi-fte').innerText=toTr(filtered.reduce((s,d)=>s+d.capped_fte,0),2);
     document.getElementById('kpi-break').innerText=toTr(sumL>0?(sumB/sumL)*100:0,2)+'%';
     document.getElementById('kpi-missing').innerText=toTr(filtered.reduce((s,d)=>s+(parseFloat(d.missing_time)||0),0));
-
     const isAgent=currentUser.role==='agent';
     const tbody=document.getElementById('dataTableBody');tbody.innerHTML='';
     filtered.sort((a,b)=>b.fte-a.fte).forEach(row=>{
@@ -1171,8 +963,7 @@ function applyFilters(){
         const fteTd=isAgent?`<td class="px-6 py-4 text-center font-black text-sm hidden"></td>`:`<td class="px-6 py-4 text-center font-black text-sm">${toTr(row.capped_fte,2)}</td>`;
         tbody.innerHTML+=`<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all">
             <td class="px-6 py-4 flex items-center gap-3"><div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600 font-black text-[10px]">${row.user_name[0]}</div><span class="tracking-tight truncate text-sm">${row.user_name}</span></td>
-            <td class="px-6 py-4 text-slate-400 font-medium text-sm">${row.team_leader}</td>
-            ${fteTd}
+            <td class="px-6 py-4 text-slate-400 font-medium text-sm">${row.team_leader}</td>${fteTd}
             <td class="px-6 py-4 text-center text-slate-500 font-medium text-sm">${toTr(bR,2)}%</td>
             <td class="px-6 py-4 text-center ${m>0?'text-rose-500':'text-emerald-500'} font-black text-sm">${toTr(m)} dk</td>
             <td class="px-6 py-4 text-right"><span class="px-3 py-1.5 rounded-lg border text-[10px] font-black tracking-widest ${sC}">${sT}</span></td>
@@ -1180,90 +971,99 @@ function applyFilters(){
     });
 }
 
-// ════════════════════════════════════════════════════════════════
-// ÜRETİM ÖZEL EXPORT — mevcut filtre pre-select
-// ════════════════════════════════════════════════════════════════
+// ════ ÜRETİM ÖZEL EXPORT — FIX B: global _selectedMetric ════════
 function toggleUretimExportMenu(){document.getElementById('uretimExportMenu').classList.toggle('open');}
-function onMetricSelect(key){['login','mola','molaorani','cwt'].forEach(k=>document.getElementById(`toggle-${k}`).classList.remove('active'));document.getElementById(`toggle-${key}`).classList.add('active');let days=key==='cwt'?[...new Set(cwtAllData.map(d=>d.date).filter(Boolean))].sort():[...new Set(dailyAllData.map(d=>d.date).filter(Boolean))].sort();let rangeLabel=days.length>0?`${formatDateShort(days[0])} — ${formatDateShort(days[days.length-1])}`:'';document.getElementById('uretimDayRangeLabel').innerText=rangeLabel;const dayList=document.getElementById('uretimModalDayList');if(days.length===0){dayList.innerHTML='<p class="days-empty col-span-4">Veri bulunamadı</p>';return;}dayList.innerHTML=days.map(d=>`<label class="day-checkbox"><input type="checkbox" class="uretim-day-cb" value="${d}"><span>${formatDateShort(d)}</span></label>`).join('');}
+
+function onMetricSelect(key){
+    _selectedMetric=key;
+    ['login','mola','molaorani','cwt'].forEach(k=>{
+        document.getElementById(`toggle-${k}`).classList.remove('active');
+    });
+    document.getElementById(`toggle-${key}`).classList.add('active');
+    const days=key==='cwt'?[...new Set(cwtAllData.map(d=>d.date).filter(Boolean))].sort():[...new Set(dailyAllData.map(d=>d.date).filter(Boolean))].sort();
+    document.getElementById('uretimDayRangeLabel').innerText=days.length>0?`${formatDateShort(days[0])} — ${formatDateShort(days[days.length-1])}`:'';
+    const dayList=document.getElementById('uretimModalDayList');
+    if(days.length===0){dayList.innerHTML='<p class="days-empty col-span-4">Veri bulunamadı</p>';return;}
+    dayList.innerHTML=days.map(d=>`<label class="day-checkbox"><input type="checkbox" class="uretim-day-cb" value="${d}"><span>${formatDateShort(d)}</span></label>`).join('');
+}
 
 function openUretimOzelModal(){
     document.getElementById('uretimExportMenu').classList.remove('open');
-    ['login','mola','molaorani','cwt'].forEach(k=>{const el=document.getElementById(`metric-${k}`);if(el)el.checked=false;document.getElementById(`toggle-${k}`).classList.remove('active');});
+    _selectedMetric=null;
+    ['login','mola','molaorani','cwt'].forEach(k=>document.getElementById(`toggle-${k}`).classList.remove('active'));
     document.getElementById('uretimDayRangeLabel').innerText='';
     document.getElementById('uretimModalDayList').innerHTML='<p class="days-empty col-span-4">Önce bir metrik seçin</p>';
     document.getElementById('uretimModalUserSearch').value='';
-
-    // Aktif filtreye göre temsilcileri pre-select yap
     const team=document.getElementById('teamFilter').value;
     const tl=document.getElementById('tlFilter').value;
     const search=document.getElementById('searchInput').value.toLowerCase();
-    const visibleUsers=fullData.filter(d=>{
+    const visible=fullData.filter(d=>{
         if(team!=='all'&&d.team!==team)return false;
         if(tl!=='all'&&d.team_leader!==tl)return false;
         if(search&&!d.user_name.toLowerCase().includes(search))return false;
         return true;
-    }).map(d=>d.user_name).sort();
-    const allUsers=[...new Set(fullData.map(d=>d.user_name))].sort();
-
-    document.getElementById('uretimModalUserList').innerHTML=allUsers.map(u=>`<label class="day-checkbox"><input type="checkbox" class="uretim-user-cb" value="${u}" ${visibleUsers.includes(u)?'checked':''}><span class="truncate">${u}</span></label>`).join('');
-    document.getElementById('uretimOzelModal').classList.remove('hidden');
-    document.getElementById('uretimOzelModal').classList.add('flex');
+    }).map(d=>d.user_name);
+    const all=[...new Set(fullData.map(d=>d.user_name))].sort();
+    document.getElementById('uretimModalUserList').innerHTML=all.map(u=>`<label class="day-checkbox"><input type="checkbox" class="uretim-user-cb" value="${u}" ${visible.includes(u)?'checked':''}><span class="truncate">${u}</span></label>`).join('');
+    document.getElementById('uretimOzelModal').classList.remove('hidden');document.getElementById('uretimOzelModal').classList.add('flex');
 }
 function closeUretimOzelModal(){document.getElementById('uretimOzelModal').classList.add('hidden');document.getElementById('uretimOzelModal').classList.remove('flex');}
 function filterUretimModalUsers(){const q=document.getElementById('uretimModalUserSearch').value.toLowerCase();document.querySelectorAll('#uretimModalUserList .day-checkbox').forEach(el=>{el.style.display=el.querySelector('span').textContent.toLowerCase().includes(q)?'':'none';});}
 function selectAllUretimUsers(val){document.querySelectorAll('.uretim-user-cb').forEach(cb=>cb.checked=val);}
 function selectAllUretimDays(val){document.querySelectorAll('.uretim-day-cb').forEach(cb=>cb.checked=val);}
-function exportUretimOzel(){const selectedMetric=document.querySelector('input[name="uretim-metric"]:checked')?.value;if(!selectedMetric){alert('Lütfen bir metrik seçin.');return;}const selectedUsers=[...document.querySelectorAll('.uretim-user-cb:checked')].map(cb=>cb.value);const selectedDays=[...document.querySelectorAll('.uretim-day-cb:checked')].map(cb=>cb.value).sort();if(selectedUsers.length===0){alert('En az bir temsilci seçmelisiniz.');return;}if(selectedDays.length===0){alert('En az bir gün seçmelisiniz.');return;}const cwtMap={};cwtAllData.forEach(d=>{if(!d.date)return;const key=`${d.user_name}__${d.date}`;cwtMap[key]=(cwtMap[key]||0)+(parseFloat(d.cwt)||0);});const metricLabels={login:'Login (Dk)',mola:'Mola (Dk)',molaorani:'Mola Oranı',cwt:'Net Login (Dk)'};const rows=selectedUsers.map(userName=>{const row={"Temsilci":userName};selectedDays.forEach(day=>{let val='';if(selectedMetric==='cwt'){val=cwtMap[`${userName}__${day}`]||'';}else if(selectedMetric==='molaorani'){const dayRow=dailyAllData.find(d=>d.user_name===userName&&d.date===day);if(dayRow){const l=parseFloat(dayRow.login)||0,b=parseFloat(dayRow.break_total)||0;val=l>0?parseFloat((b/l).toFixed(6)):''}}else{const dataKey=selectedMetric==='login'?'login':'break_total';const dayRow=dailyAllData.find(d=>d.user_name===userName&&d.date===day);val=dayRow?(parseFloat(dayRow[dataKey])||''):'';}row[formatDateShort(day)]=val;});return row;});const ws=XLSX.utils.json_to_sheet(rows);if(selectedMetric==='molaorani'){const range=XLSX.utils.decode_range(ws['!ref']);for(let R=range.s.r+1;R<=range.e.r;++R)for(let C=1;C<=selectedDays.length;++C){const c=XLSX.utils.encode_cell({r:R,c:C});if(ws[c]&&ws[c].v!==''){ws[c].t='n';ws[c].z='0.00%';}}}const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,metricLabels[selectedMetric].substring(0,31));XLSX.writeFile(wb,`Uretim_Ozel_${document.getElementById('periodFilter').value}.xlsx`);closeUretimOzelModal();}
 
-// ════════════════════════════════════════════════════════════════
-// PERFORMANS
-// ════════════════════════════════════════════════════════════════
+function exportUretimOzel(){
+    if(!_selectedMetric){alert('Lütfen bir metrik seçin.');return;}
+    const users=[...document.querySelectorAll('.uretim-user-cb:checked')].map(cb=>cb.value);
+    const days=[...document.querySelectorAll('.uretim-day-cb:checked')].map(cb=>cb.value).sort();
+    if(users.length===0){alert('En az bir temsilci seçmelisiniz.');return;}
+    if(days.length===0){alert('En az bir gün seçmelisiniz.');return;}
+    const cwtMap={};cwtAllData.forEach(d=>{if(!d.date)return;const k=`${d.user_name}__${d.date}`;cwtMap[k]=(cwtMap[k]||0)+(parseFloat(d.cwt)||0);});
+    const labels={login:'Login (Dk)',mola:'Mola (Dk)',molaorani:'Mola Oranı',cwt:'Net Login (Dk)'};
+    const rows=users.map(u=>{
+        const row={"Temsilci":u};
+        days.forEach(day=>{
+            let val='';
+            if(_selectedMetric==='cwt'){val=cwtMap[`${u}__${day}`]||'';}
+            else if(_selectedMetric==='molaorani'){const dr=dailyAllData.find(d=>d.user_name===u&&d.date===day);if(dr){const l=parseFloat(dr.login)||0,b=parseFloat(dr.break_total)||0;val=l>0?parseFloat((b/l).toFixed(6)):''}}
+            else{const dk=_selectedMetric==='login'?'login':'break_total';const dr=dailyAllData.find(d=>d.user_name===u&&d.date===day);val=dr?(parseFloat(dr[dk])||''):'';}
+            row[formatDateShort(day)]=val;
+        });
+        return row;
+    });
+    const ws=XLSX.utils.json_to_sheet(rows);
+    if(_selectedMetric==='molaorani'){const range=XLSX.utils.decode_range(ws['!ref']);for(let R=range.s.r+1;R<=range.e.r;++R)for(let C=1;C<=days.length;++C){const c=XLSX.utils.encode_cell({r:R,c:C});if(ws[c]&&ws[c].v!==''){ws[c].t='n';ws[c].z='0.00%';}}}
+    const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,labels[_selectedMetric].substring(0,31));
+    XLSX.writeFile(wb,`Uretim_Ozel_${document.getElementById('periodFilter').value}.xlsx`);
+    closeUretimOzelModal();
+}
+
+// ════ PERFORMANS ════════════════════════════════════════════════
 async function loadPerformans(){const{data}=await _supabase.from('performance_data').select('period').order('period',{ascending:false}).limit(10000);const unique=[...new Set((data||[]).map(d=>d.period))];document.getElementById('perfPeriodFilter').innerHTML=unique.map(p=>`<option value="${p}">${formatPeriodText(p)}</option>`).join('');if(unique.length>0)fetchPerformans();}
-async function fetchPerformans(){toggleLoading(true);const period=document.getElementById('perfPeriodFilter').value;try{const{data}=await _supabase.from('performance_data').select('*').eq('period',period).limit(10000);perfAllData=data||[];const dailyDates=[...new Set(perfAllData.map(d=>d.date).filter(d=>d!==null&&d!==undefined))].sort((a,b)=>b.localeCompare(a));document.getElementById('perfDateFilter').innerHTML='<option value="all">Tümü (Kümülatif)</option>'+dailyDates.map(d=>`<option value="${d}">${formatDateTR(d)}</option>`).join('');applyPerfFilter();}catch(err){console.error(err);}finally{toggleLoading(false);}}
-function applyPerfFilter(){const selectedDate=document.getElementById('perfDateFilter').value,search=document.getElementById('perfSearchInput').value.toLowerCase();let filtered=selectedDate==='all'?perfAllData.filter(d=>d.date===null):perfAllData.filter(d=>d.date===selectedDate);document.getElementById('perfTableSubtitle').innerText=selectedDate==='all'?'Kümülatif Veriler':formatDateTR(selectedDate)+' Verileri';if(search)filtered=filtered.filter(d=>d.user_name.toLowerCase().includes(search));renderPerfTables(filtered);}
-function renderPerfTables(data){const sorted=[...data].sort((a,b)=>(parseFloat(b.performance_pct)||0)-(parseFloat(a.performance_pct)||0));const maxActual=Math.max(...sorted.map(d=>parseFloat(d.transaction_count)||0),1);const top10El=document.getElementById('top10List');top10El.innerHTML='';sorted.slice(0,10).forEach((row,i)=>{const rank=i+1,pct=parseFloat(row.performance_pct)||0,actual=parseFloat(row.transaction_count)||0;let badgeClass='bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300';if(rank===1)badgeClass='rank-1 text-white';if(rank===2)badgeClass='rank-2 text-white';if(rank===3)badgeClass='rank-3 text-white';top10El.innerHTML+=`<div class="perf-row flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all" style="animation-delay:${i*0.05}s"><div class="w-7 h-7 shrink-0 rounded-lg flex items-center justify-center text-xs font-black ${badgeClass}">${rank}</div><div class="flex-1 min-w-0"><p class="text-xs font-bold truncate">${row.user_name}</p><div class="mt-1 h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden"><div class="bar-fill h-full rounded-full ${pct>=100?'bg-emerald-500':'bg-rose-400'}" style="width:${Math.min((actual/maxActual)*100,100)}%"></div></div></div><span class="text-[11px] font-black ${pct>=100?'text-emerald-500':'text-rose-500'} shrink-0">%${pct.toFixed(1)}</span></div>`;});const tbody=document.getElementById('perfTableBody');tbody.innerHTML='';sorted.forEach((row,i)=>{const pct=parseFloat(row.performance_pct)||0,actual=parseFloat(row.transaction_count)||0,avg=parseFloat(row.pool_average)||0,distance=actual-avg;tbody.innerHTML+=`<tr class="perf-row hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all" style="animation-delay:${i*0.03}s"><td class="px-5 py-3.5"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600 font-black text-[10px]">${row.user_name[0].toUpperCase()}</div><span class="font-bold text-sm truncate">${row.user_name}</span></div></td><td class="px-5 py-3.5 text-center text-slate-500 font-medium text-sm">${avg>0?avg.toFixed(0):'-'}</td><td class="px-5 py-3.5 text-center font-black text-sm">${actual>0?actual:'-'}</td><td class="px-5 py-3.5 text-center font-black text-sm ${pct>=100?'text-emerald-500':'text-rose-500'}">%${pct.toFixed(1)}</td><td class="px-5 py-3.5 text-center font-black text-sm ${distance>=0?'text-emerald-500':'text-rose-500'}">${avg>0?(distance>=0?'+':'')+distance.toFixed(0):'-'}</td></tr>`;});if(sorted.length===0){tbody.innerHTML=`<tr><td colspan="5" class="px-5 py-12 text-center text-slate-400 font-bold text-sm">Bu dönem için veri bulunamadı.</td></tr>`;top10El.innerHTML=`<p class="p-4 text-center text-slate-400 text-xs font-bold">Veri yok</p>`;}}
+async function fetchPerformans(){toggleLoading(true);const period=document.getElementById('perfPeriodFilter').value;try{const{data}=await _supabase.from('performance_data').select('*').eq('period',period).limit(10000);perfAllData=data||[];const dd=[...new Set(perfAllData.map(d=>d.date).filter(d=>d!==null&&d!==undefined))].sort((a,b)=>b.localeCompare(a));document.getElementById('perfDateFilter').innerHTML='<option value="all">Tümü (Kümülatif)</option>'+dd.map(d=>`<option value="${d}">${formatDateTR(d)}</option>`).join('');applyPerfFilter();}catch(err){console.error(err);}finally{toggleLoading(false);}}
+function applyPerfFilter(){const sd=document.getElementById('perfDateFilter').value,s=document.getElementById('perfSearchInput').value.toLowerCase();let f=sd==='all'?perfAllData.filter(d=>d.date===null):perfAllData.filter(d=>d.date===sd);document.getElementById('perfTableSubtitle').innerText=sd==='all'?'Kümülatif Veriler':formatDateTR(sd)+' Verileri';if(s)f=f.filter(d=>d.user_name.toLowerCase().includes(s));renderPerfTables(f);}
+function renderPerfTables(data){const sorted=[...data].sort((a,b)=>(parseFloat(b.performance_pct)||0)-(parseFloat(a.performance_pct)||0));const maxA=Math.max(...sorted.map(d=>parseFloat(d.transaction_count)||0),1);const t10=document.getElementById('top10List');t10.innerHTML='';sorted.slice(0,10).forEach((row,i)=>{const rank=i+1,pct=parseFloat(row.performance_pct)||0,actual=parseFloat(row.transaction_count)||0;let bc='bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300';if(rank===1)bc='rank-1 text-white';if(rank===2)bc='rank-2 text-white';if(rank===3)bc='rank-3 text-white';t10.innerHTML+=`<div class="perf-row flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all" style="animation-delay:${i*0.05}s"><div class="w-7 h-7 shrink-0 rounded-lg flex items-center justify-center text-xs font-black ${bc}">${rank}</div><div class="flex-1 min-w-0"><p class="text-xs font-bold truncate">${row.user_name}</p><div class="mt-1 h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden"><div class="bar-fill h-full rounded-full ${pct>=100?'bg-emerald-500':'bg-rose-400'}" style="width:${Math.min((actual/maxA)*100,100)}%"></div></div></div><span class="text-[11px] font-black ${pct>=100?'text-emerald-500':'text-rose-500'} shrink-0">%${pct.toFixed(1)}</span></div>`;});const tbody=document.getElementById('perfTableBody');tbody.innerHTML='';sorted.forEach((row,i)=>{const pct=parseFloat(row.performance_pct)||0,actual=parseFloat(row.transaction_count)||0,avg=parseFloat(row.pool_average)||0,dist=actual-avg;tbody.innerHTML+=`<tr class="perf-row hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all" style="animation-delay:${i*0.03}s"><td class="px-5 py-3.5"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600 font-black text-[10px]">${row.user_name[0].toUpperCase()}</div><span class="font-bold text-sm truncate">${row.user_name}</span></div></td><td class="px-5 py-3.5 text-center text-slate-500 font-medium text-sm">${avg>0?avg.toFixed(0):'-'}</td><td class="px-5 py-3.5 text-center font-black text-sm">${actual>0?actual:'-'}</td><td class="px-5 py-3.5 text-center font-black text-sm ${pct>=100?'text-emerald-500':'text-rose-500'}">%${pct.toFixed(1)}</td><td class="px-5 py-3.5 text-center font-black text-sm ${dist>=0?'text-emerald-500':'text-rose-500'}">${avg>0?(dist>=0?'+':'')+dist.toFixed(0):'-'}</td></tr>`;});if(sorted.length===0){tbody.innerHTML=`<tr><td colspan="5" class="px-5 py-12 text-center text-slate-400 font-bold text-sm">Bu dönem için veri bulunamadı.</td></tr>`;t10.innerHTML=`<p class="p-4 text-center text-slate-400 text-xs font-bold">Veri yok</p>`;}}
 
-// ════════════════════════════════════════════════════════════════
-// PERFORMANS EXPORT
-// ════════════════════════════════════════════════════════════════
 function toggleExportMenu(){document.getElementById('perfExportMenu').classList.toggle('open');}
-function buildPivotData(users,days){const dailyRows=perfAllData.filter(d=>d.date!==null);const dayStats={};days.forEach(day=>{const dd=dailyRows.filter(d=>d.date===day);dayStats[day]={avg:dd.length>0?(dd[0].pool_average||0):0,hc:dd.length,total:dd.reduce((s,d)=>s+(parseFloat(d.transaction_count)||0),0)};});const rows=users.map(u=>{const row={"Temsilci":u};days.forEach(day=>{const m=dailyRows.find(d=>d.user_name===u&&d.date===day);row[formatDateShort(day)]=m?(parseFloat(m.transaction_count)||''):'';});return row;});const avgRow={"Temsilci":"Havuz Ortalaması"},hcRow={"Temsilci":"HC"},totalRow={"Temsilci":"Toplam İşlem"};days.forEach(day=>{avgRow[formatDateShort(day)]=dayStats[day].avg>0?parseFloat(dayStats[day].avg.toFixed(2)):'';hcRow[formatDateShort(day)]=dayStats[day].hc||'';totalRow[formatDateShort(day)]=dayStats[day].total||'';});return{rows,avgRow,hcRow,totalRow};}
-function exportPerfKumulatif(){document.getElementById('perfExportMenu').classList.remove('open');const kumData=perfAllData.filter(d=>d.date===null).sort((a,b)=>(parseFloat(b.performance_pct)||0)-(parseFloat(a.performance_pct)||0));const rows=kumData.map(d=>{const avg=parseFloat(d.pool_average)||0,actual=parseFloat(d.transaction_count)||0,pct=parseFloat(d.performance_pct)||0;return{"Temsilci":d.user_name,"Havuz Ortalaması":avg>0?parseFloat(avg.toFixed(2)):'',"Gerçekleşen":actual||'',"Performans %":pct>0?pct/100:'',"Ort. Uzaklık":avg>0?parseFloat((actual-avg).toFixed(2)):''}; });const ws=XLSX.utils.json_to_sheet(rows);const range=XLSX.utils.decode_range(ws['!ref']);for(let R=range.s.r+1;R<=range.e.r;++R){const c=XLSX.utils.encode_cell({r:R,c:3});if(ws[c]){ws[c].t='n';ws[c].z='0.00%';}}const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Kümülatif");XLSX.writeFile(wb,`Performans_Kumulatif_${document.getElementById('perfPeriodFilter').value}.xlsx`);}
+function buildPivotData(users,days){const dr=perfAllData.filter(d=>d.date!==null);const ds={};days.forEach(day=>{const dd=dr.filter(d=>d.date===day);ds[day]={avg:dd.length>0?(dd[0].pool_average||0):0,hc:dd.length,total:dd.reduce((s,d)=>s+(parseFloat(d.transaction_count)||0),0)};});const rows=users.map(u=>{const row={"Temsilci":u};days.forEach(day=>{const m=dr.find(d=>d.user_name===u&&d.date===day);row[formatDateShort(day)]=m?(parseFloat(m.transaction_count)||''):'';});return row;});const aR={"Temsilci":"Havuz Ortalaması"},hR={"Temsilci":"HC"},tR={"Temsilci":"Toplam İşlem"};days.forEach(day=>{aR[formatDateShort(day)]=ds[day].avg>0?parseFloat(ds[day].avg.toFixed(2)):'';hR[formatDateShort(day)]=ds[day].hc||'';tR[formatDateShort(day)]=ds[day].total||'';});return{rows,avgRow:aR,hcRow:hR,totalRow:tR};}
+function exportPerfKumulatif(){document.getElementById('perfExportMenu').classList.remove('open');const kd=perfAllData.filter(d=>d.date===null).sort((a,b)=>(parseFloat(b.performance_pct)||0)-(parseFloat(a.performance_pct)||0));const rows=kd.map(d=>{const avg=parseFloat(d.pool_average)||0,actual=parseFloat(d.transaction_count)||0,pct=parseFloat(d.performance_pct)||0;return{"Temsilci":d.user_name,"Havuz Ortalaması":avg>0?parseFloat(avg.toFixed(2)):'',"Gerçekleşen":actual||'',"Performans %":pct>0?pct/100:'',"Ort. Uzaklık":avg>0?parseFloat((actual-avg).toFixed(2)):''}; });const ws=XLSX.utils.json_to_sheet(rows);const range=XLSX.utils.decode_range(ws['!ref']);for(let R=range.s.r+1;R<=range.e.r;++R){const c=XLSX.utils.encode_cell({r:R,c:3});if(ws[c]){ws[c].t='n';ws[c].z='0.00%';}}const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Kümülatif");XLSX.writeFile(wb,`Performans_Kumulatif_${document.getElementById('perfPeriodFilter').value}.xlsx`);}
 function exportPerfGunluk(){document.getElementById('perfExportMenu').classList.remove('open');const days=[...new Set(perfAllData.map(d=>d.date).filter(d=>d!==null))].sort();const users=[...new Set(perfAllData.filter(d=>d.date!==null).map(d=>d.user_name))].sort();const{rows,avgRow,hcRow,totalRow}=buildPivotData(users,days);const ws=XLSX.utils.json_to_sheet([...rows,{},avgRow,hcRow,totalRow]);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Günlük");XLSX.writeFile(wb,`Performans_Gunluk_${document.getElementById('perfPeriodFilter').value}.xlsx`);}
 function openOzelModal(){document.getElementById('perfExportMenu').classList.remove('open');const days=[...new Set(perfAllData.map(d=>d.date).filter(d=>d!==null))].sort();const users=[...new Set(perfAllData.filter(d=>d.date!==null).map(d=>d.user_name))].sort();document.getElementById('modalUserList').innerHTML=users.map(u=>`<label class="day-checkbox"><input type="checkbox" class="modal-user-cb" value="${u}"><span>${u}</span></label>`).join('');document.getElementById('modalDayList').innerHTML=days.map(d=>`<label class="day-checkbox"><input type="checkbox" class="modal-day-cb" value="${d}"><span>${formatDateShort(d)}</span></label>`).join('');document.getElementById('ozelModal').classList.remove('hidden');document.getElementById('ozelModal').classList.add('flex');}
 function closeOzelModal(){document.getElementById('ozelModal').classList.add('hidden');document.getElementById('ozelModal').classList.remove('flex');}
 function filterModalUsers(){const q=document.getElementById('modalUserSearch').value.toLowerCase();document.querySelectorAll('#modalUserList .day-checkbox').forEach(el=>{el.style.display=el.querySelector('span').textContent.toLowerCase().includes(q)?'':'none';});}
 function selectAllUsers(val){document.querySelectorAll('.modal-user-cb').forEach(cb=>cb.checked=val);}
 function selectAllDays(val){document.querySelectorAll('.modal-day-cb').forEach(cb=>cb.checked=val);}
-function exportPerfOzel(){const selectedUsers=[...document.querySelectorAll('.modal-user-cb:checked')].map(cb=>cb.value);const selectedDays=[...document.querySelectorAll('.modal-day-cb:checked')].map(cb=>cb.value).sort();if(selectedUsers.length===0||selectedDays.length===0){alert('En az bir temsilci ve bir gün seçmelisiniz.');return;}const{rows,avgRow,hcRow,totalRow}=buildPivotData(selectedUsers,selectedDays);const ws=XLSX.utils.json_to_sheet([...rows,{},avgRow,hcRow,totalRow]);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Özel");XLSX.writeFile(wb,`Performans_Ozel_${document.getElementById('perfPeriodFilter').value}.xlsx`);closeOzelModal();}
+function exportPerfOzel(){const users=[...document.querySelectorAll('.modal-user-cb:checked')].map(cb=>cb.value);const days=[...document.querySelectorAll('.modal-day-cb:checked')].map(cb=>cb.value).sort();if(users.length===0||days.length===0){alert('En az bir temsilci ve bir gün seçmelisiniz.');return;}const{rows,avgRow,hcRow,totalRow}=buildPivotData(users,days);const ws=XLSX.utils.json_to_sheet([...rows,{},avgRow,hcRow,totalRow]);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Özel");XLSX.writeFile(wb,`Performans_Ozel_${document.getElementById('perfPeriodFilter').value}.xlsx`);closeOzelModal();}
 
-// ════════════════════════════════════════════════════════════════
-// ÜRETİM ÖZET EXPORT
-// ════════════════════════════════════════════════════════════════
 function exportToExcel(){
     document.getElementById('uretimExportMenu').classList.remove('open');
-    const team=document.getElementById('teamFilter').value;
-    const tl=document.getElementById('tlFilter').value;
-    const search=document.getElementById('searchInput').value.toLowerCase();
-    const rows=fullData.filter(d=>{
-        if(team!=='all'&&d.team!==team)return false;
-        if(tl!=='all'&&d.team_leader!==tl)return false;
-        if(search&&!d.user_name.toLowerCase().includes(search))return false;
-        return true;
-    }).map(d=>({"Sicil No":d.reg_number||'—',"Temsilci Adı":d.user_name,"Ekip":d.team||'—',"Takım Lideri":d.team_leader||'—',"Login Süresi (Dk)":parseFloat(d.total_login)||0,"Mola Süresi (Dk)":parseFloat(d.total_break)||0,"Net Login (Dk)":parseFloat(d.total_cwt_min)||0,"Mola Oranı":parseFloat(d.break_rate)||0,"Eksik Süre (Dk)":parseFloat(d.missing_time)||0,"Ham FTE":parseFloat(d.fte)||0,"Capped FTE":parseFloat(d.capped_fte)||0}));
-    const sumL=rows.reduce((s,r)=>s+r["Login Süresi (Dk)"],0),sumB=rows.reduce((s,r)=>s+r["Mola Süresi (Dk)"],0);
-    rows.push({"Sicil No":"GENEL TOPLAM","Temsilci Adı":"","Ekip":"","Takım Lideri":"","Login Süresi (Dk)":sumL,"Mola Süresi (Dk)":sumB,"Net Login (Dk)":rows.reduce((s,r)=>s+r["Net Login (Dk)"],0),"Mola Oranı":sumL>0?(sumB/sumL):0,"Eksik Süre (Dk)":rows.reduce((s,r)=>s+r["Eksik Süre (Dk)"],0),"Ham FTE":rows.reduce((s,r)=>s+r["Ham FTE"],0),"Capped FTE":rows.reduce((s,r)=>s+r["Capped FTE"],0)});
-    const ws=XLSX.utils.json_to_sheet(rows);
-    const range=XLSX.utils.decode_range(ws['!ref']);
-    for(let R=range.s.r+1;R<=range.e.r;++R){
-        [4,5,6].forEach(C=>{const c=XLSX.utils.encode_cell({r:R,c:C});if(ws[c]){ws[c].t='n';ws[c].z='0';}});
-        const e=XLSX.utils.encode_cell({r:R,c:8});if(ws[e]){ws[e].t='n';ws[e].z='0';}
-        const b=XLSX.utils.encode_cell({r:R,c:7});if(ws[b]){ws[b].t='n';ws[b].z='0.00%';}
-        [9,10].forEach(C=>{const c=XLSX.utils.encode_cell({r:R,c:C});if(ws[c]){ws[c].t='n';ws[c].z='0.00';}});
-    }
-    const wb=XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb,ws,"KPI Raporu");
-    XLSX.writeFile(wb,`Ihtilafli_KPI_${document.getElementById('periodFilter').value}.xlsx`);
+    const team=document.getElementById('teamFilter').value,tl=document.getElementById('tlFilter').value,search=document.getElementById('searchInput').value.toLowerCase();
+    const rows=fullData.filter(d=>{if(team!=='all'&&d.team!==team)return false;if(tl!=='all'&&d.team_leader!==tl)return false;if(search&&!d.user_name.toLowerCase().includes(search))return false;return true;}).map(d=>({"Sicil No":d.reg_number||'—',"Temsilci Adı":d.user_name,"Ekip":d.team||'—',"Takım Lideri":d.team_leader||'—',"Login Süresi (Dk)":parseFloat(d.total_login)||0,"Mola Süresi (Dk)":parseFloat(d.total_break)||0,"Net Login (Dk)":parseFloat(d.total_cwt_min)||0,"Mola Oranı":parseFloat(d.break_rate)||0,"Eksik Süre (Dk)":parseFloat(d.missing_time)||0,"Ham FTE":parseFloat(d.fte)||0,"Capped FTE":parseFloat(d.capped_fte)||0}));
+    const sL=rows.reduce((s,r)=>s+r["Login Süresi (Dk)"],0),sB=rows.reduce((s,r)=>s+r["Mola Süresi (Dk)"],0);
+    rows.push({"Sicil No":"GENEL TOPLAM","Temsilci Adı":"","Ekip":"","Takım Lideri":"","Login Süresi (Dk)":sL,"Mola Süresi (Dk)":sB,"Net Login (Dk)":rows.reduce((s,r)=>s+r["Net Login (Dk)"],0),"Mola Oranı":sL>0?(sB/sL):0,"Eksik Süre (Dk)":rows.reduce((s,r)=>s+r["Eksik Süre (Dk)"],0),"Ham FTE":rows.reduce((s,r)=>s+r["Ham FTE"],0),"Capped FTE":rows.reduce((s,r)=>s+r["Capped FTE"],0)});
+    const ws=XLSX.utils.json_to_sheet(rows);const range=XLSX.utils.decode_range(ws['!ref']);
+    for(let R=range.s.r+1;R<=range.e.r;++R){[4,5,6].forEach(C=>{const c=XLSX.utils.encode_cell({r:R,c:C});if(ws[c]){ws[c].t='n';ws[c].z='0';}});const e=XLSX.utils.encode_cell({r:R,c:8});if(ws[e]){ws[e].t='n';ws[e].z='0';}const b=XLSX.utils.encode_cell({r:R,c:7});if(ws[b]){ws[b].t='n';ws[b].z='0.00%';}[9,10].forEach(C=>{const c=XLSX.utils.encode_cell({r:R,c:C});if(ws[c]){ws[c].t='n';ws[c].z='0.00';}});}
+    const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"KPI Raporu");XLSX.writeFile(wb,`Ihtilafli_KPI_${document.getElementById('periodFilter').value}.xlsx`);
 }
 
 function toggleLoading(s){document.getElementById('loading-overlay').classList.toggle('hidden',!s);}
