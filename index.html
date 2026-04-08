@@ -804,7 +804,7 @@ async function renderFbReplies(fb){
 }
 
 async function sendFbReply(){
-    const text=document.getElementById('fb-reply-input').value.trim();if(!text||!fbCurrentId)return;
+    const text=document.getElementById('fb-reply-input').value.trim();if(!text||!fbCurrentId)return;     const fb=fbAllData.find(f=>f.id===fbCurrentId);
     const{error}=await _supabase.from('feedback_messages').insert({feedback_id:fbCurrentId,sender:currentUser.user_name,message:text});
     if(!error){
         document.getElementById('fb-reply-input').value='';
