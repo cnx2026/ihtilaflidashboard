@@ -17,7 +17,8 @@
         }
     </script>
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.3s ease; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.3s ease; color:#0f172a; }
+        .dark body, body.dark { color:#f1f5f9; }
         .glass { background: rgba(255,255,255,0.02); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
         .kpi-card { transition: all 0.3s cubic-bezier(0.4,0,0.2,1); border: 1px solid #e2e8f0; }
         .dark .kpi-card { border-color: #1f2937; }
@@ -26,7 +27,10 @@
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         .fade-in { animation: fadeIn 0.5s ease-out forwards; }
         @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-        select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 0.75rem center; background-size:1rem; }
+        select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 0.75rem center; background-size:1rem; color:#0f172a; background-color:transparent; }
+        .dark select { color:#f1f5f9; }
+        select option { background:#ffffff; color:#0f172a; }
+        .dark select option { background:#1e293b; color:#f1f5f9; }
         .filter-container { display:flex; align-items:center; gap:0.75rem; background:white; padding:0.5rem; border-radius:1rem; border:1px solid #e2e8f0; box-shadow:0 1px 2px rgba(0,0,0,0.05); }
         .dark .filter-container { background:#0f172a; border-color:#1e293b; }
         .perf-row { animation: slideIn 0.4s ease-out forwards; }
@@ -39,14 +43,16 @@
         .export-menu { display:none; position:absolute; right:0; top:calc(100% + 6px); z-index:50; background:white; border:1px solid #e2e8f0; border-radius:1rem; box-shadow:0 10px 25px -5px rgba(0,0,0,0.15); min-width:180px; overflow:hidden; }
         .dark .export-menu { background:#0f172a; border-color:#1e293b; }
         .export-menu.open { display: block; }
-        .export-menu button { display:flex; align-items:center; gap:8px; width:100%; padding:10px 16px; font-size:12px; font-weight:800; text-align:left; text-transform:uppercase; letter-spacing:0.05em; transition:background 0.15s; }
+        .export-menu button { display:flex; align-items:center; gap:8px; width:100%; padding:10px 16px; font-size:12px; font-weight:800; text-align:left; text-transform:uppercase; letter-spacing:0.05em; transition:background 0.15s; color:#0f172a; }
+        .dark .export-menu button { color:#f1f5f9; }
         .export-menu button:hover { background: #f1f5f9; }
         .dark .export-menu button:hover { background: #1e293b; }
-        .day-checkbox { display:flex; align-items:center; gap:8px; padding:4px 0; cursor:pointer; font-size:13px; font-weight:600; }
+        .day-checkbox { display:flex; align-items:center; gap:8px; padding:4px 0; cursor:pointer; font-size:13px; font-weight:600; color:#0f172a; }
+        .dark .day-checkbox { color:#f1f5f9; }
         .day-checkbox input { accent-color:#3b82f6; width:14px; height:14px; cursor:pointer; }
         /* Metric toggle — tek seçimli, active class ile yönetiliyor */
-        .metric-toggle { display:flex; align-items:center; gap:10px; padding:8px 12px; border:1.5px solid #e2e8f0; border-radius:12px; cursor:pointer; transition:all 0.2s; user-select:none; }
-        .dark .metric-toggle { border-color: #1e293b; }
+        .metric-toggle { display:flex; align-items:center; gap:10px; padding:8px 12px; border:1.5px solid #e2e8f0; border-radius:12px; cursor:pointer; transition:all 0.2s; user-select:none; color:#0f172a; }
+        .dark .metric-toggle { border-color: #1e293b; color:#f1f5f9; }
         .metric-toggle:hover { border-color:#94a3b8; }
         .metric-toggle.active { background:#eff6ff; border-color:#3b82f6; box-shadow:0 0 0 3px rgba(59,130,246,0.1); }
         .dark .metric-toggle.active { background:#1e3a5f; border-color:#1d4ed8; }
@@ -74,6 +80,7 @@
         .dark .sim-select { background-color:#1e293b; border-color:#334155; color:#f1f5f9; }
         .sim-select:focus { border-color:#6366f1; }
         .sim-label { font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:#64748b; margin-bottom:4px; display:block; }
+        .dark .sim-label { color:#94a3b8; }
         /* ── AGENT KPI ORTALA ── */
         .kpi-grid-agent { display:flex !important; justify-content:center; gap:1rem; flex-wrap:wrap; }
         .kpi-grid-agent .kpi-card { flex:0 1 calc(33.333% - 0.75rem); min-width:180px; max-width:260px; }
@@ -200,17 +207,17 @@
                     <div class="filter-container">
                         <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2">
                             <i class="fa-solid fa-calendar-day absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 text-xs"></i>
-                            <select id="periodFilter" onchange="fetchAndRender()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[160px]"></select>
+                            <select id="periodFilter" onchange="fetchAndRender()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none text-slate-800 dark:text-slate-100 min-w-[160px]"></select>
                         </div>
                         <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2">
                             <i class="fa-solid fa-layer-group absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                            <select id="teamFilter" onchange="applyFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[130px]">
+                            <select id="teamFilter" onchange="applyFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none text-slate-800 dark:text-slate-100 min-w-[130px]">
                                 <option value="all">Tüm Ekipler</option>
                             </select>
                         </div>
                         <div class="relative">
                             <i class="fa-solid fa-user-tie absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                            <select id="tlFilter" onchange="applyFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[140px]">
+                            <select id="tlFilter" onchange="applyFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none text-slate-800 dark:text-slate-100 min-w-[140px]">
                                 <option value="all">Tüm Liderler</option>
                             </select>
                         </div>
@@ -283,11 +290,11 @@
                     <div class="filter-container">
                         <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2">
                             <i class="fa-solid fa-calendar-day absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 text-xs"></i>
-                            <select id="perfPeriodFilter" onchange="fetchPerformans()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[150px]"></select>
+                            <select id="perfPeriodFilter" onchange="fetchPerformans()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none text-slate-800 dark:text-slate-100 min-w-[150px]"></select>
                         </div>
                         <div class="relative">
                             <i class="fa-solid fa-calendar-check absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                            <select id="perfDateFilter" onchange="applyPerfFilter()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[170px]"><option value="all">Tümü (Kümülatif)</option></select>
+                            <select id="perfDateFilter" onchange="applyPerfFilter()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none text-slate-800 dark:text-slate-100 min-w-[170px]"><option value="all">Tümü (Kümülatif)</option></select>
                         </div>
                     </div>
                     <div class="relative min-w-[200px]">
@@ -403,11 +410,11 @@
                         <div class="filter-container">
                             <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2">
                                 <i class="fa-solid fa-user absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                                <select id="fb-filter-user" onchange="applyFbFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[140px]"><option value="all">Tüm Temsilciler</option></select>
+                                <select id="fb-filter-user" onchange="applyFbFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none text-slate-800 dark:text-slate-100 min-w-[140px]"><option value="all">Tüm Temsilciler</option></select>
                             </div>
                             <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2">
                                 <i class="fa-solid fa-tag absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                                <select id="fb-filter-topic" onchange="applyFbFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[120px]">
+                                <select id="fb-filter-topic" onchange="applyFbFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none text-slate-800 dark:text-slate-100 min-w-[120px]">
                                     <option value="all">Tüm Konular</option>
                                     <option value="Kalite">Kalite</option>
                                     <option value="KPI">KPI</option>
@@ -416,7 +423,7 @@
                             </div>
                             <div class="relative">
                                 <i class="fa-solid fa-circle-dot absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                                <select id="fb-filter-type" onchange="applyFbFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[130px]">
+                                <select id="fb-filter-type" onchange="applyFbFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none text-slate-800 dark:text-slate-100 min-w-[130px]">
                                     <option value="all">Tüm Tipler</option>
                                     <option value="Olumlu">Olumlu</option>
                                     <option value="Bilgilendirme">Bilgilendirme</option>
