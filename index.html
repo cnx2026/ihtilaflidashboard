@@ -768,7 +768,7 @@ async function openFbDetail(id){
     document.getElementById('fb-det-to').innerText=fb.to_user;
     document.getElementById('fb-det-to-av').innerText=mkIni(fb.to_user);
     document.getElementById('fb-det-date').innerText=formatDateTime(fb.created_at);
-    document.getElementById('fb-det-body').innerText=fb.description;
+    document.getElementById('fb-det-body').innerText=fb.description;     const av2=document.getElementById('fb-det-from-av2');     if(av2)av2.innerText=mkIni(fb.from_user);     const meta=document.getElementById('fb-det-body-meta');     if(meta)meta.innerText=fb.from_user+' · '+formatDateTime(fb.created_at);
 
     const del=document.getElementById('fb-det-del-btn');
     if(fb.from_user===currentUser.user_name){del.classList.remove('hidden');del.classList.add('flex');}
