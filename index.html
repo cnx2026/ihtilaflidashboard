@@ -787,7 +787,7 @@ async function renderFbReplies(fb){
     if(!msgs||msgs.length===0){wrap.innerHTML='';return;}
     wrap.innerHTML=`<p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">${msgs.length} Yanıt</p>`+
     msgs.map(msg=>{
-        const isMe=msg.sender===currentUser.user_name;
+        const isMe=msg.sender.toLowerCase().trim()===currentUser.user_name.toLowerCase().trim();
         return`<div class="flex ${isMe?'justify-end':'justify-start'} gap-2 mb-3">
             ${!isMe?`<div class="w-7 h-7 rounded-lg bg-slate-500 flex items-center justify-center text-white font-black text-[10px] shrink-0 mt-1">${mkIni(msg.sender)}</div>`:''}
             <div class="max-w-[75%]">
