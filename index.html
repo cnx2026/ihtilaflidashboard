@@ -17,8 +17,7 @@
         }
     </script>
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.3s ease; color:#0f172a; }
-        .dark body, body.dark { color:#f1f5f9; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.3s ease; }
         .glass { background: rgba(255,255,255,0.02); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
         .kpi-card { transition: all 0.3s cubic-bezier(0.4,0,0.2,1); border: 1px solid #e2e8f0; }
         .dark .kpi-card { border-color: #1f2937; }
@@ -27,12 +26,8 @@
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         .fade-in { animation: fadeIn 0.5s ease-out forwards; }
         @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-        select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 0.75rem center; background-size:1rem; color:#0f172a; background-color:transparent; }
-        .dark select { color:#f1f5f9; }
-        select option { background:#ffffff; color:#0f172a; }
-        .dark select option { background:#1e293b; color:#f1f5f9; }
-        .filter-container { display:flex; align-items:center; gap:0.75rem; background:white; padding:0.5rem; border-radius:1rem; border:1px solid #e2e8f0; box-shadow:0 1px 2px rgba(0,0,0,0.05); }
-        .dark .filter-container { background:#0f172a; border-color:#1e293b; }
+        select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='C19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 0.75rem center; background-size:1rem; }
+        .filter-container { @apply flex items-center gap-3 bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm; }
         .perf-row { animation: slideIn 0.4s ease-out forwards; }
         @keyframes slideIn { from { opacity:0; transform:translateX(-16px); } to { opacity:1; transform:translateX(0); } }
         .bar-fill { transition: width 1s cubic-bezier(0.4,0,0.2,1); }
@@ -43,20 +38,16 @@
         .export-menu { display:none; position:absolute; right:0; top:calc(100% + 6px); z-index:50; background:white; border:1px solid #e2e8f0; border-radius:1rem; box-shadow:0 10px 25px -5px rgba(0,0,0,0.15); min-width:180px; overflow:hidden; }
         .dark .export-menu { background:#0f172a; border-color:#1e293b; }
         .export-menu.open { display: block; }
-        .export-menu button { display:flex; align-items:center; gap:8px; width:100%; padding:10px 16px; font-size:12px; font-weight:800; text-align:left; text-transform:uppercase; letter-spacing:0.05em; transition:background 0.15s; color:#0f172a; }
-        .dark .export-menu button { color:#f1f5f9; }
+        .export-menu button { display:flex; align-items:center; gap:8px; width:100%; padding:10px 16px; font-size:12px; font-weight:800; text-align:left; text-transform:uppercase; letter-spacing:0.05em; transition:background 0.15s; }
         .export-menu button:hover { background: #f1f5f9; }
         .dark .export-menu button:hover { background: #1e293b; }
-        .day-checkbox { display:flex; align-items:center; gap:8px; padding:4px 0; cursor:pointer; font-size:13px; font-weight:600; color:#0f172a; }
-        .dark .day-checkbox { color:#f1f5f9; }
+        .day-checkbox { display:flex; align-items:center; gap:8px; padding:4px 0; cursor:pointer; font-size:13px; font-weight:600; }
         .day-checkbox input { accent-color:#3b82f6; width:14px; height:14px; cursor:pointer; }
-        /* Metric toggle — tek seçimli, active class ile yönetiliyor */
-        .metric-toggle { display:flex; align-items:center; gap:10px; padding:8px 12px; border:1.5px solid #e2e8f0; border-radius:12px; cursor:pointer; transition:all 0.2s; user-select:none; color:#0f172a; }
-        .dark .metric-toggle { border-color: #1e293b; color:#f1f5f9; }
-        .metric-toggle:hover { border-color:#94a3b8; }
-        .metric-toggle.active { background:#eff6ff; border-color:#3b82f6; box-shadow:0 0 0 3px rgba(59,130,246,0.1); }
+        .metric-toggle { display:flex; align-items:center; gap:10px; padding:8px 12px; border:1px solid #e2e8f0; border-radius:12px; cursor:pointer; transition:all 0.15s; }
+        .dark .metric-toggle { border-color: #1e293b; }
+        .metric-toggle.active { background:#eff6ff; border-color:#3b82f6; }
         .dark .metric-toggle.active { background:#1e3a5f; border-color:#1d4ed8; }
-        .metric-toggle input[type=radio] { display:none; }
+        .metric-toggle input { accent-color:#3b82f6; width:15px; height:15px; cursor:pointer; }
         .days-empty { padding:12px; text-align:center; font-size:12px; font-weight:700; color:#94a3b8; letter-spacing:0.05em; }
         /* ── SCALA ── */
         .scala-card { border-radius:16px; padding:16px; border:1px solid; }
@@ -80,56 +71,34 @@
         .dark .sim-select { background-color:#1e293b; border-color:#334155; color:#f1f5f9; }
         .sim-select:focus { border-color:#6366f1; }
         .sim-label { font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:#64748b; margin-bottom:4px; display:block; }
-        .dark .sim-label { color:#94a3b8; }
         /* ── AGENT KPI ORTALA ── */
         .kpi-grid-agent { display:flex !important; justify-content:center; gap:1rem; flex-wrap:wrap; }
         .kpi-grid-agent .kpi-card { flex:0 1 calc(33.333% - 0.75rem); min-width:180px; max-width:260px; }
-        /* ── FEEDBACK BADGE ── */
+        /* ── FEEDBACK ── */
         .fb-badge { display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:18px; border-radius:9px; font-size:10px; font-weight:900; padding:0 5px; }
-        /* ── FORM INPUTS ── */
-        .fb-input { width:100%; padding:10px 14px; border-radius:10px; font-size:13px; font-weight:600; border:1.5px solid #e2e8f0; outline:none; background:white; resize:none; transition:border-color 0.15s; }
+        .fb-input { width:100%; padding:10px 14px; border-radius:12px; font-size:13px; font-weight:600; border:1.5px solid #e2e8f0; outline:none; background:white; resize:none; transition:border-color 0.15s; }
         .dark .fb-input { background:#1e293b; border-color:#334155; color:#f1f5f9; }
         .fb-input:focus { border-color:#3b82f6; }
         .fb-select { width:100%; padding:8px 12px; border-radius:10px; font-size:13px; font-weight:700; border:1.5px solid #e2e8f0; outline:none; background:white; cursor:pointer; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; background-size:14px; transition:border-color 0.15s; }
         .dark .fb-select { background-color:#1e293b; border-color:#334155; color:#f1f5f9; }
         .fb-select:focus { border-color:#3b82f6; }
-        /* ── KONU / TİP BADGE RENKLERİ ── */
-        .topic-kalite   { background:rgba(59,130,246,0.12);  color:#2563eb;  border:1px solid rgba(59,130,246,0.3); }
-        .topic-kpi      { background:rgba(245,158,11,0.12);  color:#b45309;  border:1px solid rgba(245,158,11,0.3); }
-        .topic-operasyonel { background:rgba(16,185,129,0.12); color:#047857; border:1px solid rgba(16,185,129,0.3); }
-        .dark .topic-kalite      { color:#60a5fa; }
-        .dark .topic-kpi         { color:#fbbf24; }
-        .dark .topic-operasyonel { color:#34d399; }
-        .type-olumlu        { background:rgba(16,185,129,0.12); color:#047857; border:1px solid rgba(16,185,129,0.3); }
-        .type-bilgilendirme { background:rgba(99,102,241,0.12); color:#4f46e5; border:1px solid rgba(99,102,241,0.3); }
-        .type-olumsuz       { background:rgba(239,68,68,0.1);   color:#b91c1c; border:1px solid rgba(239,68,68,0.3); }
-        .dark .type-olumlu        { color:#34d399; }
-        .dark .type-bilgilendirme { color:#a5b4fc; }
-        .dark .type-olumsuz       { color:#f87171; }
-        /* ── FEEDBACK SPLIT-VIEW ── */
-        .fb-list-item { border-left:3px solid transparent; transition:all 0.18s; cursor:pointer; }
-        .fb-list-item:hover { background:rgba(59,130,246,0.05); border-left-color:#94a3b8; }
-        .fb-list-item.active { background:rgba(59,130,246,0.08); border-left-color:#3b82f6; }
-        .fb-list-item.unread-item .fb-item-title { font-weight:900; }
-        .fb-list-item.unread-item { border-left-color:#3b82f6; }
-        .unread-pip { width:7px; height:7px; border-radius:50%; background:#3b82f6; flex-shrink:0; }
-        /* Detay alanı */
-        .fb-detail-header { background:linear-gradient(135deg,rgba(30,41,59,0.8),rgba(15,23,42,0.9)); }
-        .light .fb-detail-header { background:linear-gradient(135deg,#f8fafc,#f1f5f9); }
-        .fb-body-prose { font-size:14px; line-height:1.8; color:#374151; white-space:pre-wrap; }
-        .dark .fb-body-prose { color:#cbd5e1; }
-        .fb-reply-bubble { border-radius:16px; padding:14px 18px; }
-        .fb-reply-mine  { background:rgba(59,130,246,0.1);  border:1px solid rgba(59,130,246,0.2); border-bottom-right-radius:4px; }
-        .fb-reply-other { background:rgba(100,116,139,0.08); border:1px solid rgba(100,116,139,0.15); border-bottom-left-radius:4px; }
-        .dark .fb-reply-mine  { background:rgba(59,130,246,0.15); }
-        .dark .fb-reply-other { background:rgba(100,116,139,0.12); }
-        /* Görsel önizleme */
-        .img-thumb { width:80px; height:60px; object-fit:cover; border-radius:8px; border:2px solid #e2e8f0; cursor:pointer; transition:transform 0.15s; }
-        .dark .img-thumb { border-color:#334155; }
-        .img-thumb:hover { transform:scale(1.05); }
-        /* Lightbox */
-        #lightbox { position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.92); display:flex; align-items:center; justify-content:center; cursor:zoom-out; }
-        #lightbox img { max-width:90vw; max-height:90vh; border-radius:12px; box-shadow:0 25px 50px rgba(0,0,0,0.5); }
+        /* Konu renkleri */
+        .topic-kalite  { background:rgba(59,130,246,0.1);  color:#3b82f6;  border:1px solid rgba(59,130,246,0.25); }
+        .topic-kpi     { background:rgba(245,158,11,0.1);  color:#d97706;  border:1px solid rgba(245,158,11,0.25); }
+        .topic-operasyonel { background:rgba(16,185,129,0.1); color:#059669; border:1px solid rgba(16,185,129,0.25); }
+        /* Tip renkleri */
+        .type-olumlu       { background:rgba(16,185,129,0.12); color:#059669; border:1px solid rgba(16,185,129,0.3); }
+        .type-bilgilendirme{ background:rgba(99,102,241,0.12); color:#6366f1; border:1px solid rgba(99,102,241,0.3); }
+        .type-olumsuz      { background:rgba(239,68,68,0.1);   color:#dc2626; border:1px solid rgba(239,68,68,0.3); }
+        /* Kurumsal mail stili */
+        .fb-mail-card { background:white; border:1px solid #e2e8f0; border-radius:16px; overflow:hidden; cursor:pointer; transition:all 0.2s; }
+        .dark .fb-mail-card { background:#0f172a; border-color:#1e293b; }
+        .fb-mail-card:hover { border-color:#3b82f6; box-shadow:0 4px 20px rgba(59,130,246,0.1); }
+        .fb-mail-card.unread { border-left:4px solid #3b82f6; }
+        .fb-detail-body { background:white; border:1px solid #e2e8f0; border-radius:12px; padding:24px; line-height:1.7; }
+        .dark .fb-detail-body { background:#0f172a; border-color:#1e293b; }
+        .fb-reply-card { background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:16px; margin-top:12px; }
+        .dark .fb-reply-card { background:#1e293b; border-color:#334155; }
         .unread-dot { width:8px; height:8px; border-radius:50%; background:#3b82f6; display:inline-block; flex-shrink:0; }
     </style>
 </head>
@@ -207,17 +176,18 @@
                     <div class="filter-container">
                         <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2">
                             <i class="fa-solid fa-calendar-day absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 text-xs"></i>
-                            <select id="periodFilter" onchange="fetchAndRender()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none text-slate-800 dark:text-slate-100 min-w-[160px]"></select>
+                            <select id="periodFilter" onchange="fetchAndRender()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[160px]"></select>
                         </div>
+                        <!-- ── EKİP FİLTRESİ — YENİ ── -->
                         <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2">
                             <i class="fa-solid fa-layer-group absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                            <select id="teamFilter" onchange="applyFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none text-slate-800 dark:text-slate-100 min-w-[130px]">
+                            <select id="teamFilter" onchange="applyFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[130px]">
                                 <option value="all">Tüm Ekipler</option>
                             </select>
                         </div>
                         <div class="relative">
                             <i class="fa-solid fa-user-tie absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                            <select id="tlFilter" onchange="applyFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none text-slate-800 dark:text-slate-100 min-w-[140px]">
+                            <select id="tlFilter" onchange="applyFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[140px]">
                                 <option value="all">Tüm Liderler</option>
                             </select>
                         </div>
@@ -264,7 +234,7 @@
             <div class="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
-                        <thead class="bg-slate-50/50 dark:bg-slate-800/50 border-b font-black text-slate-400 uppercase tracking-widest text-[10px]">
+                        <thead id="uretim-thead" class="bg-slate-50/50 dark:bg-slate-800/50 border-b font-black text-slate-400 uppercase tracking-widest text-[10px]">
                             <tr>
                                 <th class="px-6 py-5">Temsilci Bilgisi</th>
                                 <th class="px-6 py-5">Yönetici</th>
@@ -290,11 +260,11 @@
                     <div class="filter-container">
                         <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2">
                             <i class="fa-solid fa-calendar-day absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 text-xs"></i>
-                            <select id="perfPeriodFilter" onchange="fetchPerformans()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none text-slate-800 dark:text-slate-100 min-w-[150px]"></select>
+                            <select id="perfPeriodFilter" onchange="fetchPerformans()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[150px]"></select>
                         </div>
                         <div class="relative">
                             <i class="fa-solid fa-calendar-check absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                            <select id="perfDateFilter" onchange="applyPerfFilter()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none text-slate-800 dark:text-slate-100 min-w-[170px]"><option value="all">Tümü (Kümülatif)</option></select>
+                            <select id="perfDateFilter" onchange="applyPerfFilter()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[170px]"><option value="all">Tümü (Kümülatif)</option></select>
                         </div>
                     </div>
                     <div class="relative min-w-[200px]">
@@ -393,28 +363,27 @@
         </div>
     </main>
 
-    <!-- ════════════════════════════════════════════════════════
-         GERİ BİLDİRİM — SPLIT-VIEW TAM SAYFA
-    ════════════════════════════════════════════════════════ -->
+    <!-- ── GERİ BİLDİRİM SAYFASI ── -->
     <main id="page-feedback" class="flex-1 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 hidden min-w-0">
-        <!-- Header -->
-        <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 px-6 py-4 z-20 shrink-0">
-            <div class="flex flex-wrap items-center justify-between gap-3">
+        <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b px-6 py-5 z-20">
+            <div class="flex flex-col xl:flex-row items-start justify-between gap-4">
                 <div>
                     <h2 class="text-xl font-black tracking-tighter uppercase">Geri Bildirim</h2>
-                    <p class="text-xs text-slate-400 font-medium">Kalite değerlendirme ve temsilci iletişim kanalı.</p>
+                    <p class="text-xs text-slate-400 font-medium">Yönetici — temsilci değerlendirme sistemi.</p>
                 </div>
-                <div class="flex flex-wrap items-center gap-2">
+                <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
                     <!-- Admin filtreler -->
                     <div id="fb-admin-filters" class="hidden flex-wrap items-center gap-2">
                         <div class="filter-container">
                             <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2">
                                 <i class="fa-solid fa-user absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                                <select id="fb-filter-user" onchange="applyFbFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none text-slate-800 dark:text-slate-100 min-w-[140px]"><option value="all">Tüm Temsilciler</option></select>
+                                <select id="fb-filter-user" onchange="applyFbFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[140px]">
+                                    <option value="all">Tüm Temsilciler</option>
+                                </select>
                             </div>
                             <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2">
                                 <i class="fa-solid fa-tag absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                                <select id="fb-filter-topic" onchange="applyFbFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none text-slate-800 dark:text-slate-100 min-w-[120px]">
+                                <select id="fb-filter-topic" onchange="applyFbFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[120px]">
                                     <option value="all">Tüm Konular</option>
                                     <option value="Kalite">Kalite</option>
                                     <option value="KPI">KPI</option>
@@ -423,7 +392,7 @@
                             </div>
                             <div class="relative">
                                 <i class="fa-solid fa-circle-dot absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                                <select id="fb-filter-type" onchange="applyFbFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none text-slate-800 dark:text-slate-100 min-w-[130px]">
+                                <select id="fb-filter-type" onchange="applyFbFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[130px]">
                                     <option value="all">Tüm Tipler</option>
                                     <option value="Olumlu">Olumlu</option>
                                     <option value="Bilgilendirme">Bilgilendirme</option>
@@ -443,92 +412,13 @@
                 </div>
             </div>
         </header>
-
-        <!-- Split-view body -->
-        <div class="flex-1 flex overflow-hidden">
-
-            <!-- SOL: Liste -->
-            <div class="w-80 xl:w-96 shrink-0 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-white dark:bg-slate-900 overflow-hidden">
-                <!-- Okunmamış banner (agent) -->
-                <div id="fb-unread-banner" class="hidden items-center gap-2.5 px-4 py-3 bg-blue-500/10 border-b border-blue-500/20 shrink-0">
-                    <i class="fa-solid fa-bell text-blue-500 text-sm"></i>
-                    <p id="fb-unread-text" class="text-xs font-bold text-blue-600 dark:text-blue-400"></p>
-                </div>
-                <!-- Liste -->
-                <div id="fb-list" class="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800"></div>
+        <div class="flex-1 overflow-y-auto p-6">
+            <!-- Agent: okunmamış banner -->
+            <div id="fb-unread-banner" class="hidden items-center gap-3 p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl mb-4">
+                <i class="fa-solid fa-envelope text-blue-500"></i>
+                <p id="fb-unread-text" class="text-sm font-bold text-blue-600 dark:text-blue-400"></p>
             </div>
-
-            <!-- SAĞ: Detay -->
-            <div id="fb-detail-panel" class="flex-1 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950">
-                <!-- Boş state -->
-                <div id="fb-detail-empty" class="flex-1 flex flex-col items-center justify-center gap-4">
-                    <div class="w-20 h-20 rounded-3xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                        <i class="fa-solid fa-envelope-open-text text-slate-400 text-3xl"></i>
-                    </div>
-                    <div class="text-center">
-                        <p class="font-black text-slate-600 dark:text-slate-400 tracking-tight">Bir bildirim seçin</p>
-                        <p class="text-xs text-slate-400 dark:text-slate-600 font-medium mt-1">Soldaki listeden bir geri bildirim seçerek detaylarını görüntüleyin.</p>
-                    </div>
-                </div>
-                <!-- Dolu state -->
-                <div id="fb-detail-content" class="hidden flex-1 flex flex-col overflow-hidden">
-                    <!-- Detay header -->
-                    <div class="px-8 py-5 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shrink-0">
-                        <div class="flex items-start justify-between gap-4">
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center gap-2 flex-wrap mb-2">
-                                    <span id="fb-det-type" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg"></span>
-                                    <span id="fb-det-topic" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg"></span>
-                                </div>
-                                <h3 id="fb-det-title" class="text-lg font-black tracking-tight text-slate-800 dark:text-white leading-tight"></h3>
-                                <div class="flex items-center gap-3 mt-2 flex-wrap">
-                                    <div class="flex items-center gap-1.5 text-xs text-slate-500">
-                                        <div id="fb-det-from-av" class="w-5 h-5 rounded-md bg-blue-600 flex items-center justify-center text-white font-black text-[9px]"></div>
-                                        <span id="fb-det-from" class="font-semibold"></span>
-                                    </div>
-                                    <i class="fa-solid fa-arrow-right text-slate-300 text-[10px]"></i>
-                                    <div class="flex items-center gap-1.5 text-xs text-slate-500">
-                                        <div id="fb-det-to-av" class="w-5 h-5 rounded-md bg-slate-500 flex items-center justify-center text-white font-black text-[9px]"></div>
-                                        <span id="fb-det-to" class="font-semibold"></span>
-                                    </div>
-                                    <span class="text-[10px] text-slate-400 ml-auto" id="fb-det-date"></span>
-                                </div>
-                            </div>
-                            <button id="fb-del-btn" onclick="deleteFeedback()" class="hidden items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all">
-                                <i class="fa-solid fa-trash-can"></i> Sil
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- İçerik scroll alanı -->
-                    <div class="flex-1 overflow-y-auto">
-                        <!-- Ana mesaj bloğu -->
-                        <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-800/60">
-                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Bildirim İçeriği</p>
-                            <p id="fb-det-body" class="fb-body-prose"></p>
-                            <!-- Görsel önizleme -->
-                            <div id="fb-det-images" class="hidden flex flex-wrap gap-3 mt-4"></div>
-                        </div>
-                        <!-- Yanıtlar -->
-                        <div class="px-8 py-5">
-                            <div id="fb-replies-wrap" class="space-y-4"></div>
-                        </div>
-                    </div>
-
-                    <!-- Yanıt kutusu -->
-                    <div class="px-8 py-5 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shrink-0">
-                        <div class="flex gap-3 items-end">
-                            <div id="fb-reply-av" class="w-8 h-8 shrink-0 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-xs mb-0.5"></div>
-                            <div class="flex-1">
-                                <textarea id="fb-reply-input" rows="2" class="fb-input mb-2 text-sm" placeholder="Yanıtınızı yazın..."></textarea>
-                                <button onclick="sendFbReply()" class="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl text-xs uppercase tracking-widest transition-all">
-                                    <i class="fa-solid fa-reply"></i> Yanıtla
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div id="fb-list" class="space-y-2 max-w-3xl mx-auto"></div>
         </div>
     </main>
 </div>
@@ -543,27 +433,10 @@
         <div class="mb-6">
             <label class="text-xs font-black text-slate-500 uppercase tracking-widest mb-3 block">Metrik</label>
             <div class="grid grid-cols-2 gap-2">
-                <!-- Radio input gizli, active class ile yönetiliyor -->
-                <div class="metric-toggle" id="toggle-login" onclick="onMetricSelect('login')">
-                    <i class="fa-solid fa-clock text-blue-500 text-sm"></i>
-                    <span class="text-sm font-bold flex-1">Login Süresi</span>
-                    <div id="mi-login" class="w-4 h-4 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0"><div class="w-2 h-2 rounded-full bg-blue-500 hidden" id="mc-login"></div></div>
-                </div>
-                <div class="metric-toggle" id="toggle-mola" onclick="onMetricSelect('mola')">
-                    <i class="fa-solid fa-mug-hot text-amber-500 text-sm"></i>
-                    <span class="text-sm font-bold flex-1">Mola Süresi</span>
-                    <div id="mi-mola" class="w-4 h-4 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0"><div class="w-2 h-2 rounded-full bg-blue-500 hidden" id="mc-mola"></div></div>
-                </div>
-                <div class="metric-toggle" id="toggle-molaorani" onclick="onMetricSelect('molaorani')">
-                    <i class="fa-solid fa-percent text-orange-500 text-sm"></i>
-                    <span class="text-sm font-bold flex-1">Mola Oranı</span>
-                    <div id="mi-molaorani" class="w-4 h-4 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0"><div class="w-2 h-2 rounded-full bg-blue-500 hidden" id="mc-molaorani"></div></div>
-                </div>
-                <div class="metric-toggle" id="toggle-cwt" onclick="onMetricSelect('cwt')">
-                    <i class="fa-solid fa-stopwatch text-emerald-500 text-sm"></i>
-                    <span class="text-sm font-bold flex-1">Net Login (CWT)</span>
-                    <div id="mi-cwt" class="w-4 h-4 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0"><div class="w-2 h-2 rounded-full bg-blue-500 hidden" id="mc-cwt"></div></div>
-                </div>
+                <label class="metric-toggle" id="toggle-login" onclick="onMetricSelect('login')"><input type="radio" name="uretim-metric" id="metric-login" value="login"><i class="fa-solid fa-clock text-blue-500 text-sm"></i><span class="text-sm font-bold">Login Süresi</span></label>
+                <label class="metric-toggle" id="toggle-mola" onclick="onMetricSelect('mola')"><input type="radio" name="uretim-metric" id="metric-mola" value="mola"><i class="fa-solid fa-mug-hot text-amber-500 text-sm"></i><span class="text-sm font-bold">Mola Süresi</span></label>
+                <label class="metric-toggle" id="toggle-molaorani" onclick="onMetricSelect('molaorani')"><input type="radio" name="uretim-metric" id="metric-molaorani" value="molaorani"><i class="fa-solid fa-percent text-orange-500 text-sm"></i><span class="text-sm font-bold">Mola Oranı</span></label>
+                <label class="metric-toggle" id="toggle-cwt" onclick="onMetricSelect('cwt')"><input type="radio" name="uretim-metric" id="metric-cwt" value="cwt"><i class="fa-solid fa-stopwatch text-emerald-500 text-sm"></i><span class="text-sm font-bold">Net Login (CWT)</span><span class="ml-auto text-[10px] font-black text-slate-400 uppercase tracking-wider">CWT</span></label>
             </div>
         </div>
         <div class="mb-5">
@@ -605,13 +478,12 @@
 
 <!-- ── YENİ GERİ BİLDİRİM MODAL ── -->
 <div id="fbNewModal" class="fixed inset-0 z-[120] hidden items-center justify-center bg-slate-950/70 backdrop-blur-sm">
-    <div class="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-xl p-8 mx-4 max-h-[90vh] overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-lg p-8 mx-4">
         <div class="flex items-center justify-between mb-6">
-            <div><h3 class="font-black text-lg tracking-tight">Yeni Geri Bildirim</h3><p class="text-xs text-slate-400 font-medium mt-0.5">Temsilci seç, konu ve başlık belirle</p></div>
+            <div><h3 class="font-black text-lg tracking-tight">Yeni Geri Bildirim</h3><p class="text-xs text-slate-400 font-medium mt-0.5">Temsilci seç, bildirim oluştur</p></div>
             <button onclick="closeFbNewModal()" class="text-slate-400 hover:text-rose-500 transition-colors text-xl"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="space-y-4">
-            <!-- Satır 1: Temsilci + Tip -->
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="sim-label">Temsilci</label>
@@ -619,18 +491,17 @@
                 </div>
                 <div>
                     <label class="sim-label">Tip</label>
-                    <select id="fb-type" class="fb-select">
+                    <select id="fb-type" class="fb-select" onchange="updateFbPreview()">
                         <option value="Olumlu">✅ Olumlu</option>
                         <option value="Bilgilendirme" selected>ℹ️ Bilgilendirme</option>
                         <option value="Olumsuz">⚠️ Olumsuz</option>
                     </select>
                 </div>
             </div>
-            <!-- Satır 2: Konu + Başlık -->
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="sim-label">Konu</label>
-                    <select id="fb-topic" class="fb-select" onchange="updateFbTitleOptions()">
+                    <select id="fb-topic" class="fb-select" onchange="updateFbPreview()">
                         <option value="Kalite">Kalite</option>
                         <option value="KPI">KPI</option>
                         <option value="Operasyonel">Operasyonel</option>
@@ -638,36 +509,61 @@
                 </div>
                 <div>
                     <label class="sim-label">Başlık</label>
-                    <select id="fb-title-select" class="fb-select"></select>
+                    <input type="text" id="fb-title" class="fb-input" placeholder="Kısa başlık...">
                 </div>
             </div>
-            <!-- Açıklama -->
             <div>
                 <label class="sim-label">Açıklama</label>
                 <textarea id="fb-description" rows="5" class="fb-input" placeholder="Geri bildirim detaylarını yazın..."></textarea>
             </div>
-            <!-- Görsel ekleme -->
-            <div>
-                <label class="sim-label">Görsel Ekle <span class="normal-case font-medium text-slate-400">(isteğe bağlı, maks. 2 adet)</span></label>
-                <div class="flex items-center gap-3">
-                    <label for="fb-image-input" class="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold rounded-xl text-sm cursor-pointer transition-all border border-slate-200 dark:border-slate-700">
-                        <i class="fa-solid fa-image text-blue-500"></i> Görsel Seç
-                    </label>
-                    <input type="file" id="fb-image-input" accept="image/*" multiple class="hidden" onchange="handleImageSelect(event)">
-                    <p class="text-xs text-slate-400 font-medium">PNG, JPG, WebP</p>
-                </div>
-                <div id="fb-image-preview" class="flex gap-3 mt-3 flex-wrap"></div>
-            </div>
-            <button onclick="submitNewFeedback()" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl text-sm uppercase tracking-widest transition-all">
-                <i class="fa-solid fa-paper-plane mr-2"></i> Gönder
-            </button>
+            <button onclick="submitNewFeedback()" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl text-sm uppercase tracking-widest transition-all"><i class="fa-solid fa-paper-plane mr-2"></i> Gönder</button>
         </div>
     </div>
 </div>
 
-<!-- ── LIGHTBOX ── -->
-<div id="lightbox" class="hidden" onclick="closeLightbox()">
-    <img id="lightbox-img" src="" alt="">
+<!-- ── GERİ BİLDİRİM DETAY MODAL ── -->
+<div id="fbDetailModal" class="fixed inset-0 z-[120] hidden items-center justify-center bg-slate-950/70 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-2xl mx-4 flex flex-col max-h-[90vh]">
+        <!-- Header -->
+        <div class="px-8 py-5 border-b border-slate-100 dark:border-slate-800 flex items-start justify-between shrink-0">
+            <div class="flex-1 min-w-0 pr-4">
+                <div class="flex items-center gap-2 flex-wrap mb-2">
+                    <span id="fb-detail-type-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg"></span>
+                    <span id="fb-detail-topic-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg"></span>
+                </div>
+                <h3 id="fb-detail-title" class="font-black text-base tracking-tight text-slate-800 dark:text-slate-100"></h3>
+                <div class="flex items-center gap-3 mt-1.5 flex-wrap">
+                    <span class="text-xs text-slate-500 font-medium flex items-center gap-1"><i class="fa-solid fa-user text-slate-400 text-[10px]"></i><span id="fb-detail-from"></span></span>
+                    <span class="text-slate-300 dark:text-slate-700">→</span>
+                    <span class="text-xs text-slate-500 font-medium flex items-center gap-1"><i class="fa-solid fa-user-tag text-slate-400 text-[10px]"></i><span id="fb-detail-to"></span></span>
+                    <span class="text-xs text-slate-400 font-medium ml-auto" id="fb-detail-date"></span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <button id="fb-delete-btn" onclick="deleteFeedback()" class="hidden text-slate-400 hover:text-rose-500 transition-colors text-sm px-3 py-1.5 rounded-lg hover:bg-rose-500/10"><i class="fa-solid fa-trash-can mr-1"></i><span class="text-xs font-bold">Sil</span></button>
+                <button onclick="closeFbDetailModal()" class="text-slate-400 hover:text-rose-500 transition-colors text-xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        </div>
+        <!-- İçerik -->
+        <div class="flex-1 overflow-y-auto p-8">
+            <!-- Ana mesaj -->
+            <div class="fb-detail-body mb-6">
+                <p id="fb-detail-body-text" class="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap"></p>
+            </div>
+            <!-- Yanıtlar -->
+            <div id="fb-replies-container" class="space-y-3"></div>
+        </div>
+        <!-- Yanıt kutusu -->
+        <div class="p-6 border-t border-slate-100 dark:border-slate-800 shrink-0">
+            <div class="flex gap-3">
+                <div class="w-8 h-8 shrink-0 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-xs mt-1" id="fb-reply-initials">—</div>
+                <div class="flex-1">
+                    <textarea id="fb-reply-input" rows="2" class="fb-input mb-2" placeholder="Yanıtınızı yazın..."></textarea>
+                    <button onclick="sendFbMessage()" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl text-xs uppercase tracking-widest transition-all"><i class="fa-solid fa-reply mr-1.5"></i>Yanıtla</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- ── GOALPEX SCALA MODAL ── -->
@@ -824,31 +720,6 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = { role:'agent', user_name:'', email:'' };
 let fullData=[], rawUsers=[], cwtAllData=[], perfAllData=[], dailyAllData=[];
 let fbAllData=[], fbFilteredData=[], fbCurrentId=null;
-let fbSelectedImages=[];   // base64 array (max 2)
-
-// ════════════════════════════════════════════════════════════════
-// BAŞLIK HARİTASI — konu → başlık listesi
-// ════════════════════════════════════════════════════════════════
-const FB_TITLES = {
-    KPI: [
-        'Kalite Puanı','Devamsızlık Oranı','İşlem Adedi',
-        'SL Oranı','Şikayet Oranı','İFF Toplamı (TL)'
-    ],
-    Operasyonel: [
-        'Ekip İçi Uyumsuzluk','Mola Kullanımı',
-        'Vardiya Uyumsuzluğu','Fraud İşlem'
-    ],
-    Kalite: [
-        'KVKK Anonsu','Kendini Tanıtmama',
-        'Müşteri Açıklaması Kırılımı','Satıcı Hatası Kırılımı',
-        'Script Düzenleme','Hatalı Ret','Hatalı Onay',
-        'Hatalı Cezai İşlem & Paketleme Ruleseti',
-        'Hatalı Cezai İşlem & Hatalı Analiz Raporu',
-        'Hatalı Cezai İşlem & Yanlış Ürün İncelemesi',
-        'Arama Ruleseti Uyumsuzluk & Aramadan Ret',
-        'Arama Ruleseti Uyumsuzluk & < 30 Saniye Arama'
-    ]
-};
 
 // ── YARDIMCI ──────────────────────────────────────────────────────
 const toTr=(val,dec=0)=>{const n=parseFloat(val)||0;return dec===0?Math.round(n).toLocaleString('tr-TR'):n.toFixed(dec).replace('.',',');};
@@ -859,7 +730,6 @@ const formatDateTime=(ts)=>{if(!ts)return'';const d=new Date(ts);return`${d.toLo
 const topicClass=(t)=>t==='Kalite'?'topic-kalite':t==='KPI'?'topic-kpi':'topic-operasyonel';
 const typeClass=(t)=>t==='Olumlu'?'type-olumlu':t==='Olumsuz'?'type-olumsuz':'type-bilgilendirme';
 const typeIcon=(t)=>t==='Olumlu'?'fa-circle-check':t==='Olumsuz'?'fa-circle-exclamation':'fa-circle-info';
-const initials=(name)=>name?.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase()||'?';
 
 function toggleTheme(){const isDark=document.documentElement.classList.toggle('dark');localStorage.setItem('theme',isDark?'dark':'light');document.getElementById('theme-icon').className=isDark?'fa-solid fa-sun text-lg':'fa-solid fa-moon text-lg';}
 function initTheme(){const s=localStorage.getItem('theme')||'dark';document.documentElement.classList.toggle('dark',s==='dark');document.getElementById('theme-icon').className=s==='dark'?'fa-solid fa-sun text-lg':'fa-solid fa-moon text-lg';}
@@ -899,13 +769,14 @@ async function showDashboard(user){
     const{data:userRows}=await _supabase.from('users').select('user_name,role').eq('user_mail',user.email).limit(1);
     const userRow=userRows&&userRows.length>0?userRows[0]:null;
     currentUser={role:userRow?.role||'agent',user_name:userRow?.user_name||user.email.split('@')[0].replace('.',' '),email:user.email};
-    const ini=initials(currentUser.user_name);
-    document.getElementById('userInitials').innerText=ini;
+    const initials=currentUser.user_name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+    document.getElementById('userInitials').innerText=initials;
     document.getElementById('userName').innerText=currentUser.user_name;
     document.getElementById('userRoleLabel').innerText=currentUser.role==='admin'?'Yönetici Paneli':'Temsilci Paneli';
-    document.getElementById('fb-reply-av').innerText=ini;
     document.getElementById('loginPage').classList.add('hidden');
     document.getElementById('mainDashboard').classList.remove('hidden');
+    // fb-reply-initials
+    document.getElementById('fb-reply-initials').innerText=initials;
     applyRoleRestrictions();
     loadPeriods();
     checkFeedbackBadge();
@@ -948,6 +819,7 @@ async function loadFeedback(){
         const{data}=await query;
         fbAllData=data||[];
 
+        // Admin: temsilci dropdown doldur
         if(currentUser.role==='admin'){
             const users=[...new Set(fbAllData.map(f=>f.to_user).filter(Boolean))].sort();
             const sel=document.getElementById('fb-filter-user');
@@ -955,6 +827,8 @@ async function loadFeedback(){
             sel.innerHTML='<option value="all">Tüm Temsilciler</option>'+users.map(u=>`<option value="${u}">${u}</option>`).join('');
             if(cur&&cur!=='all')sel.value=cur;
         }
+
+        // Agent: okunmamış banner
         if(currentUser.role==='agent'){
             const unread=fbAllData.filter(f=>!f.is_read);
             const banner=document.getElementById('fb-unread-banner');
@@ -968,51 +842,51 @@ async function loadFeedback(){
 }
 
 function applyFbFilters(){
-    const fu=document.getElementById('fb-filter-user')?.value||'all';
-    const ft=document.getElementById('fb-filter-topic')?.value||'all';
-    const ftype=document.getElementById('fb-filter-type')?.value||'all';
+    const filterUser=document.getElementById('fb-filter-user')?.value||'all';
+    const filterTopic=document.getElementById('fb-filter-topic')?.value||'all';
+    const filterType=document.getElementById('fb-filter-type')?.value||'all';
     fbFilteredData=fbAllData.filter(fb=>{
-        if(fu!=='all'&&fb.to_user!==fu)return false;
-        if(ft!=='all'&&fb.topic!==ft)return false;
-        if(ftype!=='all'&&fb.type!==ftype)return false;
+        if(filterUser!=='all'&&fb.to_user!==filterUser)return false;
+        if(filterTopic!=='all'&&fb.topic!==filterTopic)return false;
+        if(filterType!=='all'&&fb.type!==filterType)return false;
         return true;
     });
-    renderFbList();
+    renderFeedbackList();
 }
 
-function renderFbList(){
+function renderFeedbackList(){
     const container=document.getElementById('fb-list');
     if(fbFilteredData.length===0){
-        container.innerHTML=`<div class="flex flex-col items-center gap-3 py-16 px-6"><div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center"><i class="fa-solid fa-inbox text-slate-400 text-xl"></i></div><p class="text-slate-400 font-bold text-sm text-center">Geri bildirim bulunamadı</p></div>`;
+        container.innerHTML=`<div class="flex flex-col items-center gap-3 py-20"><div class="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center"><i class="fa-solid fa-envelope-open text-slate-400 text-2xl"></i></div><p class="text-slate-400 font-bold text-sm">Geri bildirim bulunamadı</p></div>`;
         return;
     }
     container.innerHTML=fbFilteredData.map(fb=>{
         const isUnread=!fb.is_read&&currentUser.role==='agent';
         const msgCount=fb.feedback_messages?.length||0;
-        const isActive=fb.id===fbCurrentId;
-        return`<div class="fb-list-item px-4 py-3.5 ${isActive?'active':''} ${isUnread?'unread-item':''}" onclick="openFbDetail('${fb.id}')">
-            <div class="flex items-start gap-3">
+        const lastMsg=fb.feedback_messages?.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at))[0];
+        const preview=lastMsg?lastMsg.message:fb.description;
+        return`<div class="fb-mail-card ${isUnread?'unread':''}" onclick="openFbDetail('${fb.id}')">
+            <div class="px-5 py-4 flex items-start gap-4">
                 <div class="shrink-0 mt-0.5">
-                    <div class="w-9 h-9 rounded-xl flex items-center justify-center ${typeClass(fb.type||'Bilgilendirme')} text-sm">
-                        <i class="fa-solid ${typeIcon(fb.type||'Bilgilendirme')}"></i>
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center ${typeClass(fb.type||'Bilgilendirme')}">
+                        <i class="fa-solid ${typeIcon(fb.type||'Bilgilendirme')} text-base"></i>
                     </div>
                 </div>
                 <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-1.5 mb-0.5">
-                        ${isUnread?'<span class="unread-pip"></span>':''}
-                        <span class="fb-item-title text-sm font-bold text-slate-800 dark:text-slate-100 truncate">${fb.title||fb.topic}</span>
+                    <div class="flex items-center gap-2 mb-1 flex-wrap">
+                        ${isUnread?'<span class="unread-dot"></span>':''}
+                        <span class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md ${topicClass(fb.topic)}">${fb.topic}</span>
+                        <span class="text-sm font-black text-slate-800 dark:text-slate-100 truncate">${fb.title||fb.topic}</span>
                     </div>
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md ${topicClass(fb.topic)}">${fb.topic}</span>
-                        <span class="text-xs text-slate-400 font-medium truncate">${currentUser.role==='admin'?fb.to_user:fb.from_user}</span>
+                    <div class="flex items-center gap-2 text-xs text-slate-500 mb-1.5">
+                        <span class="font-semibold">${currentUser.role==='admin'?fb.to_user:fb.from_user}</span>
+                        ${msgCount>0?`<span class="text-slate-300 dark:text-slate-600">·</span><span class="text-blue-500 font-bold">${msgCount} yanıt</span>`:''}
                     </div>
-                    <div class="flex items-center justify-between">
-                        <p class="text-xs text-slate-400 truncate max-w-[160px]">${fb.description?.substring(0,50)||''}</p>
-                        <div class="text-right shrink-0 ml-2">
-                            <p class="text-[10px] text-slate-400">${formatDateTime(fb.created_at).split(' ')[0]}</p>
-                            ${msgCount>0?`<p class="text-[10px] font-bold text-blue-500">${msgCount} yanıt</p>`:''}
-                        </div>
-                    </div>
+                    <p class="text-xs text-slate-400 font-medium line-clamp-1">${preview}</p>
+                </div>
+                <div class="shrink-0 text-right">
+                    <p class="text-[10px] text-slate-400 font-medium whitespace-nowrap">${formatDateTime(fb.created_at)}</p>
+                    ${isUnread?'<span class="text-[10px] font-black text-blue-500 mt-0.5 block">Yeni</span>':''}
                 </div>
             </div>
         </div>`;
@@ -1024,101 +898,79 @@ async function openFbDetail(id){
     const fb=fbAllData.find(f=>f.id===id);
     if(!fb)return;
 
-    // Okundu
+    // Okundu işaretle
     if(currentUser.role==='agent'&&!fb.is_read){
         await _supabase.from('feedback').update({is_read:true}).eq('id',id);
         fb.is_read=true;
         checkFeedbackBadge();
+        applyFbFilters();
         const unread=fbAllData.filter(f=>!f.is_read);
         const banner=document.getElementById('fb-unread-banner');
         if(unread.length===0){banner.classList.add('hidden');banner.classList.remove('flex');}
-        else document.getElementById('fb-unread-text').innerText=`${unread.length} yeni geri bildiriminiz var.`;
+        else{document.getElementById('fb-unread-text').innerText=`${unread.length} yeni geri bildiriminiz var.`;}
     }
 
-    // Sol liste güncelle (active state)
-    renderFbList();
-
     // Tip badge
-    const tb=document.getElementById('fb-det-type');
-    tb.className=`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg ${typeClass(fb.type||'Bilgilendirme')}`;
-    tb.innerHTML=`<i class="fa-solid ${typeIcon(fb.type||'Bilgilendirme')} mr-1"></i>${fb.type||'Bilgilendirme'}`;
+    const typeBadge=document.getElementById('fb-detail-type-badge');
+    typeBadge.className=`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg ${typeClass(fb.type||'Bilgilendirme')}`;
+    typeBadge.innerHTML=`<i class="fa-solid ${typeIcon(fb.type||'Bilgilendirme')} mr-1"></i>${fb.type||'Bilgilendirme'}`;
 
     // Konu badge
-    const topb=document.getElementById('fb-det-topic');
-    topb.className=`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg ${topicClass(fb.topic)}`;
-    topb.innerText=fb.topic;
+    const topicBadge=document.getElementById('fb-detail-topic-badge');
+    topicBadge.className=`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg ${topicClass(fb.topic)}`;
+    topicBadge.innerText=fb.topic;
 
-    document.getElementById('fb-det-title').innerText=fb.title||fb.topic;
-    document.getElementById('fb-det-from').innerText=fb.from_user;
-    document.getElementById('fb-det-from-av').innerText=initials(fb.from_user);
-    document.getElementById('fb-det-to').innerText=fb.to_user;
-    document.getElementById('fb-det-to-av').innerText=initials(fb.to_user);
-    document.getElementById('fb-det-date').innerText=formatDateTime(fb.created_at);
-    document.getElementById('fb-det-body').innerText=fb.description;
+    document.getElementById('fb-detail-title').innerText=fb.title||fb.topic;
+    document.getElementById('fb-detail-from').innerText=fb.from_user;
+    document.getElementById('fb-detail-to').innerText=fb.to_user;
+    document.getElementById('fb-detail-date').innerText=formatDateTime(fb.created_at);
+    document.getElementById('fb-detail-body-text').innerText=fb.description;
 
-    // Görsel
-    const imgWrap=document.getElementById('fb-det-images');
-    if(fb.attachment){
-        try{
-            const imgs=JSON.parse(fb.attachment);
-            if(imgs&&imgs.length>0){
-                imgWrap.classList.remove('hidden');
-                imgWrap.innerHTML=imgs.map((src,i)=>`<img src="${src}" class="img-thumb" onclick="openLightbox('${src}')" alt="Ek görsel ${i+1}">`).join('');
-            }else imgWrap.classList.add('hidden');
-        }catch{imgWrap.classList.add('hidden');}
-    }else imgWrap.classList.add('hidden');
+    // Silme butonu — sadece kendi yazdığı
+    const delBtn=document.getElementById('fb-delete-btn');
+    if(fb.from_user===currentUser.user_name){delBtn.classList.remove('hidden');}
+    else{delBtn.classList.add('hidden');}
 
-    // Silme butonu
-    const delBtn=document.getElementById('fb-del-btn');
-    if(fb.from_user===currentUser.user_name){delBtn.classList.remove('hidden');delBtn.classList.add('flex');}
-    else{delBtn.classList.add('hidden');delBtn.classList.remove('flex');}
-
-    // Yanıtları yükle
     await renderFbReplies(fb);
     document.getElementById('fb-reply-input').value='';
-
-    // Boş → dolu geçiş
-    document.getElementById('fb-detail-empty').classList.add('hidden');
-    document.getElementById('fb-detail-content').classList.remove('hidden');
-    document.getElementById('fb-detail-content').classList.add('flex');
+    document.getElementById('fbDetailModal').classList.remove('hidden');
+    document.getElementById('fbDetailModal').classList.add('flex');
 }
 
 async function renderFbReplies(fb){
     const{data:msgs}=await _supabase.from('feedback_messages').select('*').eq('feedback_id',fb.id).order('created_at',{ascending:true});
-    const wrap=document.getElementById('fb-replies-wrap');
-    if(!msgs||msgs.length===0){wrap.innerHTML='';return;}
-
-    wrap.innerHTML=`<p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">${msgs.length} Yanıt</p>`+
+    const container=document.getElementById('fb-replies-container');
+    if(!msgs||msgs.length===0){container.innerHTML='';return;}
+    container.innerHTML=`<p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">${msgs.length} Yanıt</p>`+
     msgs.map(msg=>{
         const isMe=msg.sender===currentUser.user_name;
-        return`<div class="flex ${isMe?'justify-end':'justify-start'} gap-2.5 mb-3">
-            ${!isMe?`<div class="w-7 h-7 rounded-lg bg-slate-500 flex items-center justify-center text-white font-black text-[10px] shrink-0 mt-1">${initials(msg.sender)}</div>`:''}
-            <div class="max-w-[75%]">
-                <div class="fb-reply-bubble ${isMe?'fb-reply-mine':'fb-reply-other'}">
-                    <p class="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">${msg.message}</p>
-                </div>
-                <p class="text-[10px] text-slate-400 mt-1 ${isMe?'text-right':'text-left'}">${msg.sender} · ${formatDateTime(msg.created_at)}</p>
+        const ini=msg.sender.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+        return`<div class="fb-reply-card">
+            <div class="flex items-center gap-2.5 mb-2">
+                <div class="w-7 h-7 rounded-lg flex items-center justify-center text-white font-black text-[10px] ${isMe?'bg-blue-600':'bg-slate-500'}">${ini}</div>
+                <span class="text-xs font-black text-slate-700 dark:text-slate-300">${msg.sender}</span>
+                <span class="text-[10px] text-slate-400 ml-auto">${formatDateTime(msg.created_at)}</span>
             </div>
-            ${isMe?`<div class="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-[10px] shrink-0 mt-1">${initials(msg.sender)}</div>`:''}
+            <p class="text-sm text-slate-600 dark:text-slate-400 whitespace-pre-wrap pl-9">${msg.message}</p>
         </div>`;
     }).join('');
-
     const fbIdx=fbAllData.findIndex(f=>f.id===fb.id);
     if(fbIdx!==-1)fbAllData[fbIdx].feedback_messages=msgs||[];
 }
 
-async function sendFbReply(){
+async function sendFbMessage(){
     const text=document.getElementById('fb-reply-input').value.trim();
     if(!text||!fbCurrentId)return;
     const{error}=await _supabase.from('feedback_messages').insert({feedback_id:fbCurrentId,sender:currentUser.user_name,message:text});
     if(!error){
         document.getElementById('fb-reply-input').value='';
         const fb=fbAllData.find(f=>f.id===fbCurrentId);
-        if(fb){await renderFbReplies(fb);}
+        if(fb)await renderFbReplies(fb);
+        // Güncelle list
         const{data}=await _supabase.from('feedback_messages').select('*').eq('feedback_id',fbCurrentId).order('created_at',{ascending:true});
         const idx=fbAllData.findIndex(f=>f.id===fbCurrentId);
         if(idx!==-1)fbAllData[idx].feedback_messages=data||[];
-        renderFbList();
+        applyFbFilters();
     }
 }
 
@@ -1127,90 +979,43 @@ async function deleteFeedback(){
     if(!confirm('Bu geri bildirimi silmek istediğinize emin misiniz?'))return;
     await _supabase.from('feedback_messages').delete().eq('feedback_id',fbCurrentId);
     await _supabase.from('feedback').delete().eq('id',fbCurrentId);
+    closeFbDetailModal();
     fbAllData=fbAllData.filter(f=>f.id!==fbCurrentId);
-    fbCurrentId=null;
-    document.getElementById('fb-detail-empty').classList.remove('hidden');
-    document.getElementById('fb-detail-content').classList.add('hidden');
-    document.getElementById('fb-detail-content').classList.remove('flex');
     applyFbFilters();
 }
 
-// ── Yeni Bildirim Modal ──
-function updateFbTitleOptions(){
-    const topic=document.getElementById('fb-topic').value;
-    const titles=FB_TITLES[topic]||[];
-    document.getElementById('fb-title-select').innerHTML=titles.map(t=>`<option value="${t}">${t}</option>`).join('');
+function closeFbDetailModal(){
+    document.getElementById('fbDetailModal').classList.add('hidden');
+    document.getElementById('fbDetailModal').classList.remove('flex');
+    fbCurrentId=null;
 }
 
 function openFbNewModal(){
     const users=[...new Set(rawUsers.map(u=>u.user_name).filter(Boolean))].sort();
     document.getElementById('fb-to-user').innerHTML=users.map(u=>`<option value="${u}">${u}</option>`).join('');
     document.getElementById('fb-description').value='';
+    document.getElementById('fb-title').value='';
     document.getElementById('fb-topic').value='Kalite';
     document.getElementById('fb-type').value='Bilgilendirme';
-    fbSelectedImages=[];
-    document.getElementById('fb-image-preview').innerHTML='';
-    document.getElementById('fb-image-input').value='';
-    updateFbTitleOptions();
     document.getElementById('fbNewModal').classList.remove('hidden');
     document.getElementById('fbNewModal').classList.add('flex');
 }
 function closeFbNewModal(){document.getElementById('fbNewModal').classList.add('hidden');document.getElementById('fbNewModal').classList.remove('flex');}
 
-// ── Görsel seçim ──
-function handleImageSelect(e){
-    const files=Array.from(e.target.files);
-    const remaining=2-fbSelectedImages.length;
-    if(remaining<=0){alert('En fazla 2 görsel ekleyebilirsiniz.');return;}
-    const toProcess=files.slice(0,remaining);
-    toProcess.forEach(file=>{
-        const reader=new FileReader();
-        reader.onload=(ev)=>{
-            fbSelectedImages.push(ev.target.result);
-            renderImagePreview();
-        };
-        reader.readAsDataURL(file);
-    });
-}
-
-function renderImagePreview(){
-    const wrap=document.getElementById('fb-image-preview');
-    wrap.innerHTML=fbSelectedImages.map((src,i)=>`
-        <div class="relative group">
-            <img src="${src}" class="img-thumb">
-            <button onclick="removeImage(${i})" class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-rose-500 text-white rounded-full text-[10px] font-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">×</button>
-        </div>
-    `).join('');
-}
-
-function removeImage(idx){
-    fbSelectedImages.splice(idx,1);
-    renderImagePreview();
-}
-
 async function submitNewFeedback(){
     const toUser=document.getElementById('fb-to-user').value;
     const topic=document.getElementById('fb-topic').value;
     const type=document.getElementById('fb-type').value;
-    const title=document.getElementById('fb-title-select').value;
+    const title=document.getElementById('fb-title').value.trim();
     const description=document.getElementById('fb-description').value.trim();
     if(!description){alert('Açıklama boş olamaz.');return;}
-    const attachment=fbSelectedImages.length>0?JSON.stringify(fbSelectedImages):null;
     const{error}=await _supabase.from('feedback').insert({
         from_user:currentUser.user_name,to_user:toUser,topic,type,
-        title,description,is_read:false,attachment
+        title:title||topic,description,is_read:false
     });
     if(!error){closeFbNewModal();await loadFeedback();}
 }
 
-// ── Lightbox ──
-function openLightbox(src){
-    document.getElementById('lightbox-img').src=src;
-    document.getElementById('lightbox').classList.remove('hidden');
-}
-function closeLightbox(){document.getElementById('lightbox').classList.add('hidden');}
-
-// ── Excel raporu ──
 function exportFbExcel(){
     const rows=fbFilteredData.map(fb=>({
         "Gönderen":fb.from_user,"Alıcı":fb.to_user,"Tip":fb.type||'Bilgilendirme',
@@ -1260,6 +1065,7 @@ function calcSimulator(){
     document.getElementById('sim-prim-band').innerText=band;
 }
 function resetSimulator(){['sim-perf','sim-iff','sim-kalite','sim-quiz','sim-mola'].forEach(id=>document.getElementById(id).value='');document.getElementById('sim-sikayet').value='0';document.getElementById('sim-devamsiz').value='0';calcSimulator();}
+
 function openScalaModal(){document.getElementById('scalaModal').classList.remove('hidden');document.getElementById('scalaModal').classList.add('flex');}
 function closeScalaModal(){document.getElementById('scalaModal').classList.add('hidden');document.getElementById('scalaModal').classList.remove('flex');}
 function openSimulatorModal(){document.getElementById('simulatorModal').classList.remove('hidden');document.getElementById('simulatorModal').classList.add('flex');}
@@ -1289,6 +1095,7 @@ async function fetchAndRender(){
         ]);
         rawUsers=userRes.data||[];cwtAllData=Array.isArray(cwtData)?cwtData:[];dailyAllData=dailyRes.data||[];
 
+        // DVS
         const dvsArr=Array.isArray(dvsData)?dvsData:[];
         const totalPlanned=dvsArr.reduce((s,d)=>s+(parseFloat(d.planned_hc)||0),0);
         const totalActual=dvsArr.reduce((s,d)=>s+(parseFloat(d.actual_hc)||0),0);
@@ -1312,10 +1119,14 @@ async function fetchAndRender(){
                 capped_fte:Math.min(1.0,parseFloat(summary.fte)||0)};
         });
 
+        // Ekip filtresi — dinamik
         const teams=[...new Set(rawUsers.map(u=>u.team).filter(t=>t&&t!=='-'))].sort();
         document.getElementById('teamFilter').innerHTML='<option value="all">Tüm Ekipler</option>'+teams.map(t=>`<option value="${t}">${t}</option>`).join('');
+
+        // Lider filtresi
         const tls=[...new Set(fullData.map(d=>d.team_leader).filter(t=>t&&t!=='-'))].sort();
         document.getElementById('tlFilter').innerHTML='<option value="all">Tüm Liderler</option>'+tls.map(t=>`<option value="${t}">${t}</option>`).join('');
+
         applyFilters();
     }catch(err){console.error(err);}finally{toggleLoading(false);}
 }
@@ -1325,6 +1136,7 @@ function applyFilters(){
     const tl=document.getElementById('tlFilter').value;
     const search=document.getElementById('searchInput').value.toLowerCase();
 
+    // Ekip değişince lider filtresini güncelle
     if(team!=='all'){
         const teamUsers=fullData.filter(d=>d.team===team);
         const tls=[...new Set(teamUsers.map(d=>d.team_leader).filter(t=>t&&t!=='-'))].sort();
@@ -1369,48 +1181,19 @@ function applyFilters(){
 }
 
 // ════════════════════════════════════════════════════════════════
-// ÜRETİM ÖZEL EXPORT — metrik fix + pre-select
+// ÜRETİM ÖZEL EXPORT — mevcut filtre pre-select
 // ════════════════════════════════════════════════════════════════
-let selectedMetricKey = null;   // ← global state, radio yerine bu kullanılıyor
-
 function toggleUretimExportMenu(){document.getElementById('uretimExportMenu').classList.toggle('open');}
-
-function onMetricSelect(key){
-    selectedMetricKey = key;  // ← global'e yaz
-    // Tüm toggle'ların active + radio görselini sıfırla
-    ['login','mola','molaorani','cwt'].forEach(k=>{
-        document.getElementById(`toggle-${k}`).classList.remove('active');
-        document.getElementById(`mc-${k}`).classList.add('hidden');
-        document.getElementById(`mi-${k}`).classList.remove('border-blue-500');
-    });
-    // Seçilenin active + radio görselini aktif et
-    document.getElementById(`toggle-${key}`).classList.add('active');
-    document.getElementById(`mc-${key}`).classList.remove('hidden');
-    document.getElementById(`mi-${key}`).classList.add('border-blue-500');
-    // Günleri yükle
-    let days = key==='cwt'
-        ? [...new Set(cwtAllData.map(d=>d.date).filter(Boolean))].sort()
-        : [...new Set(dailyAllData.map(d=>d.date).filter(Boolean))].sort();
-    document.getElementById('uretimDayRangeLabel').innerText = days.length>0 ? `${formatDateShort(days[0])} — ${formatDateShort(days[days.length-1])}` : '';
-    const dayList=document.getElementById('uretimModalDayList');
-    if(days.length===0){dayList.innerHTML='<p class="days-empty col-span-4">Veri bulunamadı</p>';return;}
-    dayList.innerHTML=days.map(d=>`<label class="day-checkbox"><input type="checkbox" class="uretim-day-cb" value="${d}"><span>${formatDateShort(d)}</span></label>`).join('');
-}
+function onMetricSelect(key){['login','mola','molaorani','cwt'].forEach(k=>document.getElementById(`toggle-${k}`).classList.remove('active'));document.getElementById(`toggle-${key}`).classList.add('active');let days=key==='cwt'?[...new Set(cwtAllData.map(d=>d.date).filter(Boolean))].sort():[...new Set(dailyAllData.map(d=>d.date).filter(Boolean))].sort();let rangeLabel=days.length>0?`${formatDateShort(days[0])} — ${formatDateShort(days[days.length-1])}`:'';document.getElementById('uretimDayRangeLabel').innerText=rangeLabel;const dayList=document.getElementById('uretimModalDayList');if(days.length===0){dayList.innerHTML='<p class="days-empty col-span-4">Veri bulunamadı</p>';return;}dayList.innerHTML=days.map(d=>`<label class="day-checkbox"><input type="checkbox" class="uretim-day-cb" value="${d}"><span>${formatDateShort(d)}</span></label>`).join('');}
 
 function openUretimOzelModal(){
     document.getElementById('uretimExportMenu').classList.remove('open');
-    // Reset metrik
-    selectedMetricKey = null;
-    ['login','mola','molaorani','cwt'].forEach(k=>{
-        document.getElementById(`toggle-${k}`).classList.remove('active');
-        document.getElementById(`mc-${k}`).classList.add('hidden');
-        document.getElementById(`mi-${k}`).classList.remove('border-blue-500');
-    });
+    ['login','mola','molaorani','cwt'].forEach(k=>{const el=document.getElementById(`metric-${k}`);if(el)el.checked=false;document.getElementById(`toggle-${k}`).classList.remove('active');});
     document.getElementById('uretimDayRangeLabel').innerText='';
     document.getElementById('uretimModalDayList').innerHTML='<p class="days-empty col-span-4">Önce bir metrik seçin</p>';
     document.getElementById('uretimModalUserSearch').value='';
 
-    // Pre-select: aktif filtre
+    // Aktif filtreye göre temsilcileri pre-select yap
     const team=document.getElementById('teamFilter').value;
     const tl=document.getElementById('tlFilter').value;
     const search=document.getElementById('searchInput').value.toLowerCase();
@@ -1419,8 +1202,9 @@ function openUretimOzelModal(){
         if(tl!=='all'&&d.team_leader!==tl)return false;
         if(search&&!d.user_name.toLowerCase().includes(search))return false;
         return true;
-    }).map(d=>d.user_name);
+    }).map(d=>d.user_name).sort();
     const allUsers=[...new Set(fullData.map(d=>d.user_name))].sort();
+
     document.getElementById('uretimModalUserList').innerHTML=allUsers.map(u=>`<label class="day-checkbox"><input type="checkbox" class="uretim-user-cb" value="${u}" ${visibleUsers.includes(u)?'checked':''}><span class="truncate">${u}</span></label>`).join('');
     document.getElementById('uretimOzelModal').classList.remove('hidden');
     document.getElementById('uretimOzelModal').classList.add('flex');
@@ -1429,45 +1213,7 @@ function closeUretimOzelModal(){document.getElementById('uretimOzelModal').class
 function filterUretimModalUsers(){const q=document.getElementById('uretimModalUserSearch').value.toLowerCase();document.querySelectorAll('#uretimModalUserList .day-checkbox').forEach(el=>{el.style.display=el.querySelector('span').textContent.toLowerCase().includes(q)?'':'none';});}
 function selectAllUretimUsers(val){document.querySelectorAll('.uretim-user-cb').forEach(cb=>cb.checked=val);}
 function selectAllUretimDays(val){document.querySelectorAll('.uretim-day-cb').forEach(cb=>cb.checked=val);}
-
-function exportUretimOzel(){
-    // ← selectedMetricKey global'den al, radio'ya güvenme
-    if(!selectedMetricKey){alert('Lütfen bir metrik seçin.');return;}
-    const selectedUsers=[...document.querySelectorAll('.uretim-user-cb:checked')].map(cb=>cb.value);
-    const selectedDays=[...document.querySelectorAll('.uretim-day-cb:checked')].map(cb=>cb.value).sort();
-    if(selectedUsers.length===0){alert('En az bir temsilci seçmelisiniz.');return;}
-    if(selectedDays.length===0){alert('En az bir gün seçmelisiniz.');return;}
-    const cwtMap={};
-    cwtAllData.forEach(d=>{if(!d.date)return;const key=`${d.user_name}__${d.date}`;cwtMap[key]=(cwtMap[key]||0)+(parseFloat(d.cwt)||0);});
-    const metricLabels={login:'Login (Dk)',mola:'Mola (Dk)',molaorani:'Mola Oranı',cwt:'Net Login (Dk)'};
-    const rows=selectedUsers.map(userName=>{
-        const row={"Temsilci":userName};
-        selectedDays.forEach(day=>{
-            let val='';
-            if(selectedMetricKey==='cwt'){val=cwtMap[`${userName}__${day}`]||'';}
-            else if(selectedMetricKey==='molaorani'){
-                const dayRow=dailyAllData.find(d=>d.user_name===userName&&d.date===day);
-                if(dayRow){const l=parseFloat(dayRow.login)||0,b=parseFloat(dayRow.break_total)||0;val=l>0?parseFloat((b/l).toFixed(6)):'';}
-            }else{
-                const dataKey=selectedMetricKey==='login'?'login':'break_total';
-                const dayRow=dailyAllData.find(d=>d.user_name===userName&&d.date===day);
-                val=dayRow?(parseFloat(dayRow[dataKey])||''):'';
-            }
-            row[formatDateShort(day)]=val;
-        });
-        return row;
-    });
-    const ws=XLSX.utils.json_to_sheet(rows);
-    if(selectedMetricKey==='molaorani'){
-        const range=XLSX.utils.decode_range(ws['!ref']);
-        for(let R=range.s.r+1;R<=range.e.r;++R)
-            for(let C=1;C<=selectedDays.length;++C){const c=XLSX.utils.encode_cell({r:R,c:C});if(ws[c]&&ws[c].v!==''){ws[c].t='n';ws[c].z='0.00%';}}
-    }
-    const wb=XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb,ws,metricLabels[selectedMetricKey].substring(0,31));
-    XLSX.writeFile(wb,`Uretim_Ozel_${document.getElementById('periodFilter').value}.xlsx`);
-    closeUretimOzelModal();
-}
+function exportUretimOzel(){const selectedMetric=document.querySelector('input[name="uretim-metric"]:checked')?.value;if(!selectedMetric){alert('Lütfen bir metrik seçin.');return;}const selectedUsers=[...document.querySelectorAll('.uretim-user-cb:checked')].map(cb=>cb.value);const selectedDays=[...document.querySelectorAll('.uretim-day-cb:checked')].map(cb=>cb.value).sort();if(selectedUsers.length===0){alert('En az bir temsilci seçmelisiniz.');return;}if(selectedDays.length===0){alert('En az bir gün seçmelisiniz.');return;}const cwtMap={};cwtAllData.forEach(d=>{if(!d.date)return;const key=`${d.user_name}__${d.date}`;cwtMap[key]=(cwtMap[key]||0)+(parseFloat(d.cwt)||0);});const metricLabels={login:'Login (Dk)',mola:'Mola (Dk)',molaorani:'Mola Oranı',cwt:'Net Login (Dk)'};const rows=selectedUsers.map(userName=>{const row={"Temsilci":userName};selectedDays.forEach(day=>{let val='';if(selectedMetric==='cwt'){val=cwtMap[`${userName}__${day}`]||'';}else if(selectedMetric==='molaorani'){const dayRow=dailyAllData.find(d=>d.user_name===userName&&d.date===day);if(dayRow){const l=parseFloat(dayRow.login)||0,b=parseFloat(dayRow.break_total)||0;val=l>0?parseFloat((b/l).toFixed(6)):''}}else{const dataKey=selectedMetric==='login'?'login':'break_total';const dayRow=dailyAllData.find(d=>d.user_name===userName&&d.date===day);val=dayRow?(parseFloat(dayRow[dataKey])||''):'';}row[formatDateShort(day)]=val;});return row;});const ws=XLSX.utils.json_to_sheet(rows);if(selectedMetric==='molaorani'){const range=XLSX.utils.decode_range(ws['!ref']);for(let R=range.s.r+1;R<=range.e.r;++R)for(let C=1;C<=selectedDays.length;++C){const c=XLSX.utils.encode_cell({r:R,c:C});if(ws[c]&&ws[c].v!==''){ws[c].t='n';ws[c].z='0.00%';}}}const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,metricLabels[selectedMetric].substring(0,31));XLSX.writeFile(wb,`Uretim_Ozel_${document.getElementById('periodFilter').value}.xlsx`);closeUretimOzelModal();}
 
 // ════════════════════════════════════════════════════════════════
 // PERFORMANS
