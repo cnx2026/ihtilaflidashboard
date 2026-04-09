@@ -574,7 +574,7 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser = { role:'agent', user_name:'', email:'' };
 let fullData=[], rawUsers=[], cwtAllData=[], perfAllData=[], dailyAllData=[];
-let fbAllData=[], fbFilteredData=[], fbCurrentId=null;
+let fbAllData=[], fbFilteredData=[], fbCurrentId=null; let _prevBadgeCount=0;
 
 // ══ FIX B: Global metrik state — radio yok ══
 let _selectedMetric = null;
