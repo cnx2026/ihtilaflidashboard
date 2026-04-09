@@ -671,7 +671,7 @@ async function checkFeedbackBadge(){
     if(currentUser.role!=='agent')return;
     const{data}=await _supabase.from('feedback').select('id').eq('to_user',currentUser.user_name).eq('is_read',false);
     const c=data?.length||0;const b=document.getElementById('feedback-badge');
-    if(c>0){b.innerText=c;b.classList.remove('hidden');}else{b.classList.add('hidden');}
+    if(c>0){b.innerText=c;b.classList.remove('hidden');}else{b.classList.add('hidden');}     _prevBadgeCount=c; }
 }
 
 async function loadFeedback(){
