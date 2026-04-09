@@ -768,14 +768,13 @@ async function openFbDetail(id){
 
     document.getElementById('fb-det-title').innerText=fb.title||fb.topic;
     document.getElementById('fb-det-from').innerText=fb.from_user;
-document.getElementById('fb-det-from-av').innerText=mkIni(fb.from_user);
+const fromAv=document.getElementById('fb-det-from-av');fromAv.innerText=mkIni(fb.from_user);fromAv.className=`w-5 h-5 rounded-md inline-flex items-center justify-center text-white font-black text-[9px] ${avColor(fb.from_user)}`;
         document.getElementById('fb-det-from').innerText=fb.from_user;
         document.getElementById('fb-det-to').innerText=fb.to_user;
-        document.getElementById('fb-det-to-av').innerText=mkIni(fb.to_user);
+        const toAv=document.getElementById('fb-det-to-av');toAv.innerText=mkIni(fb.to_user);toAv.className=`w-5 h-5 rounded-md inline-flex items-center justify-center text-white font-black text-[9px] ${avColor(fb.to_user)}`;
         const toAv=document.getElementById('fb-det-to-av');toAv.innerText=mkIni(fb.to_user);toAv.className=`w-5 h-5 rounded-md inline-flex items-center justify-center text-white font-black text-[9px] ${avColor(fb.to_user)}`;
     document.getElementById('fb-det-date').innerText=formatDateTime(fb.created_at);
-    document.getElementById('fb-det-body').innerText=fb.description;     const av2=document.getElementById('fb-det-from-av2');     if(av2)av2.innerText=mkIni(fb.from_user);     const meta=document.getElementById('fb-det-body-meta');     if(meta)meta.innerText=fb.from_user+' · '+formatDateTime(fb.created_at);
-
+if(av2){av2.innerText=mkIni(fb.from_user);av2.className=`w-7 h-7 rounded-lg flex items-center justify-center text-white font-black text-[10px] shrink-0 mt-1 ${avColor(fb.from_user)}`;}
     const del=document.getElementById('fb-det-del-btn');
     if(fb.from_user===currentUser.user_name){del.classList.remove('hidden');del.classList.add('flex');}
     else{del.classList.add('hidden');del.classList.remove('flex');}
