@@ -110,24 +110,11 @@
         .fb-item.fb-active { background:rgba(59,130,246,0.08); border-left-color:#3b82f6; }
         .fb-item.fb-new { border-left-color:#3b82f6; }
         .fb-pip { width:7px; height:7px; border-radius:50%; background:#3b82f6; flex-shrink:0; }
-        .fb-bubble { border-radius:16px; padding:14px 18px; max-width:75%; word-break:break-word; overflow-wrap:break-word; position:relative; }
-        ..fb-bubble-me { background:linear-gradient(135deg,#3b82f6,#2563eb); border-bottom-right-radius:4px; box-shadow:0 4px 14px rgba(59,130,246,0.3); }
-        ..fb-bubble-other { background:white; border:1px solid #e8ecf3; border-bottom-left-radius:4px; box-shadow:0 2px 8px rgba(0,0,0,0.07); }
-        .dark .fb-bubble-other { background:#1e293b; border-color:#334155; }
-        .fb-bubble-other p { color:#1e293b !important; }
-        .dark .fb-bubble-other p { color:#f1f5f9 !important; }
-        .fb-bubble-other .fb-msg-time { color:#94a3b8; }
-        .fb-msg-time { font-size:10px; font-weight:600; margin-top:6px; display:block; }
-        .fb-first-card { background:white; border:1px solid #e8ecf3; border-radius:18px; padding:20px 24px; box-shadow:0 2px 12px rgba(0,0,0,0.06); }
-        .dark .fb-first-card { background:#1e293b; border-color:#334155; }
-        .fb-first-card-header { display:flex; align-items:center; gap:12px; padding-bottom:14px; margin-bottom:14px; border-bottom:1px solid #f1f5f9; }
-        .dark .fb-first-card-header { border-bottom-color:#334155; }
-        .fb-thread-sep { display:flex; align-items:center; gap:10px; margin:18px 0 14px; }
-        .fb-thread-sep-line { flex:1; height:1px; background:linear-gradient(to right,transparent,#e2e8f0,transparent); }
-        .dark .fb-thread-sep-line { background:linear-gradient(to right,transparent,#334155,transparent); }
-        .fb-thread-sep-text { font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:#94a3b8; white-space:nowrap; }
-        .av-blue{background:linear-gradient(135deg,#3b82f6,#2563eb);} .av-violet{background:linear-gradient(135deg,#8b5cf6,#7c3aed);} .av-emerald{background:linear-gradient(135deg,#10b981,#059669);} .av-amber{background:linear-gradient(135deg,#f59e0b,#d97706);} .av-rose{background:linear-gradient(135deg,#f43f5e,#e11d48);} .av-indigo{background:linear-gradient(135deg,#6366f1,#4f46e5);} .av-cyan{background:linear-gradient(135deg,#06b6d4,#0891b2);} .av-orange{background:linear-gradient(135deg,#f97316,#ea580c);}
-        .fb-bubble-me .fb-msg-time { color:rgba(255,255,255,0.6); text-align:right; }
+        .fb-bubble { border-radius:14px; padding:12px 16px; max-width:78%; word-break:break-word; overflow-wrap:break-word; }
+        .fb-bubble-me    { background:rgba(59,130,246,0.1);  border:1px solid rgba(59,130,246,0.2);  border-bottom-right-radius:4px; }
+        .fb-bubble-other { background:rgba(100,116,139,0.08); border:1px solid rgba(100,116,139,0.14); border-bottom-left-radius:4px; }
+        .dark .fb-bubble-me    { background:rgba(59,130,246,0.15); }
+        .dark .fb-bubble-other { background:rgba(100,116,139,0.12); }
         .unread-dot { width:8px; height:8px; border-radius:50%; background:#3b82f6; display:inline-block; flex-shrink:0; }
     </style>
 </head>
@@ -795,25 +782,22 @@ async function openFbDetail(id){
     document.getElementById('fb-detail-content').classList.add('flex');
 }
 
-async function renderFbReplies(fb){     const AV_COLORS=['av-blue','av-violet','av-emerald','av-amber','av-rose','av-indigo','av-cyan','av-orange'];     function getAv(n){if(!n)return'av-blue';let h=0;for(let i=0;i<n.length;i++)h=n.charCodeAt(i)+((h<<5)-h);return AV_COLORS[Math.abs(h)%AV_COLORS.length];}
+async function renderFbReplies(fb){
     const{data:msgs}=await _supabase.from('feedback_messages').select('*').eq('feedback_id',fb.id).order('created_at',{ascending:true});
-    const wrap=document.getElementById('fb-det-replies'); const AV=['av-blue','av-violet','av-emerald','av-amber','av-rose','av-indigo','av-cyan','av-orange'];
-    function getAv(n){if(!n)return'av-blue';let h=0;for(let i=0;i<n.length;i++)h=n.charCodeAt(i)+((h<<5)-h);return AV[Math.abs(h)%AV.length];}
+    const wrap=document.getElementById('fb-det-replies');
     if(!msgs||msgs.length===0){wrap.innerHTML='';return;}
-   wrap.innerHTML=`<div class="fb-thread-sep"><div class="fb-thread-sep-line"></div><span class="fb-thread-sep-text"><i class="fa-solid fa-comments mr-1"></i>${msgs.length} Yanıt</span><div class="fb-thread-sep-line"></div></div>`+
+    wrap.innerHTML=`<p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">${msgs.length} Yanıt</p>`+
     msgs.map(msg=>{
         const isMe=msg.sender.toLowerCase().trim()===currentUser.user_name.toLowerCase().trim();
-        const avC=getAv(msg.sender);
-        return`<div class="flex ${isMe?'justify-end':'justify-start'} gap-2 mb-3 items-end">
-            ${!isMe?`<div class="w-7 h-7 rounded-xl ${avC} flex items-center justify-center text-white font-black text-[10px] shrink-0">${mkIni(msg.sender)}</div>`:''}
-            <div class="max-w-[72%]">
-                ${!isMe?`<p class="text-[10px] font-black text-slate-400 mb-1 ml-1">${msg.sender}</p>`:''}
+        return`<div class="flex ${isMe?'justify-end':'justify-start'} gap-2 mb-3">
+            ${!isMe?`<div class="w-7 h-7 rounded-lg bg-slate-500 flex items-center justify-center text-white font-black text-[10px] shrink-0 mt-1">${mkIni(msg.sender)}</div>`:''}
+            <div class="max-w-[75%]">
                 <div class="fb-bubble ${isMe?'fb-bubble-me':'fb-bubble-other'}">
-                    <p class="text-sm font-medium whitespace-pre-wrap leading-relaxed">${msg.message}</p>
-                    <span class="fb-msg-time">${formatDateTime(msg.created_at)}</span>
+                    <p class="text-sm text-slate-700 dark:text-slate-200 whitespace-pre-wrap">${msg.message}</p>
                 </div>
+                <p class="text-[10px] text-slate-400 mt-1 ${isMe?'text-right':'text-left'}">${msg.sender} · ${formatDateTime(msg.created_at)}</p>
             </div>
-            ${isMe?`<div class="w-7 h-7 rounded-xl ${avC} flex items-center justify-center text-white font-black text-[10px] shrink-0">${mkIni(msg.sender)}</div>`:''}
+            ${isMe?`<div class="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-[10px] shrink-0 mt-1">${mkIni(msg.sender)}</div>`:''}
         </div>`;
     }).join('');
     const idx=fbAllData.findIndex(f=>f.id===fb.id);
