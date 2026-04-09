@@ -648,7 +648,7 @@ async function showDashboard(user){
     document.getElementById('loginPage').classList.add('hidden');
     document.getElementById('mainDashboard').classList.remove('hidden');
     document.getElementById('fb-reply-av').innerText=ini;
-    applyRoleRestrictions();loadPeriods();checkFeedbackBadge();
+    applyRoleRestrictions();loadPeriods();checkFeedbackBadge();     setInterval(async()=>{         if(currentUser.role!=='agent')return;         const{data}=await _supabase.from('feedback').select('id').eq('to_user',currentUser.user_name).eq('is_read',false);         const c=data?.length||0;         const b=document.getElementById('feedback-badge');         if(c>0){b.innerText=c;b.classList.remove('hidden');}else{b.classList.add('hidden');}         if(c>_prevBadgeCount&&_prevBadgeCount>=0){             const diff=c-_prevBadgeCount;             if(!document.getElementById('page-feedback')||document.getElementById('page-feedback').classList.contains('hidden')){                 b.classList.add('animate-bounce');setTimeout(()=>b.classList.remove('animate-bounce'),2000);             }         }         _prevBadgeCount=c;     },30000);
 }
 
 function applyRoleRestrictions(){
