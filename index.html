@@ -110,15 +110,11 @@
         .fb-item.fb-active { background:rgba(59,130,246,0.08); border-left-color:#3b82f6; }
         .fb-item.fb-new { border-left-color:#3b82f6; }
         .fb-pip { width:7px; height:7px; border-radius:50%; background:#3b82f6; flex-shrink:0; }
-.fb-bubble { border-radius:18px; padding:11px 15px; max-width:76%; word-break:break-word; overflow-wrap:break-word; font-size:13.5px; line-height:1.55; }
-        .fb-bubble-me { background:linear-gradient(135deg,#2563eb 0%,#1d4ed8 60%,#4338ca 100%); color:#fff; border:none; border-bottom-right-radius:5px; box-shadow:0 4px 18px rgba(37,99,235,0.28); min-width:120px; }
-        ..fb-bubble-other { background:#ffffff; color:#1e293b; border:1.5px solid #cbd5e1; border-bottom-left-radius:5px; box-shadow:0 2px 12px rgba(0,0,0,0.12); min-width:120px; }
-        .dark .fb-bubble-other { background:#1e293b; color:#e2e8f0; border-color:#334155; min-width:120px; }
-        .dark .fb-bubble-me { box-shadow:0 4px 18px rgba(37,99,235,0.4); }
-        .av-0{background:linear-gradient(135deg,#3b82f6,#2563eb)} .av-1{background:linear-gradient(135deg,#8b5cf6,#6d28d9)} .av-2{background:linear-gradient(135deg,#10b981,#059669)} .av-3{background:linear-gradient(135deg,#f59e0b,#d97706)} .av-4{background:linear-gradient(135deg,#ef4444,#dc2626)} .av-5{background:linear-gradient(135deg,#06b6d4,#0284c7)} .av-6{background:linear-gradient(135deg,#ec4899,#be185d)} .av-7{background:linear-gradient(135deg,#64748b,#475569)}
-        .fb-thread-divider{display:flex;align-items:center;gap:10px;margin:18px 0 10px;color:#94a3b8;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;}
-        .fb-thread-divider::before,.fb-thread-divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,#e2e8f0,transparent);}
-        .dark .fb-thread-divider::before,.dark .fb-thread-divider::after{background:linear-gradient(90deg,transparent,#1e293b,transparent);}
+        .fb-bubble { border-radius:14px; padding:12px 16px; max-width:78%; word-break:break-word; overflow-wrap:break-word; }
+        .fb-bubble-me    { background:rgba(59,130,246,0.1);  border:1px solid rgba(59,130,246,0.2);  border-bottom-right-radius:4px; }
+        .fb-bubble-other { background:rgba(100,116,139,0.08); border:1px solid rgba(100,116,139,0.14); border-bottom-left-radius:4px; }
+        .dark .fb-bubble-me    { background:rgba(59,130,246,0.15); }
+        .dark .fb-bubble-other { background:rgba(100,116,139,0.12); }
         .unread-dot { width:8px; height:8px; border-radius:50%; background:#3b82f6; display:inline-block; flex-shrink:0; }
     </style>
 </head>
@@ -607,7 +603,8 @@ const formatDateTime=(ts)=>{if(!ts)return'';const d=new Date(ts);return`${d.toLo
 const topicClass=(t)=>t==='Kalite'?'topic-kalite':t==='KPI'?'topic-kpi':'topic-operasyonel';
 const typeClass=(t)=>t==='Olumlu'?'type-olumlu':t==='Olumsuz'?'type-olumsuz':'type-bilgilendirme';
 const typeIcon=(t)=>t==='Olumlu'?'fa-circle-check':t==='Olumsuz'?'fa-circle-exclamation':'fa-circle-info';
-const mkIni=(name)=>(name||'?').split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase(); const avColor=(name)=>{const colors=['av-0','av-1','av-2','av-3','av-4','av-5','av-6','av-7'];let h=0;for(let i=0;i<(name||'').length;i++)h=(h*31+name.charCodeAt(i))&0xffff;return colors[h%colors.length];};
+const mkIni=(name)=>(name||'?').split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+
 function toggleTheme(){const d=document.documentElement.classList.toggle('dark');localStorage.setItem('theme',d?'dark':'light');document.getElementById('theme-icon').className=d?'fa-solid fa-sun text-lg':'fa-solid fa-moon text-lg';}
 function initTheme(){const s=localStorage.getItem('theme')||'dark';document.documentElement.classList.toggle('dark',s==='dark');document.getElementById('theme-icon').className=s==='dark'?'fa-solid fa-sun text-lg':'fa-solid fa-moon text-lg';}
 
@@ -768,13 +765,12 @@ async function openFbDetail(id){
 
     document.getElementById('fb-det-title').innerText=fb.title||fb.topic;
     document.getElementById('fb-det-from').innerText=fb.from_user;
-const fromAv=document.getElementById('fb-det-from-av');fromAv.innerText=mkIni(fb.from_user);fromAv.className=`w-5 h-5 rounded-md inline-flex items-center justify-center text-white font-black text-[9px] ${avColor(fb.from_user)}`;
-        document.getElementById('fb-det-from').innerText=fb.from_user;
-        document.getElementById('fb-det-to').innerText=fb.to_user;
-        const toAv=document.getElementById('fb-det-to-av');toAv.innerText=mkIni(fb.to_user);toAv.className=`w-5 h-5 rounded-md inline-flex items-center justify-center text-white font-black text-[9px] ${avColor(fb.to_user)}`;
+    document.getElementById('fb-det-from-av').innerText=mkIni(fb.from_user);
+    document.getElementById('fb-det-to').innerText=fb.to_user;
+    document.getElementById('fb-det-to-av').innerText=mkIni(fb.to_user);
     document.getElementById('fb-det-date').innerText=formatDateTime(fb.created_at);
-const av2=document.getElementById('fb-det-from-av2');if(av2){av2.innerText=mkIni(fb.from_user);av2.className=`w-7 h-7 rounded-lg flex items-center justify-center text-white font-black text-[10px] shrink-0 mt-1 ${avColor(fb.from_user)}`;}
-    document.getElementById('fb-det-body').innerText=fb.description||'';document.getElementById('fb-det-body-meta').innerText=`${fb.from_user} · ${formatDateTime(fb.created_at)}`;
+    document.getElementById('fb-det-body').innerText=fb.description;     const av2=document.getElementById('fb-det-from-av2');     if(av2)av2.innerText=mkIni(fb.from_user);     const meta=document.getElementById('fb-det-body-meta');     if(meta)meta.innerText=fb.from_user+' · '+formatDateTime(fb.created_at);
+
     const del=document.getElementById('fb-det-del-btn');
     if(fb.from_user===currentUser.user_name){del.classList.remove('hidden');del.classList.add('flex');}
     else{del.classList.add('hidden');del.classList.remove('flex');}
