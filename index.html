@@ -795,7 +795,7 @@ async function openFbDetail(id){
     document.getElementById('fb-detail-content').classList.add('flex');
 }
 
-async function renderFbReplies(fb){
+async function renderFbReplies(fb){     const AV_COLORS=['av-blue','av-violet','av-emerald','av-amber','av-rose','av-indigo','av-cyan','av-orange'];     function getAv(n){if(!n)return'av-blue';let h=0;for(let i=0;i<n.length;i++)h=n.charCodeAt(i)+((h<<5)-h);return AV_COLORS[Math.abs(h)%AV_COLORS.length];}
     const{data:msgs}=await _supabase.from('feedback_messages').select('*').eq('feedback_id',fb.id).order('created_at',{ascending:true});
     const wrap=document.getElementById('fb-det-replies');
     if(!msgs||msgs.length===0){wrap.innerHTML='';return;}
