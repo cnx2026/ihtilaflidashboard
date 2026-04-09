@@ -803,15 +803,17 @@ async function renderFbReplies(fb){     const AV_COLORS=['av-blue','av-violet','
    wrap.innerHTML=`<div class="fb-thread-sep"><div class="fb-thread-sep-line"></div><span class="fb-thread-sep-text"><i class="fa-solid fa-comments mr-1"></i>${msgs.length} Yanıt</span><div class="fb-thread-sep-line"></div></div>`+
     msgs.map(msg=>{
         const isMe=msg.sender.toLowerCase().trim()===currentUser.user_name.toLowerCase().trim();
-        return`<div class="flex ${isMe?'justify-end':'justify-start'} gap-2 mb-3">
-            ${!isMe?`<div class="w-7 h-7 rounded-lg bg-slate-500 flex items-center justify-center text-white font-black text-[10px] shrink-0 mt-1">${mkIni(msg.sender)}</div>`:''}
-            <div class="max-w-[75%]">
+        const avC=getAv(msg.sender);
+        return`<div class="flex ${isMe?'justify-end':'justify-start'} gap-2 mb-3 items-end">
+            ${!isMe?`<div class="w-7 h-7 rounded-xl ${avC} flex items-center justify-center text-white font-black text-[10px] shrink-0">${mkIni(msg.sender)}</div>`:''}
+            <div class="max-w-[72%]">
+                ${!isMe?`<p class="text-[10px] font-black text-slate-400 mb-1 ml-1">${msg.sender}</p>`:''}
                 <div class="fb-bubble ${isMe?'fb-bubble-me':'fb-bubble-other'}">
-                    <p class="text-sm text-slate-700 dark:text-slate-200 whitespace-pre-wrap">${msg.message}</p>
+                    <p class="text-sm font-medium whitespace-pre-wrap leading-relaxed">${msg.message}</p>
+                    <span class="fb-msg-time">${formatDateTime(msg.created_at)}</span>
                 </div>
-                <p class="text-[10px] text-slate-400 mt-1 ${isMe?'text-right':'text-left'}">${msg.sender} · ${formatDateTime(msg.created_at)}</p>
             </div>
-            ${isMe?`<div class="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-[10px] shrink-0 mt-1">${mkIni(msg.sender)}</div>`:''}
+            ${isMe?`<div class="w-7 h-7 rounded-xl ${avC} flex items-center justify-center text-white font-black text-[10px] shrink-0">${mkIni(msg.sender)}</div>`:''}
         </div>`;
     }).join('');
     const idx=fbAllData.findIndex(f=>f.id===fb.id);
