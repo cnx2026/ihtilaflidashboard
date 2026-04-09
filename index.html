@@ -812,6 +812,7 @@ async function sendFbReply(){
         const fb=fbAllData.find(f=>f.id===fbCurrentId);if(fb)await renderFbReplies(fb);
         const{data}=await _supabase.from('feedback_messages').select('*').eq('feedback_id',fbCurrentId).order('created_at',{ascending:true});
         const idx=fbAllData.findIndex(f=>f.id===fbCurrentId);if(idx!==-1)fbAllData[idx].feedback_messages=data||[];
+        const fbCur=fbAllData.find(f=>f.id===fbCurrentId);if(fbCur){const target=fbCur.from_user.toLowerCase().trim()===currentUser.user_name.toLowerCase().trim()?fbCur.to_user:fbCur.from_user;if(target.toLowerCase().trim()!==currentUser.user_name.toLowerCase().trim()){await _supabase.from('feedback').update({is_read:false}).eq('id',fbCurrentId);}}
         renderFbList();
     }
 }
