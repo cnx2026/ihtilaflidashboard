@@ -797,9 +797,10 @@ async function openFbDetail(id){
 
 async function renderFbReplies(fb){     const AV_COLORS=['av-blue','av-violet','av-emerald','av-amber','av-rose','av-indigo','av-cyan','av-orange'];     function getAv(n){if(!n)return'av-blue';let h=0;for(let i=0;i<n.length;i++)h=n.charCodeAt(i)+((h<<5)-h);return AV_COLORS[Math.abs(h)%AV_COLORS.length];}
     const{data:msgs}=await _supabase.from('feedback_messages').select('*').eq('feedback_id',fb.id).order('created_at',{ascending:true});
-    const wrap=document.getElementById('fb-det-replies');
+    const wrap=document.getElementById('fb-det-replies'); const AV=['av-blue','av-violet','av-emerald','av-amber','av-rose','av-indigo','av-cyan','av-orange'];
+    function getAv(n){if(!n)return'av-blue';let h=0;for(let i=0;i<n.length;i++)h=n.charCodeAt(i)+((h<<5)-h);return AV[Math.abs(h)%AV.length];}
     if(!msgs||msgs.length===0){wrap.innerHTML='';return;}
-    wrap.innerHTML=`<p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">${msgs.length} Yanıt</p>`+
+   wrap.innerHTML=`<div class="fb-thread-sep"><div class="fb-thread-sep-line"></div><span class="fb-thread-sep-text"><i class="fa-solid fa-comments mr-1"></i>${msgs.length} Yanıt</span><div class="fb-thread-sep-line"></div></div>`+
     msgs.map(msg=>{
         const isMe=msg.sender.toLowerCase().trim()===currentUser.user_name.toLowerCase().trim();
         return`<div class="flex ${isMe?'justify-end':'justify-start'} gap-2 mb-3">
