@@ -1063,7 +1063,7 @@ function exportUretimOzel(){
             const primC=prim>0?'text-indigo-500':'text-slate-400';
             tbody.innerHTML+=`<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all">
                 <td class="px-5 py-4"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-lg bg-violet-500/10 flex items-center justify-center text-violet-600 font-black text-[10px]">${i+1}</div><span class="font-bold text-sm truncate">${row.user_name}</span></div></td>
-                <td class="px-4 py-4 text-center font-black text-sm ${parseFloat(row.perf_pct)>=100?'text-emerald-500':'text-rose-500'}">${row.perf_pct!=null?'%'+parseFloat(row.perf_pct).toFixed(1):'-'}</td>
+                <td class="px-4 py-4 text-center font-black text-sm ${perfC}">%${perf.toFixed(1).replace('.',',')}</td>
                 <td class="px-4 py-4 text-center font-medium text-sm text-slate-600 dark:text-slate-300">${row.iff!=null?'₺'+parseFloat(row.iff).toLocaleString('tr-TR'):'-'}</td>
                 <td class="px-4 py-4 text-center font-medium text-sm text-slate-600 dark:text-slate-300">${row.kalite!=null?parseFloat(row.kalite).toFixed(1):'-'}</td>
                 <td class="px-4 py-4 text-center font-medium text-sm text-slate-600 dark:text-slate-300">${row.quiz!=null?parseFloat(row.quiz).toFixed(1):'-'}</td>
