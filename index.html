@@ -1057,36 +1057,118 @@ function exportUretimOzel(){
 }
 
 // ════ PERFORMANS ════════════════════════════════════════════════
-    async function loadGoalpex(){
+   async function loadGoalpex(){
     toggleLoading(true);
     try{
-        const{data:{session}}=await _supabase.auth.getSession();
-        if(!session)return;
-        const periods=[...document.getElementById('periodFilter').options].map(o=>o.value);
-        const period=periods.length>0?periods[0]:'';
+        const{data:periods}=await _supabase.from('goalpex_data').select('period').order('period',{ascending:false}).limit(10000);
+        const unique=[...new Set((periods||[]).map(d=>d.period))];
+        const sel=document.getElementById('goalpexPeriodFilter');
+        const curPeriod=sel.value;
+        sel.innerHTML=unique.map(p=>`<option value="${p}">${formatPeriodText(p)}</option>`).join('');
+        if(curPeriod&&unique.includes(curPeriod))sel.value=curPeriod;
+        const period=sel.value;
         if(!period){document.getElementById('goalpexTableBody').innerHTML=`<tr><td colspan="10" class="px-5 py-12 text-center text-slate-400 font-bold text-sm">Dönem verisi bulunamadı.</td></tr>`;return;}
         const{data,error}=await _supabase.from('goalpex_data').select('*').eq('period',period).order('goalpex_puan',{ascending:false});
         if(error||!data||data.length===0){document.getElementById('goalpexTableBody').innerHTML=`<tr><td colspan="10" class="px-5 py-16 text-center"><div class="flex flex-col items-center gap-3"><div class="w-14 h-14 rounded-2xl bg-violet-500/10 flex items-center justify-center"><i class="fa-solid fa-bullseye text-violet-500 text-2xl"></i></div><p class="text-slate-400 font-bold text-sm">Bu dönem için Goalpex verisi bulunamadı</p></div></td></tr>`;return;}
-        const tbody=document.getElementById('goalpexTableBody');tbody.innerHTML='';
-        data.forEach((row,i)=>{
-            const puan=parseFloat(row.goalpex_puan)||0;
-            const prim=parseFloat(row.prim_tutari)||0;
-            const puanC=puan>=100?'text-emerald-500':puan>=80?'text-amber-500':'text-rose-500';             const perf=(parseFloat(row.perf_pct)||0)*100;             const perfC=perf>=100?'text-emerald-500':'text-rose-500';             const kalite=parseFloat(row.kalite)||0;             const kaliteC=kalite>=97?'text-emerald-500':'text-rose-500';             const mola=(parseFloat(row.mola_pct)||0)*100;             const molaC=(mola>=15&&mola<=16)?'text-emerald-500':'text-rose-500';
-            const primC=prim>0?'text-indigo-500':'text-slate-400';
-            tbody.innerHTML+=`<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all">
-                <td class="px-5 py-4"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-lg bg-violet-500/10 flex items-center justify-center text-violet-600 font-black text-[10px]">${i+1}</div><span class="font-bold text-sm truncate">${row.user_name}</span></div></td>
-                <td class="px-4 py-4 text-center font-black text-sm ${perfC}">%${perf.toFixed(1).replace('.',',')}</td>
-                <td class="px-4 py-4 text-center font-medium text-sm text-slate-600 dark:text-slate-300">${row.iff!=null?'₺'+parseFloat(row.iff).toLocaleString('tr-TR'):'-'}</td>
-                <td class="px-4 py-4 text-center font-black text-sm ${kaliteC}">${kalite>0?kalite.toFixed(2).replace('.',','):'-'}</td>
-                <td class="px-4 py-4 text-center font-medium text-sm text-slate-600 dark:text-slate-300">${row.quiz!=null?parseFloat(row.quiz).toFixed(1):'-'}</td>
-                <td class="px-4 py-4 text-center font-black text-sm ${molaC}">${mola>0?mola.toFixed(2).replace('.',',')+' %':'-'}</td>
-                <td class="px-4 py-4 text-center font-black text-sm ${parseInt(row.sikayet)>0?'text-rose-500':'text-emerald-500'}">${row.sikayet!=null?row.sikayet:'-'}</td>
-                <td class="px-4 py-4 text-center font-black text-sm ${parseInt(row.devamsizlik)>0?'text-rose-500':'text-emerald-500'}">${row.devamsizlik!=null?row.devamsizlik:'-'}</td>
-                <td class="px-4 py-4 text-center font-black text-sm ${puanC}">${puan>0?puan+' P':'-'}</td>
-                <td class="px-4 py-4 text-center font-black text-sm ${primC}">${prim>0?'₺'+prim.toLocaleString('tr-TR'):'-'}</td>
-            </tr>`;
-        });
+
+        // Ekip ve lider filtrelerini doldur
+        const{data:users}=await _supabase.from('users').select('user_name,team,team_leader').limit(10000);
+        const userMap={};(users||[]).forEach(u=>{userMap[u.user_name]={team:u.team||'-',tl:u.team_leader||'-'};});
+        const allData=data.map(row=>({...row,team:userMap[row.user_name]?.team||'-',tl:userMap[row.user_name]?.tl||'-'}));
+        const teams=[...new Set(allData.map(d=>d.team).filter(t=>t&&t!=='-'))].sort();
+        const tls=[...new Set(allData.map(d=>d.tl).filter(t=>t&&t!=='-'))].sort();
+        const teamSel=document.getElementById('goalpexTeamFilter');const tlSel=document.getElementById('goalpexTlFilter');
+        const curTeam=teamSel.value;const curTl=tlSel.value;
+        teamSel.innerHTML='<option value="all">Tüm Ekipler</option>'+teams.map(t=>`<option value="${t}">${t}</option>`).join('');
+        tlSel.innerHTML='<option value="all">Tüm Liderler</option>'+tls.map(t=>`<option value="${t}">${t}</option>`).join('');
+        if(curTeam&&teams.includes(curTeam))teamSel.value=curTeam;
+        if(curTl&&tls.includes(curTl))tlSel.value=curTl;
+
+        window._goalpexAllData=allData;
+        applyGoalpexFilter();
     }catch(e){console.error(e);}finally{toggleLoading(false);}
+}
+
+function applyGoalpexFilter(){
+    const allData=window._goalpexAllData||[];
+    const team=document.getElementById('goalpexTeamFilter')?.value||'all';
+    const tl=document.getElementById('goalpexTlFilter')?.value||'all';
+    const search=(document.getElementById('goalpexSearch')?.value||'').toLowerCase();
+    const filtered=allData.filter(d=>{
+        if(team!=='all'&&d.team!==team)return false;
+        if(tl!=='all'&&d.tl!==tl)return false;
+        if(search&&!d.user_name.toLowerCase().includes(search))return false;
+        return true;
+    });
+
+    // KPI kartları
+    const totalPrim=filtered.reduce((s,d)=>s+(parseFloat(d.prim_tutari)||0),0);
+    const primAlan=filtered.filter(d=>parseFloat(d.prim_tutari)>0).length;
+    const perfOlan=filtered.filter(d=>parseFloat(d.perf_pct)>0).length;
+    const primOran=perfOlan>0?(primAlan/perfOlan*100):0;
+    document.getElementById('goalpex-kpi-prim').innerText='₺'+totalPrim.toLocaleString('tr-TR');
+    document.getElementById('goalpex-kpi-sayi').innerText=primAlan+' kişi';
+    document.getElementById('goalpex-kpi-oran').innerText=toTr(primOran,1)+'%';
+
+    const tbody=document.getElementById('goalpexTableBody');tbody.innerHTML='';
+    if(filtered.length===0){tbody.innerHTML=`<tr><td colspan="10" class="px-5 py-12 text-center text-slate-400 font-bold text-sm">Sonuç bulunamadı.</td></tr>`;return;}
+    filtered.forEach((row,i)=>{
+        const puan=Math.max(0,parseFloat(row.goalpex_puan)||0);
+        const prim=Math.max(0,parseFloat(row.prim_tutari)||0);
+        const puanC=puan>=100?'text-emerald-500':puan>=80?'text-amber-500':'text-rose-500';
+        const primC=prim>0?'text-indigo-500':'text-slate-400';
+        const perf=(parseFloat(row.perf_pct)||0)*100;
+        const perfC=perf>=100?'text-emerald-500':'text-rose-500';
+        const kalite=parseFloat(row.kalite)||0;
+        const kaliteC=kalite>=97?'text-emerald-500':'text-rose-500';
+        const mola=(parseFloat(row.mola_pct)||0)*100;
+        const molaC=(mola>=15&&mola<=16)?'text-emerald-500':'text-rose-500';
+        tbody.innerHTML+=`<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all">
+            <td class="px-5 py-4"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-lg bg-violet-500/10 flex items-center justify-center text-violet-600 font-black text-[10px]">${i+1}</div><span class="font-bold text-sm truncate">${row.user_name}</span></div></td>
+            <td class="px-4 py-4 text-center font-black text-sm ${perfC}">%${perf.toFixed(1).replace('.',',')}</td>
+            <td class="px-4 py-4 text-center font-medium text-sm text-slate-600 dark:text-slate-300">${row.iff!=null?'₺'+parseFloat(row.iff).toLocaleString('tr-TR'):'-'}</td>
+            <td class="px-4 py-4 text-center font-black text-sm ${kaliteC}">${kalite>0?kalite.toFixed(2).replace('.',','):'-'}</td>
+            <td class="px-4 py-4 text-center font-medium text-sm text-slate-600 dark:text-slate-300">${row.quiz!=null?parseFloat(row.quiz).toFixed(1).replace('.',','):'-'}</td>
+            <td class="px-4 py-4 text-center font-black text-sm ${molaC}">${mola>0?mola.toFixed(2).replace('.',',')+' %':'-'}</td>
+            <td class="px-4 py-4 text-center font-black text-sm ${parseInt(row.sikayet)>0?'text-rose-500':'text-emerald-500'}">${row.sikayet!=null?row.sikayet:'-'}</td>
+            <td class="px-4 py-4 text-center font-black text-sm ${parseInt(row.devamsizlik)>0?'text-rose-500':'text-emerald-500'}">${row.devamsizlik!=null?row.devamsizlik:'-'}</td>
+            <td class="px-4 py-4 text-center font-black text-sm ${puanC}">${puan>0?puan+' P':'0 P'}</td>
+            <td class="px-4 py-4 text-center font-black text-sm ${primC}">${prim>0?'₺'+prim.toLocaleString('tr-TR'):'₺0'}</td>
+        </tr>`;
+    });
+}
+
+function exportGoalpexExcel(){
+    const allData=window._goalpexAllData||[];
+    const team=document.getElementById('goalpexTeamFilter')?.value||'all';
+    const tl=document.getElementById('goalpexTlFilter')?.value||'all';
+    const search=(document.getElementById('goalpexSearch')?.value||'').toLowerCase();
+    const filtered=allData.filter(d=>{
+        if(team!=='all'&&d.team!==team)return false;
+        if(tl!=='all'&&d.tl!==tl)return false;
+        if(search&&!d.user_name.toLowerCase().includes(search))return false;
+        return true;
+    });
+    const totalPrim=filtered.reduce((s,d)=>s+(parseFloat(d.prim_tutari)||0),0);
+    const rows=filtered.map(d=>({
+        "Temsilci":d.user_name,
+        "Ekip":d.team||'-',
+        "Takım Lideri":d.tl||'-',
+        "Performans %":d.perf_pct?(parseFloat(d.perf_pct)*100).toFixed(2):'',
+        "IFF":d.iff!=null?parseFloat(d.iff):'',
+        "Kalite":d.kalite!=null?parseFloat(d.kalite):'',
+        "Quiz":d.quiz!=null?parseFloat(d.quiz):'',
+        "Mola %":d.mola_pct?(parseFloat(d.mola_pct)*100).toFixed(2):'',
+        "Şikayet":d.sikayet!=null?d.sikayet:'',
+        "Devamsızlık":d.devamsizlik!=null?d.devamsizlik:'',
+        "Goalpex Puanı":Math.max(0,parseFloat(d.goalpex_puan)||0),
+        "Prim Tutarı":Math.max(0,parseFloat(d.prim_tutari)||0)
+    }));
+    rows.push({"Temsilci":"GENEL TOPLAM","Ekip":"","Takım Lideri":"","Performans %":"","IFF":"","Kalite":"","Quiz":"","Mola %":"","Şikayet":"","Devamsızlık":"","Goalpex Puanı":"","Prim Tutarı":totalPrim});
+    const ws=XLSX.utils.json_to_sheet(rows);
+    const wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,ws,"Goalpex");
+    XLSX.writeFile(wb,`Goalpex_${document.getElementById('goalpexPeriodFilter').value}.xlsx`);
 }
 async function loadPerformans(){const{data}=await _supabase.from('performance_data').select('period').order('period',{ascending:false}).limit(10000);const unique=[...new Set((data||[]).map(d=>d.period))];document.getElementById('perfPeriodFilter').innerHTML=unique.map(p=>`<option value="${p}">${formatPeriodText(p)}</option>`).join('');if(unique.length>0)fetchPerformans();}
 async function fetchPerformans(){toggleLoading(true);const period=document.getElementById('perfPeriodFilter').value;try{const{data}=await _supabase.from('performance_data').select('*').eq('period',period).limit(10000);perfAllData=data||[];const dd=[...new Set(perfAllData.map(d=>d.date).filter(d=>d!==null&&d!==undefined))].sort((a,b)=>b.localeCompare(a));document.getElementById('perfDateFilter').innerHTML='<option value="all">Tümü (Kümülatif)</option>'+dd.map(d=>`<option value="${d}">${formatDateTR(d)}</option>`).join('');applyPerfFilter();}catch(err){console.error(err);}finally{toggleLoading(false);}}
