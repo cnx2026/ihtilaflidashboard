@@ -1059,7 +1059,7 @@ function exportUretimOzel(){
         data.forEach((row,i)=>{
             const puan=parseFloat(row.goalpex_puan)||0;
             const prim=parseFloat(row.prim_tutari)||0;
-            const puanC=puan>=100?'text-emerald-500':puan>=80?'text-amber-500':'text-rose-500';             const perf=parseFloat(row.perf_pct)||0;             const perfC=perf>=100?'text-emerald-500':'text-rose-500';             const kalite=parseFloat(row.kalite)||0;             const kaliteC=kalite>=97?'text-emerald-500':'text-rose-500';             const mola=parseFloat(row.mola_pct)||0;             const molaC=(mola>=15&&mola<=16)?'text-emerald-500':'text-rose-500';
+            const puanC=puan>=100?'text-emerald-500':puan>=80?'text-amber-500':'text-rose-500';             const perf=(parseFloat(row.perf_pct)||0)*100;             const perfC=perf>=100?'text-emerald-500':'text-rose-500';             const kalite=parseFloat(row.kalite)||0;             const kaliteC=kalite>=97?'text-emerald-500':'text-rose-500';             const mola=(parseFloat(row.mola_pct)||0)*100;             const molaC=(mola>=15&&mola<=16)?'text-emerald-500':'text-rose-500';
             const primC=prim>0?'text-indigo-500':'text-slate-400';
             tbody.innerHTML+=`<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all">
                 <td class="px-5 py-4"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-lg bg-violet-500/10 flex items-center justify-center text-violet-600 font-black text-[10px]">${i+1}</div><span class="font-bold text-sm truncate">${row.user_name}</span></div></td>
