@@ -1067,7 +1067,7 @@ function exportUretimOzel(){
                 <td class="px-4 py-4 text-center font-medium text-sm text-slate-600 dark:text-slate-300">${row.iff!=null?'₺'+parseFloat(row.iff).toLocaleString('tr-TR'):'-'}</td>
                 <td class="px-4 py-4 text-center font-black text-sm ${kaliteC}">${kalite>0?kalite.toFixed(2).replace('.',','):'-'}</td>
                 <td class="px-4 py-4 text-center font-medium text-sm text-slate-600 dark:text-slate-300">${row.quiz!=null?parseFloat(row.quiz).toFixed(1):'-'}</td>
-                <td class="px-4 py-4 text-center font-medium text-sm ${parseFloat(row.mola_pct)>=15&&parseFloat(row.mola_pct)<=16?'text-emerald-500':'text-rose-500'}">${row.mola_pct!=null?'%'+parseFloat(row.mola_pct).toFixed(2):'-'}</td>
+                <td class="px-4 py-4 text-center font-black text-sm ${molaC}">${mola>0?mola.toFixed(2).replace('.',',')+' %':'-'}</td>
                 <td class="px-4 py-4 text-center font-black text-sm ${parseInt(row.sikayet)>0?'text-rose-500':'text-emerald-500'}">${row.sikayet!=null?row.sikayet:'-'}</td>
                 <td class="px-4 py-4 text-center font-black text-sm ${parseInt(row.devamsizlik)>0?'text-rose-500':'text-emerald-500'}">${row.devamsizlik!=null?row.devamsizlik:'-'}</td>
                 <td class="px-4 py-4 text-center font-black text-sm ${puanC}">${puan>0?puan+' P':'-'}</td>
