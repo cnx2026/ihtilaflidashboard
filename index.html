@@ -362,6 +362,10 @@
                                 <select id="fb-filter-user" onchange="applyFbFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[140px] text-slate-800 dark:text-slate-100"><option value="all">Tüm Temsilciler</option></select>
                             </div>
                             <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2">
+                                <i class="fa-solid fa-user-pen absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                                <select id="fb-filter-sender" onchange="applyFbFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[140px] text-slate-800 dark:text-slate-100"><option value="all">Tüm Gönderenler</option></select>
+                            </div>
+                            <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2">
                                 <i class="fa-solid fa-tag absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
                                 <select id="fb-filter-topic" onchange="applyFbFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[120px] text-slate-800 dark:text-slate-100">
                                     <option value="all">Tüm Konular</option><option value="Kalite">Kalite</option><option value="KPI">KPI</option><option value="Operasyonel">Operasyonel</option>
@@ -386,7 +390,7 @@
         <div class="flex-1 flex overflow-hidden">
             <!-- SOL: Liste -->
             <div class="w-80 xl:w-96 shrink-0 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-white dark:bg-slate-900">
-                <div id="fb-agent-tabs" class="hidden shrink-0 flex border-b border-slate-200 dark:border-slate-800">                     <button id="tab-olumlu" onclick="switchFbTab('olumlu')" class="flex-1 py-3 text-xs font-black uppercase tracking-widest text-slate-400 border-b-2 border-transparent hover:text-blue-500 transition-all">🌟 Olumlu <span id="tab-olumlu-count" class="hidden ml-1 px-1.5 py-0.5 rounded-full bg-blue-500 text-white text-[10px]"></span></button>                     <button id="tab-bana-ait" onclick="switchFbTab('bana-ait')" class="flex-1 py-3 text-xs font-black uppercase tracking-widest text-slate-400 border-b-2 border-transparent hover:text-blue-500 transition-all">👤 Bana Ait <span id="tab-bana-ait-count" class="hidden ml-1 px-1.5 py-0.5 rounded-full bg-blue-500 text-white text-[10px]"></span></button>                 </div>                 <div id="fb-unread-banner" class="hidden items-center gap-2.5 px-4 py-3 bg-blue-500/10 border-b border-blue-500/20 shrink-0">
+                <div id="fb-agent-filters" class="hidden shrink-0 border-b border-slate-200 dark:border-slate-800 px-3 py-2 bg-white dark:bg-slate-900">                     <div class="filter-container">                         <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2">                             <i class="fa-solid fa-circle-dot absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>                             <select id="fb-agent-filter-type" onchange="applyFbFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[120px] text-slate-800 dark:text-slate-100">                                 <option value="all">Tüm Tipler</option><option value="Olumlu">Olumlu</option><option value="Bilgilendirme">Bilgilendirme</option><option value="Olumsuz">Olumsuz</option>                             </select>                         </div>                         <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2">                             <i class="fa-solid fa-tag absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>                             <select id="fb-agent-filter-topic" onchange="applyFbFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[120px] text-slate-800 dark:text-slate-100">                                 <option value="all">Tüm Konular</option><option value="Kalite">Kalite</option><option value="KPI">KPI</option><option value="Operasyonel">Operasyonel</option>                             </select>                         </div>                         <div class="relative">                             <i class="fa-solid fa-heading absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>                             <select id="fb-agent-filter-title" onchange="applyFbFilters()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[150px] text-slate-800 dark:text-slate-100">                                 <option value="all">Tüm Başlıklar</option>                             </select>                         </div>                     </div>                 </div>                 <div id="fb-agent-tabs" class="hidden shrink-0 flex border-b border-slate-200 dark:border-slate-800">                     <button id="tab-olumlu" onclick="switchFbTab('olumlu')" class="flex-1 py-3 text-xs font-black uppercase tracking-widest text-slate-400 border-b-2 border-transparent hover:text-blue-500 transition-all">🌟 Olumlu <span id="tab-olumlu-count" class="hidden ml-1 px-1.5 py-0.5 rounded-full bg-blue-500 text-white text-[10px]"></span></button>                     <button id="tab-bana-ait" onclick="switchFbTab('bana-ait')" class="flex-1 py-3 text-xs font-black uppercase tracking-widest text-slate-400 border-b-2 border-transparent hover:text-blue-500 transition-all">👤 Bana Ait <span id="tab-bana-ait-count" class="hidden ml-1 px-1.5 py-0.5 rounded-full bg-blue-500 text-white text-[10px]"></span></button>                 </div>                 <div id="fb-unread-banner" class="hidden items-center gap-2.5 px-4 py-3 bg-blue-500/10 border-b border-blue-500/20 shrink-0">
                     <i class="fa-solid fa-bell text-blue-500 text-sm"></i>
                     <p id="fb-unread-text" class="text-xs font-bold text-blue-600 dark:text-blue-400"></p>
                 </div>
@@ -706,11 +710,14 @@ async function loadFeedback(){
         let q=_supabase.from('feedback').select('*, feedback_messages(*)').order('created_at',{ascending:false});
         if(currentUser.role==='agent')q=q.or(`to_user.eq.${currentUser.user_name},type.eq.Olumlu`);
         const{data}=await q;fbAllData=data||[];
-        if(currentUser.role==='agent'){             const tabs=document.getElementById('fb-agent-tabs');             if(tabs){tabs.classList.remove('hidden');tabs.classList.add('flex');}             document.getElementById('tab-bana-ait').classList.add('fb-tab-active');         }
+        if(currentUser.role==='agent'){             const tabs=document.getElementById('fb-agent-tabs');             if(tabs){tabs.classList.remove('hidden');tabs.classList.add('flex');}             document.getElementById('tab-bana-ait').classList.add('fb-tab-active');             const af=document.getElementById('fb-agent-filters');             if(af){af.classList.remove('hidden');af.classList.add('flex');}         }
         if(currentUser.role==='admin'){
             const users=[...new Set(fbAllData.map(f=>f.to_user).filter(Boolean))].sort();
             const sel=document.getElementById('fb-filter-user');const cur=sel.value;
             sel.innerHTML='<option value="all">Tüm Temsilciler</option>'+users.map(u=>`<option value="${u}">${u}</option>`).join('');
+            const senders=[...new Set(fbAllData.map(f=>f.from_user).filter(Boolean))].sort();
+            const selS=document.getElementById('fb-filter-sender');const curS=selS?.value;
+            if(selS){selS.innerHTML='<option value="all">Tüm Gönderenler</option>'+senders.map(u=>`<option value="${u}">${u}</option>`).join('');if(curS&&curS!=='all')selS.value=curS;}
             if(cur&&cur!=='all')sel.value=cur;
         }
         if(currentUser.role==='agent'){
@@ -733,10 +740,10 @@ let _fbActiveTab = 'bana-ait'; function updateFbTabCounts(){     if(currentUser.
     const ft=document.getElementById('fb-filter-topic')?.value||'all';
     const ftype=document.getElementById('fb-filter-type')?.value||'all';
     fbFilteredData=fbAllData.filter(fb=>{
-        if(fu!=='all'&&fb.to_user!==fu)return false;
+        if(fu!=='all'&&fb.to_user!==fu)return false;         const fs=document.getElementById('fb-filter-sender')?.value||'all';         if(fs!=='all'&&fb.from_user!==fs)return false;
         if(ft!=='all'&&fb.topic!==ft)return false;
         if(ftype!=='all'&&fb.type!==ftype)return false;
-        if(currentUser.role==='agent'){if(_fbActiveTab==='olumlu')return fb.type==='Olumlu';if(_fbActiveTab==='bana-ait')return fb.to_user===currentUser.user_name||fb.from_user===currentUser.user_name;}
+        if(currentUser.role==='agent'){             const at=document.getElementById('fb-agent-filter-type')?.value||'all';             const ato=document.getElementById('fb-agent-filter-topic')?.value||'all';             const atit=document.getElementById('fb-agent-filter-title')?.value||'all';             if(at!=='all'&&fb.type!==at)return false;             if(ato!=='all'&&fb.topic!==ato)return false;             if(atit!=='all'&&fb.title!==atit)return false;             if(_fbActiveTab==='olumlu')return fb.type==='Olumlu';             if(_fbActiveTab==='bana-ait')return fb.to_user===currentUser.user_name||fb.from_user===currentUser.user_name;         }
         return true;
     });
     renderFbList();
@@ -861,7 +868,7 @@ async function deleteFeedback(){
     applyFbFilters();
 }
 
-function updateFbTitleOptions(){
+function updateAgentTitleFilter(){     const topic=document.getElementById('fb-agent-filter-topic')?.value||'all';     const sel=document.getElementById('fb-agent-filter-title');     if(!sel)return;     if(topic==='all'){sel.innerHTML='<option value="all">Tüm Başlıklar</option>';return;}     const titles=FB_TITLES[topic]||[];     sel.innerHTML='<option value="all">Tüm Başlıklar</option>'+titles.map(t=>`<option value="${t}">${t}</option>`).join(''); } function updateFbTitleOptions(){
     const topic=document.getElementById('fb-topic').value;
     const titles=FB_TITLES[topic]||[];
     document.getElementById('fb-title-select').innerHTML=titles.map(t=>`<option value="${t}">${t}</option>`).join('');
