@@ -161,7 +161,7 @@
             <a href="#" id="nav-goalpex" onclick="showPage('goalpex')" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all text-sm"><i class="fa-solid fa-bullseye"></i> Goalpex</a>
             <a href="#" id="nav-feedback" onclick="showPage('feedback')" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all text-sm">
                 <i class="fa-solid fa-envelope"></i><span>Geri Bildirim</span>
-                <span id="feedback-badge" class="hidden fb-badge bg-rose-500 text-white ml-auto">0</span>
+                <span id="feedback-badge-blue" class="hidden fb-badge bg-blue-500 text-white ml-auto">0</span>                 <span id="feedback-badge-green" class="hidden fb-badge bg-emerald-500 text-white">0</span>                 <span id="feedback-badge-red" class="hidden fb-badge bg-rose-500 text-white">0</span>
             </a>
         </nav>
         <div class="p-5 border-t border-slate-100 dark:border-slate-800">
@@ -665,8 +665,7 @@ async function showDashboard(user){
     document.getElementById('loginPage').classList.add('hidden');
     document.getElementById('mainDashboard').classList.remove('hidden');
     document.getElementById('fb-reply-av').innerText=ini;
-    applyRoleRestrictions();loadPeriods();checkFeedbackBadge();     setInterval(async()=>{         if(currentUser.role!=='agent')return;         const{data}=await _supabase.from('feedback').select('id').eq('to_user',currentUser.user_name).eq('is_read',false);         const c=data?.length||0;         const b=document.getElementById('feedback-badge');         if(c>0){b.innerText=c;b.classList.remove('hidden');}else{b.classList.add('hidden');}         if(c>_prevBadgeCount&&_prevBadgeCount>=0){             const diff=c-_prevBadgeCount;             if(!document.getElementById('page-feedback')||document.getElementById('page-feedback').classList.contains('hidden')){                 b.classList.add('animate-bounce');setTimeout(()=>b.classList.remove('animate-bounce'),2000);             }         }         _prevBadgeCount=c;     },30000);
-}
+applyRoleRestrictions();loadPeriods();checkFeedbackBadge();setInterval(async()=>{if(currentUser.role!=='agent')return;checkFeedbackBadge();},30000);}
 
 function applyRoleRestrictions(){
     if(currentUser.role==='agent'){
@@ -689,19 +688,16 @@ async function checkFeedbackBadge(){
     if(currentUser.role!=='agent')return;
     const{data}=await _supabase.from('feedback').select('id,type,to_user').eq('is_read',false);
     const tumUnread=(data||[]);
-    const olumluUnread=tumUnread.filter(fb=>fb.type==='Olumlu');
-    const banaAitUnread=tumUnread.filter(fb=>fb.to_user===currentUser.user_name&&fb.type!=='Olumlu');
-    const olumsuzUnread=banaAitUnread.filter(fb=>fb.type==='Olumsuz');
-    const total=tumUnread.length;
-    const b=document.getElementById('feedback-badge');
-    if(total>0){
-        b.innerText=total;
-        b.classList.remove('hidden','bg-rose-500','bg-emerald-500','bg-blue-500');
-        if(olumsuzUnread.length>0)b.classList.add('bg-rose-500');
-        else if(banaAitUnread.length>0)b.classList.add('bg-emerald-500');
-        else b.classList.add('bg-blue-500');
-    }else{b.classList.add('hidden');}
-    _prevBadgeCount=total;
+    const olumluOp=tumUnread.filter(fb=>fb.type==='Olumlu'&&fb.to_user!==currentUser.user_name);
+    const banaOlumluVeBilgi=tumUnread.filter(fb=>fb.to_user===currentUser.user_name&&(fb.type==='Olumlu'||fb.type==='Bilgilendirme'));
+    const banaOlumsuz=tumUnread.filter(fb=>fb.to_user===currentUser.user_name&&fb.type==='Olumsuz');
+    const bb=document.getElementById('feedback-badge-blue');
+    const bg=document.getElementById('feedback-badge-green');
+    const br=document.getElementById('feedback-badge-red');
+    if(bb){bb.innerText=olumluOp.length;bb.classList.toggle('hidden',olumluOp.length===0);}
+    if(bg){bg.innerText=banaOlumluVeBilgi.length;bg.classList.toggle('hidden',banaOlumluVeBilgi.length===0);}
+    if(br){br.innerText=banaOlumsuz.length;br.classList.toggle('hidden',banaOlumsuz.length===0);}
+    _prevBadgeCount=tumUnread.length;
 }
     
 async function loadFeedback(){
