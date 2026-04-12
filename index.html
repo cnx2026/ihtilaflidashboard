@@ -963,6 +963,7 @@ function applyFilters(){
         if(team!=='all'&&d.team!==team)return false;
         if(tl!=='all'&&d.team_leader!==tl)return false;
         if(search&&!d.user_name.toLowerCase().includes(search))return false;
+        if(currentUser.role==='agent'&&d.user_name?.toLowerCase().trim()!==currentUser.user_name?.toLowerCase().trim())return false;
         return true;
     });
     const fn=new Set(filtered.map(d=>d.user_name?.toLowerCase().trim()));
