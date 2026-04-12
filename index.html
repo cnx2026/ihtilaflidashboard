@@ -943,6 +943,7 @@ async function fetchAndRender(){
         document.getElementById('teamFilter').innerHTML='<option value="all">Tüm Ekipler</option>'+teams.map(t=>`<option value="${t}">${t}</option>`).join('');
         const tls=[...new Set(fullData.map(d=>d.team_leader).filter(t=>t&&t!=='-'))].sort();
         document.getElementById('tlFilter').innerHTML='<option value="all">Tüm Liderler</option>'+tls.map(t=>`<option value="${t}">${t}</option>`).join('');
+        if(currentUser.role==='agent'){const userTeam=rawUsers.find(u=>u.user_name?.toLowerCase().trim()===currentUser.user_name?.toLowerCase().trim())?.team||'';if(userTeam){fullData=fullData.filter(d=>d.team===userTeam);}}
         applyFilters();
     }catch(err){console.error(err);}finally{toggleLoading(false);}
 }
