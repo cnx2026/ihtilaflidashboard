@@ -713,6 +713,10 @@ async function loadFeedback(){
             else{banner.classList.add('hidden');banner.classList.remove('flex');}
         }
         applyFbFilters();
+        fbCurrentId=null;
+        document.getElementById('fb-detail-empty').classList.remove('hidden');
+        document.getElementById('fb-detail-content').classList.add('hidden');
+        document.getElementById('fb-detail-content').classList.remove('flex');
     }catch(e){console.error(e);}finally{toggleLoading(false);}
 }
 
