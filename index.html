@@ -699,7 +699,7 @@ async function loadFeedback(){
         let q=_supabase.from('feedback').select('*, feedback_messages(*)').order('created_at',{ascending:false});
         if(currentUser.role==='agent')q=q.eq('to_user',currentUser.user_name);
         const{data}=await q;fbAllData=data||[];
-        if(currentUser.role==='agent')fbAllData=fbAllData.filter(fb=>fb.type==='Olumlu'||(fb.to_user===currentUser.user_name)||(fb.from_user===currentUser.user_name&&fb.type==='Olumlu'));
+        if(currentUser.role==='agent')fbAllData=fbAllData.filter(fb=>(fb.type==='Olumlu')||(fb.to_user===currentUser.user_name));
         if(currentUser.role==='admin'){
             const users=[...new Set(fbAllData.map(f=>f.to_user).filter(Boolean))].sort();
             const sel=document.getElementById('fb-filter-user');const cur=sel.value;
