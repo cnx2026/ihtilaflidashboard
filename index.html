@@ -1113,14 +1113,14 @@ function applyGoalpexFilter(){
             const primAlan=filtered.filter(d=>parseFloat(d.prim_tutari)>0).length;
             const perfOlan=filtered.filter(d=>parseFloat(d.perf_pct)>0).length;
             const primOran=perfOlan>0?(primAlan/perfOlan*100):0;
-            document.getElementById('goalpex-kpi-grid').classList.remove('hidden');
-            document.getElementById('goalpex-agent-kpi').classList.add('hidden');
+            document.getElementById('goalpex-kpi-grid').style.display='grid';
+            document.getElementById('goalpex-agent-kpi').style.display='none';
             document.getElementById('goalpex-kpi-prim').innerText='₺'+totalPrim.toLocaleString('tr-TR');
             document.getElementById('goalpex-kpi-sayi').innerText=primAlan+' kişi';
             document.getElementById('goalpex-kpi-oran').innerText=toTr(primOran,1)+'%';
         } else {
-            document.getElementById('goalpex-kpi-grid').classList.add('hidden');
-            document.getElementById('goalpex-agent-kpi').classList.remove('hidden');
+            document.getElementById('goalpex-kpi-grid').style.display='none';
+            document.getElementById('goalpex-agent-kpi').style.display='grid';
             const myRow=filtered[0];
             const myPuan=myRow?Math.max(0,parseFloat(myRow.goalpex_puan)||0):0;
             const myPrim=myRow?Math.max(0,parseFloat(myRow.prim_tutari)||0):0;
