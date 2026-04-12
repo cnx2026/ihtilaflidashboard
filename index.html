@@ -115,7 +115,7 @@
         .fb-bubble-other { background:rgba(100,116,139,0.08); border:1px solid rgba(100,116,139,0.14); border-bottom-left-radius:4px; }
         .dark .fb-bubble-me    { background:rgba(59,130,246,0.15); }
         .dark .fb-bubble-other { background:rgba(100,116,139,0.12); }
-        .unread-dot { width:8px; height:8px; border-radius:50%; background:#3b82f6; display:inline-block; flex-shrink:0; }         .goalpex-admin-col { display:table-cell; }         .agent-view .goalpex-admin-col { display:none; }
+        .unread-dot { width:8px; height:8px; border-radius:50%; background:#3b82f6; display:inline-block; flex-shrink:0; }         .fb-tab-active { color:#3b82f6 !important; border-bottom-color:#3b82f6 !important; }         .fb-tab-active { color:#3b82f6 !important; border-bottom-color:#3b82f6 !important; }         .fb-tab-active { color:#3b82f6 !important; border-bottom-color:#3b82f6 !important; }         .goalpex-admin-col { display:table-cell; }         .agent-view .goalpex-admin-col { display:none; }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen overflow-hidden transition-colors duration-500">
@@ -386,7 +386,7 @@
         <div class="flex-1 flex overflow-hidden">
             <!-- SOL: Liste -->
             <div class="w-80 xl:w-96 shrink-0 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-white dark:bg-slate-900">
-                <div id="fb-unread-banner" class="hidden items-center gap-2.5 px-4 py-3 bg-blue-500/10 border-b border-blue-500/20 shrink-0">
+                <div id="fb-agent-tabs" class="hidden shrink-0 flex border-b border-slate-200 dark:border-slate-800">                     <button id="tab-olumlu" onclick="switchFbTab('olumlu')" class="flex-1 py-3 text-xs font-black uppercase tracking-widest text-slate-400 border-b-2 border-transparent hover:text-blue-500 transition-all">🌟 Olumlu</button>                     <button id="tab-bana-ait" onclick="switchFbTab('bana-ait')" class="flex-1 py-3 text-xs font-black uppercase tracking-widest text-slate-400 border-b-2 border-transparent hover:text-blue-500 transition-all">👤 Bana Ait</button>                 </div>                 <div id="fb-unread-banner" class="hidden items-center gap-2.5 px-4 py-3 bg-blue-500/10 border-b border-blue-500/20 shrink-0">
                     <i class="fa-solid fa-bell text-blue-500 text-sm"></i>
                     <p id="fb-unread-text" class="text-xs font-bold text-blue-600 dark:text-blue-400"></p>
                 </div>
@@ -699,7 +699,7 @@ async function loadFeedback(){
         let q=_supabase.from('feedback').select('*, feedback_messages(*)').order('created_at',{ascending:false});
         if(currentUser.role==='agent')q=q.or(`to_user.eq.${currentUser.user_name},type.eq.Olumlu`);
         const{data}=await q;fbAllData=data||[];
-        if(currentUser.role==='agent')fbAllData=fbAllData.filter(fb=>(fb.type==='Olumlu')||(fb.to_user===currentUser.user_name)||(fb.from_user===currentUser.user_name));
+        if(currentUser.role==='agent'){             const tabs=document.getElementById('fb-agent-tabs');             if(tabs){tabs.classList.remove('hidden');tabs.classList.add('flex');}             document.getElementById('tab-bana-ait').classList.add('fb-tab-active');         }
         if(currentUser.role==='admin'){
             const users=[...new Set(fbAllData.map(f=>f.to_user).filter(Boolean))].sort();
             const sel=document.getElementById('fb-filter-user');const cur=sel.value;
@@ -720,7 +720,7 @@ async function loadFeedback(){
     }catch(e){console.error(e);}finally{toggleLoading(false);}
 }
 
-function applyFbFilters(){
+let _fbActiveTab = 'bana-ait'; function switchFbTab(tab){     _fbActiveTab=tab;     document.getElementById('tab-olumlu').classList.toggle('fb-tab-active',tab==='olumlu');     document.getElementById('tab-bana-ait').classList.toggle('fb-tab-active',tab==='bana-ait');     applyFbFilters(); } function applyFbFilters(){
     const fu=document.getElementById('fb-filter-user')?.value||'all';
     const ft=document.getElementById('fb-filter-topic')?.value||'all';
     const ftype=document.getElementById('fb-filter-type')?.value||'all';
@@ -728,6 +728,7 @@ function applyFbFilters(){
         if(fu!=='all'&&fb.to_user!==fu)return false;
         if(ft!=='all'&&fb.topic!==ft)return false;
         if(ftype!=='all'&&fb.type!==ftype)return false;
+        if(currentUser.role==='agent'){if(_fbActiveTab==='olumlu')return fb.type==='Olumlu';if(_fbActiveTab==='bana-ait')return fb.to_user===currentUser.user_name||fb.from_user===currentUser.user_name;}
         return true;
     });
     renderFbList();
@@ -803,6 +804,8 @@ async function openFbDetail(id){
     document.getElementById('fb-detail-empty').classList.add('hidden');
     document.getElementById('fb-detail-content').classList.remove('hidden');
     document.getElementById('fb-detail-content').classList.add('flex');
+    const replyBox=document.getElementById('fb-reply-input')?.closest('div.px-8');
+    if(replyBox){const canReply=currentUser.role==='admin'||fb.to_user===currentUser.user_name||fb.from_user===currentUser.user_name;replyBox.style.display=canReply?'':'none';}
 }
 
 async function renderFbReplies(fb){
