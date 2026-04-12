@@ -874,11 +874,11 @@ function exportFbExcel(){
 // ════ GOALPEX SIMULATOR ════════════════════════════════════════
 function calcPerfPuan(v){if(v===null||v==='')return null;if(v>=120)return 45;if(v>=110)return 30;if(v>=95)return 20;if(v>=90)return 10;return 0;}
 function calcIffPuan(v){if(v===null||v==='')return null;if(v===0)return 40;if(v<=199)return 35;if(v<=399)return 20;if(v<=499)return 10;if(v<=999)return 0;return -120;}
-function calcKalitePuan(v){if(v===null||v==='')return null;return v>=97?25:0;}
+function calcKalitePuan(v){if(v===null||v==='')return null;if(v>=97)return 25;return -120;}
 function calcQuizPuan(v){if(v===null||v==='')return null;if(v>=95)return 10;if(v>=90)return 5;return 0;}
 function calcMolaPuan(v){if(v===null||v==='')return null;if(v>=15&&v<=16)return 0;return -10;}
 function calcSikayetPuan(v){return parseInt(v)>=1?-120:0;}
-function calcDevamsizPuan(v){const d=parseInt(v);if(d===0)return 0;if(d===1)return -15;if(d===2)return -30;return -30;}
+function calcDevamsizPuan(v){const d=parseInt(v);if(d===0)return 0;if(d===1)return -15;return -120;}
 function getPrim(p){if(p>=116)return{prim:'₺4.200',band:'116–120 puan bandı'};if(p>=111)return{prim:'₺3.900',band:'111–115 puan bandı'};if(p>=106)return{prim:'₺3.700',band:'106–110 puan bandı'};if(p>=101)return{prim:'₺3.200',band:'101–105 puan bandı'};if(p>=95)return{prim:'₺2.800',band:'95–100 puan bandı'};if(p>=90)return{prim:'₺2.500',band:'90–94 puan bandı'};if(p>=85)return{prim:'₺2.250',band:'85–89 puan bandı'};if(p>=80)return{prim:'₺2.000',band:'80–84 puan bandı'};return{prim:'Prim yok',band:'80 puanın altında prim ödenmez'};}
 function calcSimulator(){
     const pv=document.getElementById('sim-perf').value!==''?parseFloat(document.getElementById('sim-perf').value):null;
