@@ -1099,7 +1099,7 @@ function applyGoalpexFilter(){
         if(team!=='all'&&d.team!==team)return false;
         if(tl!=='all'&&d.tl!==tl)return false;
         if(search&&!d.user_name.toLowerCase().includes(search))return false;
-        if(currentUser.role==='agent'&&d.user_name?.toLowerCase().trim()!==currentUser.user_name?.toLowerCase().trim())return false;
+        if(currentUser.role==='agent'&&String(d.user_name||'').toLowerCase().trim()!==String(currentUser.user_name||'').toLowerCase().trim())return false;
         return true;
     });
 
