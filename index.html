@@ -115,7 +115,7 @@
         .fb-bubble-other { background:rgba(100,116,139,0.08); border:1px solid rgba(100,116,139,0.14); border-bottom-left-radius:4px; }
         .dark .fb-bubble-me    { background:rgba(59,130,246,0.15); }
         .dark .fb-bubble-other { background:rgba(100,116,139,0.12); }
-        .unread-dot { width:8px; height:8px; border-radius:50%; background:#3b82f6; display:inline-block; flex-shrink:0; }
+        .unread-dot { width:8px; height:8px; border-radius:50%; background:#3b82f6; display:inline-block; flex-shrink:0; }         .goalpex-admin-col { display:table-cell; }         .agent-view .goalpex-admin-col { display:none; }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen overflow-hidden transition-colors duration-500">
@@ -336,7 +336,7 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
                         <thead class="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 font-black text-slate-400 uppercase tracking-widest text-[10px]">
-                            <tr><th class="px-5 py-4 min-w-[160px]">Temsilci Bilgisi</th><th class="px-4 py-4 text-center">Perf. %</th><th class="px-4 py-4 text-center">IFF</th><th class="px-4 py-4 text-center">Kalite</th><th class="px-4 py-4 text-center">Quiz</th><th class="px-4 py-4 text-center">Mola %</th><th class="px-4 py-4 text-center">Şikayet</th><th class="px-4 py-4 text-center">Devamsızlık</th></tr>
+                            <tr><th class="px-5 py-4 min-w-[160px]">Temsilci Bilgisi</th><th class="px-4 py-4 text-center">Perf. %</th><th class="px-4 py-4 text-center">IFF</th><th class="px-4 py-4 text-center">Kalite</th><th class="px-4 py-4 text-center">Quiz</th><th class="px-4 py-4 text-center">Mola %</th><th class="px-4 py-4 text-center">Şikayet</th><th class="px-4 py-4 text-center">Devamsızlık</th><th class="px-4 py-4 text-center goalpex-admin-col">Goalpex P</th><th class="px-4 py-4 text-center goalpex-admin-col">Prim Tutarı</th></tr>
                         </thead>
                         <tbody id="goalpexTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 text-sm font-bold text-slate-700 dark:text-slate-300">
                             <tr><td colspan="10" class="px-5 py-16 text-center"><div class="flex flex-col items-center gap-3"><div class="w-14 h-14 rounded-2xl bg-violet-500/10 flex items-center justify-center"><i class="fa-solid fa-bullseye text-violet-500 text-2xl"></i></div><p class="text-slate-400 font-bold text-sm">Goalpex verileri yakında eklenecek</p><p class="text-slate-300 dark:text-slate-600 font-medium text-xs">Bu alan şu an geliştirme aşamasındadır</p></div></td></tr>
@@ -674,7 +674,7 @@ function applyRoleRestrictions(){
         document.getElementById('kpi-card-fte').classList.add('hidden');
         document.getElementById('th-fte').classList.add('hidden');
         const g=document.getElementById('kpi-grid');g.classList.remove('grid','grid-cols-2','lg:grid-cols-5');g.classList.add('kpi-grid-agent');
-        const expBtn=document.getElementById('goalpex-export-btn');if(expBtn)expBtn.style.display='none';
+        const expBtn=document.getElementById('goalpex-export-btn');if(expBtn)expBtn.style.display='none';         document.getElementById('page-goalpex').classList.add('agent-view');
     }
     if(currentUser.role==='admin'){
         document.getElementById('fb-admin-actions').classList.remove('hidden');
@@ -1155,6 +1155,8 @@ function applyGoalpexFilter(){
             <td class="px-4 py-4 text-center font-black text-sm ${molaC}">${mola>0?mola.toFixed(2).replace('.',',')+' %':'-'}</td>
             <td class="px-4 py-4 text-center font-black text-sm ${parseInt(row.sikayet)>0?'text-rose-500':'text-emerald-500'}">${row.sikayet!=null?row.sikayet:'-'}</td>
             <td class="px-4 py-4 text-center font-black text-sm ${parseInt(row.devamsizlik)>0?'text-rose-500':'text-emerald-500'}">${row.devamsizlik!=null?row.devamsizlik:'-'}</td>
+        <td class="px-4 py-4 text-center font-black text-sm ${puanC} goalpex-admin-col">${puan>0?puan+' P':'0 P'}</td>
+            <td class="px-4 py-4 text-center font-black text-sm ${primC} goalpex-admin-col">${prim>0?'₺'+prim.toLocaleString('tr-TR'):'₺0'}</td>
         </tr>`;
     });
 }
