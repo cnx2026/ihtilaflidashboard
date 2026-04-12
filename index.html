@@ -386,7 +386,7 @@
         <div class="flex-1 flex overflow-hidden">
             <!-- SOL: Liste -->
             <div class="w-80 xl:w-96 shrink-0 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-white dark:bg-slate-900">
-                <div id="fb-agent-tabs" class="hidden shrink-0 flex border-b border-slate-200 dark:border-slate-800">                     <button id="tab-olumlu" onclick="switchFbTab('olumlu')" class="flex-1 py-3 text-xs font-black uppercase tracking-widest text-slate-400 border-b-2 border-transparent hover:text-blue-500 transition-all">🌟 Olumlu</button>                     <button id="tab-bana-ait" onclick="switchFbTab('bana-ait')" class="flex-1 py-3 text-xs font-black uppercase tracking-widest text-slate-400 border-b-2 border-transparent hover:text-blue-500 transition-all">👤 Bana Ait</button>                 </div>                 <div id="fb-unread-banner" class="hidden items-center gap-2.5 px-4 py-3 bg-blue-500/10 border-b border-blue-500/20 shrink-0">
+                <div id="fb-agent-tabs" class="hidden shrink-0 flex border-b border-slate-200 dark:border-slate-800">                     <button id="tab-olumlu" onclick="switchFbTab('olumlu')" class="flex-1 py-3 text-xs font-black uppercase tracking-widest text-slate-400 border-b-2 border-transparent hover:text-blue-500 transition-all">🌟 Olumlu <span id="tab-olumlu-count" class="hidden ml-1 px-1.5 py-0.5 rounded-full bg-blue-500 text-white text-[10px]"></span></button>                     <button id="tab-bana-ait" onclick="switchFbTab('bana-ait')" class="flex-1 py-3 text-xs font-black uppercase tracking-widest text-slate-400 border-b-2 border-transparent hover:text-blue-500 transition-all">👤 Bana Ait <span id="tab-bana-ait-count" class="hidden ml-1 px-1.5 py-0.5 rounded-full bg-blue-500 text-white text-[10px]"></span></button>                 </div>                 <div id="fb-unread-banner" class="hidden items-center gap-2.5 px-4 py-3 bg-blue-500/10 border-b border-blue-500/20 shrink-0">
                     <i class="fa-solid fa-bell text-blue-500 text-sm"></i>
                     <p id="fb-unread-text" class="text-xs font-bold text-blue-600 dark:text-blue-400"></p>
                 </div>
@@ -687,10 +687,21 @@ function applyRoleRestrictions(){
 
 async function checkFeedbackBadge(){
     if(currentUser.role!=='agent')return;
-    const{data}=await _supabase.from('feedback').select('id').eq('to_user',currentUser.user_name).eq('is_read',false);
-    const c=data?.length||0;const b=document.getElementById('feedback-badge');
-    if(c>0){b.innerText=c;b.classList.remove('hidden');}else{b.classList.add('hidden');}
-    _prevBadgeCount=c;
+    const{data}=await _supabase.from('feedback').select('id,type,to_user').eq('is_read',false);
+    const tumUnread=(data||[]);
+    const olumluUnread=tumUnread.filter(fb=>fb.type==='Olumlu');
+    const banaAitUnread=tumUnread.filter(fb=>fb.to_user===currentUser.user_name&&fb.type!=='Olumlu');
+    const olumsuzUnread=banaAitUnread.filter(fb=>fb.type==='Olumsuz');
+    const total=tumUnread.length;
+    const b=document.getElementById('feedback-badge');
+    if(total>0){
+        b.innerText=total;
+        b.classList.remove('hidden','bg-rose-500','bg-emerald-500','bg-blue-500');
+        if(olumsuzUnread.length>0)b.classList.add('bg-rose-500');
+        else if(banaAitUnread.length>0)b.classList.add('bg-emerald-500');
+        else b.classList.add('bg-blue-500');
+    }else{b.classList.add('hidden');}
+    _prevBadgeCount=total;
 }
     
 async function loadFeedback(){
@@ -713,6 +724,7 @@ async function loadFeedback(){
             else{banner.classList.add('hidden');banner.classList.remove('flex');}
         }
         applyFbFilters();
+        updateFbTabCounts();
         fbCurrentId=null;
         document.getElementById('fb-detail-empty').classList.remove('hidden');
         document.getElementById('fb-detail-content').classList.add('hidden');
@@ -720,7 +732,7 @@ async function loadFeedback(){
     }catch(e){console.error(e);}finally{toggleLoading(false);}
 }
 
-let _fbActiveTab = 'bana-ait'; function switchFbTab(tab){     _fbActiveTab=tab;     document.getElementById('tab-olumlu').classList.toggle('fb-tab-active',tab==='olumlu');     document.getElementById('tab-bana-ait').classList.toggle('fb-tab-active',tab==='bana-ait');     applyFbFilters(); } function applyFbFilters(){
+let _fbActiveTab = 'bana-ait'; function updateFbTabCounts(){     if(currentUser.role!=='agent')return;     const olumluUnread=fbAllData.filter(fb=>fb.type==='Olumlu'&&!fb.is_read).length;     const banaAitUnread=fbAllData.filter(fb=>(fb.to_user===currentUser.user_name||fb.from_user===currentUser.user_name)&&!fb.is_read).length;     const oc=document.getElementById('tab-olumlu-count');     const bc=document.getElementById('tab-bana-ait-count');     if(oc){oc.innerText=olumluUnread;oc.classList.toggle('hidden',olumluUnread===0);}     if(bc){bc.innerText=banaAitUnread;bc.classList.toggle('hidden',banaAitUnread===0);} } function switchFbTab(tab){     _fbActiveTab=tab;     document.getElementById('tab-olumlu').classList.toggle('fb-tab-active',tab==='olumlu');     document.getElementById('tab-bana-ait').classList.toggle('fb-tab-active',tab==='bana-ait');     applyFbFilters(); } function applyFbFilters(){
     const fu=document.getElementById('fb-filter-user')?.value||'all';
     const ft=document.getElementById('fb-filter-topic')?.value||'all';
     const ftype=document.getElementById('fb-filter-type')?.value||'all';
