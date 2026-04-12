@@ -1107,14 +1107,26 @@ function applyGoalpexFilter(){
         return true;
     });
 
-    // KPI kartları
-    const totalPrim=filtered.reduce((s,d)=>s+(parseFloat(d.prim_tutari)||0),0);
-    const primAlan=filtered.filter(d=>parseFloat(d.prim_tutari)>0).length;
-    const perfOlan=filtered.filter(d=>parseFloat(d.perf_pct)>0).length;
-    const primOran=perfOlan>0?(primAlan/perfOlan*100):0;
-    document.getElementById('goalpex-kpi-prim').innerText='₺'+totalPrim.toLocaleString('tr-TR');
-    document.getElementById('goalpex-kpi-sayi').innerText=primAlan+' kişi';
-    document.getElementById('goalpex-kpi-oran').innerText=toTr(primOran,1)+'%';
+   // KPI kartları
+        if(currentUser.role==='admin'){
+            const totalPrim=filtered.reduce((s,d)=>s+(parseFloat(d.prim_tutari)||0),0);
+            const primAlan=filtered.filter(d=>parseFloat(d.prim_tutari)>0).length;
+            const perfOlan=filtered.filter(d=>parseFloat(d.perf_pct)>0).length;
+            const primOran=perfOlan>0?(primAlan/perfOlan*100):0;
+            document.getElementById('goalpex-kpi-grid').classList.remove('hidden');
+            document.getElementById('goalpex-agent-kpi').classList.add('hidden');
+            document.getElementById('goalpex-kpi-prim').innerText='₺'+totalPrim.toLocaleString('tr-TR');
+            document.getElementById('goalpex-kpi-sayi').innerText=primAlan+' kişi';
+            document.getElementById('goalpex-kpi-oran').innerText=toTr(primOran,1)+'%';
+        } else {
+            document.getElementById('goalpex-kpi-grid').classList.add('hidden');
+            document.getElementById('goalpex-agent-kpi').classList.remove('hidden');
+            const myRow=filtered[0];
+            const myPuan=myRow?Math.max(0,parseFloat(myRow.goalpex_puan)||0):0;
+            const myPrim=myRow?Math.max(0,parseFloat(myRow.prim_tutari)||0):0;
+            document.getElementById('goalpex-agent-puan').innerText=myPuan>0?myPuan+' P':'0 P';
+            document.getElementById('goalpex-agent-prim').innerText=myPrim>0?'₺'+myPrim.toLocaleString('tr-TR'):'₺0';
+        }
 
     const tbody=document.getElementById('goalpexTableBody');tbody.innerHTML='';
     if(filtered.length===0){tbody.innerHTML=`<tr><td colspan="10" class="px-5 py-12 text-center text-slate-400 font-bold text-sm">Sonuç bulunamadı.</td></tr>`;return;}
