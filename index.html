@@ -314,7 +314,7 @@
                         <div class="relative"><i class="fa-solid fa-user-tie absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i><select id="goalpexTlFilter" onchange="applyGoalpexFilter()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[140px] text-slate-800 dark:text-slate-100"><option value="all">Tüm Liderler</option></select></div>
                     </div>
                     <div class="relative min-w-[200px]"><i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i><input type="text" id="goalpexSearch" onkeyup="applyGoalpexFilter()" placeholder="Temsilci Ara..." class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-blue-500 outline-none shadow-sm transition-all text-slate-800 dark:text-slate-100"></div>
-                    <button onclick="exportGoalpexExcel()" class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-2xl shadow-lg transition-all uppercase tracking-widest"><i class="fa-solid fa-file-export"></i> Excel Export</button>
+                    <button id="goalpex-export-btn" onclick="exportGoalpexExcel()" class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-2xl shadow-lg transition-all uppercase tracking-widest"><i class="fa-solid fa-file-export"></i> Excel Export</button>
                 <div class="flex items-center gap-3">
                     <button onclick="openScalaModal()" class="flex items-center gap-2 px-5 py-2.5 text-white text-xs font-black rounded-2xl shadow-lg transition-all uppercase tracking-widest" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);box-shadow:0 4px 20px rgba(99,102,241,0.35);"><i class="fa-solid fa-table-list"></i> Goalpex Scala</button>
                     <button onclick="openSimulatorModal()" class="flex items-center gap-2 px-5 py-2.5 text-white text-xs font-black rounded-2xl shadow-lg transition-all uppercase tracking-widest" style="background:linear-gradient(135deg,#f59e0b,#ef4444);box-shadow:0 4px 20px rgba(245,158,11,0.35);"><i class="fa-solid fa-calculator"></i> Goalpex Simulator</button>
@@ -674,6 +674,7 @@ function applyRoleRestrictions(){
         document.getElementById('kpi-card-fte').classList.add('hidden');
         document.getElementById('th-fte').classList.add('hidden');
         const g=document.getElementById('kpi-grid');g.classList.remove('grid','grid-cols-2','lg:grid-cols-5');g.classList.add('kpi-grid-agent');
+        const expBtn=document.getElementById('goalpex-export-btn');if(expBtn)expBtn.style.display='none';
     }
     if(currentUser.role==='admin'){
         document.getElementById('fb-admin-actions').classList.remove('hidden');
