@@ -711,6 +711,7 @@ async function loadFeedback(){
         if(currentUser.role==='agent')q=q.or(`to_user.eq.${currentUser.user_name},type.eq.Olumlu`);
         const{data}=await q;fbAllData=data||[];
         if(currentUser.role==='agent'){             const tabs=document.getElementById('fb-agent-tabs');             if(tabs){tabs.classList.remove('hidden');tabs.classList.add('flex');}             document.getElementById('tab-bana-ait').classList.add('fb-tab-active');             const af=document.getElementById('fb-agent-filters');             if(af){af.classList.remove('hidden');af.classList.add('flex');}         }
+        if(currentUser.role==='agent')fbAllData=fbAllData.filter(fb=>fb.type==='Olumlu'||(fb.to_user===currentUser.user_name));
         if(currentUser.role==='admin'){
             const users=[...new Set(fbAllData.map(f=>f.to_user).filter(Boolean))].sort();
             const sel=document.getElementById('fb-filter-user');const cur=sel.value;
