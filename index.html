@@ -1533,19 +1533,23 @@ function renderDuyurular() {
     const catColor = d.category === 'surec' ? 'bg-blue-500/10 text-blue-500' : 'bg-amber-500/10 text-amber-600';
     const catLabel = d.category === 'surec' ? '📋 Süreç' : '📣 Operasyon';
     const isActive = d.id === activeDuyuruId;
-    return `<div onclick="openDuyuruDetay('${d.id}')" class="fb-item px-4 py-3.5 ${isActive?'fb-active':''} cursor-pointer">
+    return `<div onclick="openDuyuruDetay('${d.id}')" class="fb-item px-4 py-4 ${isActive?'fb-active':''} cursor-pointer group">
       <div class="flex items-start gap-3">
-        <div class="w-9 h-9 rounded-xl flex items-center justify-center text-sm shrink-0 mt-0.5 ${catColor}">
-          <i class="fa-solid ${d.category==='surec'?'fa-clipboard-list':'fa-bullhorn'}"></i>
+        <div class="shrink-0 mt-0.5">
+          <div class="w-10 h-10 rounded-2xl flex items-center justify-center text-base ${catColor}" style="box-shadow:0 2px 8px rgba(0,0,0,0.08)">
+            <i class="fa-solid ${d.category==='surec'?'fa-clipboard-list':'fa-bullhorn'}"></i>
+          </div>
         </div>
         <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-2 mb-0.5">
-            <span class="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md ${catColor}">${catLabel}</span>
+          <div class="flex items-center justify-between gap-2 mb-1">
+            <span class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-lg ${catColor}">${catLabel}</span>
+            <span class="text-[10px] text-slate-400 font-medium shrink-0">${tarih}</span>
           </div>
-          <p class="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">${d.title}</p>
-          <div class="flex items-center justify-between gap-2 mt-0.5">
-            <p class="text-xs text-slate-400 truncate">${(d.body||'').substring(0,50)}</p>           
-            <p class="text-[10px] text-slate-400 whitespace-nowrap shrink-0">${tarih}</p>
+          <p class="text-sm font-black text-slate-800 dark:text-slate-100 truncate leading-tight mb-1">${d.title}</p>
+          <p class="text-xs text-slate-400 dark:text-slate-500 truncate leading-relaxed">${(d.body||'').substring(0,60)}</p>
+          <div class="flex items-center justify-between mt-1.5">
+            <span class="text-[10px] text-slate-400 flex items-center gap-1"><i class="fa-solid fa-user text-[8px]"></i>${d.created_by}</span>
+            ${currentUser.role==='admin'?`<span class="text-[10px] font-black" style="color:${(duyuruOkumaOranlari[d.id]||0)>=80?'#10b981':(duyuruOkumaOranlari[d.id]||0)>=50?'#f59e0b':'#f87171'}">%${duyuruOkumaOranlari[d.id]||0}</span>`:''}
           </div>
         </div>
       </div>
