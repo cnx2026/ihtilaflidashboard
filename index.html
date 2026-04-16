@@ -1426,6 +1426,22 @@ async function checkDuyuruPopup() {
   } catch(e) { console.error(e); }
 }
 
+    async function loadDuyurular() {
+  const userTeam = (rawUsers.find(u => u.user_name === currentUser.user_name) || {}).team || 'all';
+  let query = _supabase.from('announcements').select('*').order('created_at', { ascending: false });
+  if (currentUser.role !== 'admin') {
+    query = query.eq('is_archived', false).in('team', [userTeam, 'all']);
+  }
+  const { data, error } = await query;
+  if (error) { console.error(error); return; }
+  duyurularData = data || [];
+  if (currentUser.role === 'admin') {
+    document.getElementById('duyuru-export-btns').classList.remove('hidden');
+    document.getElementById('duyuru-export-btns').classList.add('flex');
+  }
+  renderDuyurular();
+  updateDuyuruBadge();
+}
 async function updateDuyuruBadge() {
  if (!duyurularData.length) {
     document.getElementById('duyuru-badge-surec')?.classList.add('hidden');
