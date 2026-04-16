@@ -1544,7 +1544,7 @@ function renderDuyurular() {
           </div>
           <p class="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">${d.title}</p>
           <div class="flex items-center justify-between gap-2 mt-0.5">
-            <p class="text-xs text-slate-400 truncate">${(d.body||'').substring(0,50)}</p>           ${currentUser.role==='admin' ? `<div class="mt-1.5 flex items-center gap-2"><div class="flex-1 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden"><div class="h-full rounded-full ${(duyuruOkumaOranlari[d.id]||0)>=80?'bg-emerald-500':(duyuruOkumaOranlari[d.id]||0)>=50?'bg-amber-500':'bg-rose-400'}" style="width:${duyuruOkumaOranlari[d.id]||0}%"></div></div><span class="text-[10px] font-black text-slate-400 shrink-0">%${duyuruOkumaOranlari[d.id]||0}</span></div>` : ''}
+            <p class="text-xs text-slate-400 truncate">${(d.body||'').substring(0,50)}</p>           ${currentUser.role==='admin' ? `<div class="mt-1.5 flex items-center gap-2"><div style="flex:1;height:4px;background:rgba(100,116,139,0.2);border-radius:99px;overflow:hidden"><div style="height:100%;width:${duyuruOkumaOranlari[d.id]||0}%;background:${(duyuruOkumaOranlari[d.id]||0)>=80?'#10b981':(duyuruOkumaOranlari[d.id]||0)>=50?'#f59e0b':'#f87171'};border-radius:99px"></div></div><span style="font-size:10px;font-weight:900;color:#94a3b8;white-space:nowrap">%${duyuruOkumaOranlari[d.id]||0}</span></div>` : ''}
             <p class="text-[10px] text-slate-400 whitespace-nowrap shrink-0">${tarih}</p>
           </div>
         </div>
