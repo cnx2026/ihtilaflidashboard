@@ -164,6 +164,126 @@
     <span id="duyuru-badge" class="hidden fb-badge bg-rose-500 text-white ml-auto">0</span>
 </a>
             <a href="#" id="nav-feedback" onclick="showPage('feedback')" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all text-sm">
+                <!-- DUYURULAR SAYFASI -->
+<main id="page-duyurular" class="flex-1 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 min-w-0 hidden">
+  <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 px-6 py-5 z-20">
+    <div class="flex flex-col xl:flex-row items-center justify-between gap-4">
+      <div>
+        <h2 class="text-xl font-black tracking-tighter uppercase">Duyurular</h2>
+        <p class="text-xs text-slate-400 font-medium">Operasyon ve süreç bildirimleri.</p>
+      </div>
+      <div class="flex items-center gap-3 w-full xl:w-auto">
+        <div class="relative flex-1 xl:w-72">
+          <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+          <input type="text" id="duyuruSearch" onkeyup="filterDuyurular()" placeholder="Başlık veya içerikte ara..." class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-blue-500 outline-none shadow-sm transition-all text-slate-800 dark:text-slate-100">
+        </div>
+        <button id="duyuruEkleBtn" onclick="openDuyuruModal()" class="hidden items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black rounded-2xl shadow-lg transition-all uppercase tracking-widest">
+          <i class="fa-solid fa-plus"></i> Yeni Duyuru
+        </button>
+      </div>
+    </div>
+    <!-- Sekmeler -->
+    <div class="flex gap-1 mt-4 border-b border-slate-200 dark:border-slate-800">
+      <button id="duyuru-tab-surec" onclick="switchDuyuruTab('surec')" class="px-5 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-blue-500 text-blue-500 transition-all">
+        📋 Süreç
+      </button>
+      <button id="duyuru-tab-operasyon" onclick="switchDuyuruTab('operasyon')" class="px-5 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-transparent text-slate-400 hover:text-blue-500 transition-all">
+        📣 Operasyon
+      </button>
+      <button id="duyuru-tab-arsiv" onclick="switchDuyuruTab('arsiv')" class="hidden px-5 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-transparent text-slate-400 hover:text-blue-500 transition-all">
+        🗂️ Arşiv
+      </button>
+    </div>
+  </header>
+
+  <div class="flex-1 overflow-y-auto p-6">
+    <div id="duyuruListesi" class="space-y-4 max-w-3xl mx-auto"></div>
+    <div id="duyuruEmpty" class="hidden flex flex-col items-center justify-center py-20 text-center">
+      <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center mb-4">
+        <i class="fa-solid fa-bullhorn text-2xl text-slate-400"></i>
+      </div>
+      <p class="text-sm font-bold text-slate-400">Henüz duyuru yok.</p>
+    </div>
+  </div>
+</main>
+
+<!-- DUYURU EKLEME MODALI -->
+<div id="duyuruModal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+  <div class="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl w-full max-w-lg p-8 space-y-5 border border-slate-200 dark:border-slate-800">
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg font-black tracking-tight">Yeni Duyuru</h3>
+      <button onclick="closeDuyuruModal()" class="w-8 h-8 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-rose-500 transition-colors"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="space-y-1">
+      <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Kategori</label>
+      <select id="duyuruKategori" class="fb-select">
+        <option value="surec">📋 Süreç</option>
+        <option value="operasyon">📣 Operasyon</option>
+      </select>
+    </div>
+    <div class="space-y-1">
+      <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Ekip</label>
+      <select id="duyuruEkip" class="fb-select">
+        <option value="all">Tüm Ekipler</option>
+      </select>
+    </div>
+    <div class="space-y-1">
+      <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Başlık</label>
+      <input type="text" id="duyuruBaslik" placeholder="Duyuru başlığı..." class="fb-input">
+    </div>
+    <div class="space-y-1">
+      <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Duyuru Metni</label>
+      <textarea id="duyuruMetin" rows="4" placeholder="Duyuru içeriği..." class="fb-input"></textarea>
+    </div>
+    <div class="space-y-1">
+      <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Görsel 1 (URL)</label>
+      <input type="text" id="duyuruGorsel1" placeholder="https://..." class="fb-input">
+    </div>
+    <div class="space-y-1">
+      <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Görsel 2 (URL)</label>
+      <input type="text" id="duyuruGorsel2" placeholder="https://..." class="fb-input">
+    </div>
+    <div id="duyuruModalError" class="hidden py-2 px-4 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-sm font-medium text-center"></div>
+    <button onclick="saveDuyuru()" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl transition-all">Duyuru Yayınla</button>
+  </div>
+</div>
+
+<!-- DUYURU DETAY MODALI -->
+<div id="duyuruDetayModal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+  <div class="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl w-full max-w-lg p-8 space-y-5 border border-slate-200 dark:border-slate-800 max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between">
+      <h3 id="detayBaslik" class="text-lg font-black tracking-tight"></h3>
+      <button onclick="closeDuyuruDetay()" class="w-8 h-8 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-rose-500 transition-colors"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="detayMeta" class="flex items-center gap-2 flex-wrap"></div>
+    <p id="detayMetin" class="text-sm font-medium text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap"></p>
+    <div id="detayGorseller" class="space-y-3"></div>
+    <div id="detayOkuButon" class="pt-2"></div>
+    <div id="detayAdminAlan" class="hidden space-y-3 pt-2 border-t border-slate-200 dark:border-slate-800">
+      <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Admin İşlemleri</p>
+      <div class="flex gap-2 flex-wrap">
+        <button id="detayArsivBtn" onclick="arsivleDuyuru()" class="px-4 py-2 bg-amber-500/10 text-amber-600 text-xs font-black rounded-xl border border-amber-500/20 hover:bg-amber-500/20 transition-all">🗂️ Arşivle</button>
+        <button onclick="silDuyuru()" class="px-4 py-2 bg-rose-500/10 text-rose-500 text-xs font-black rounded-xl border border-rose-500/20 hover:bg-rose-500/20 transition-all">🗑️ Sil</button>
+        <button onclick="duyuruOkuyanlarRapor()" class="px-4 py-2 bg-blue-500/10 text-blue-500 text-xs font-black rounded-xl border border-blue-500/20 hover:bg-blue-500/20 transition-all">📊 Okuyanlar Raporu</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- POP-UP BİLDİRİM -->
+<div id="duyuruPopup" class="fixed inset-0 z-[300] hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+  <div class="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl w-full max-w-sm p-8 border border-slate-200 dark:border-slate-800 text-center space-y-4">
+    <div class="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center mx-auto">
+      <i class="fa-solid fa-bullhorn text-2xl text-blue-500"></i>
+    </div>
+    <h3 class="text-lg font-black tracking-tight">Yeni Duyuru!</h3>
+    <p id="popupDuyuruText" class="text-sm text-slate-500 dark:text-slate-400 font-medium"></p>
+    <div class="flex gap-3">
+      <button onclick="closeDuyuruPopup(false)" class="flex-1 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-black rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">Sonra Gör</button>
+      <button onclick="closeDuyuruPopup(true)" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black rounded-2xl transition-all">Duyuruya Git</button>
+    </div>
+  </div>
+</div>
                 <i class="fa-solid fa-envelope"></i><span>Geri Bildirim</span>
                 <span id="feedback-badge-blue" class="hidden fb-badge bg-blue-500 text-white ml-auto">0</span>                 <span id="feedback-badge-green" class="hidden fb-badge bg-emerald-500 text-white">0</span>                 <span id="feedback-badge-red" class="hidden fb-badge bg-rose-500 text-white">0</span>
             </a>
