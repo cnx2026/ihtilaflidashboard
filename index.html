@@ -1604,11 +1604,11 @@ async function openDuyuruDetay(id) {
   document.getElementById('duyuru-detail-content').classList.remove('hidden');
   document.getElementById('duyuru-detail-content').classList.add('flex');
 
-  const { data: existing } = await _supabase.from('announcement_reads').select('id').eq('announcement_id', id).eq('user_name', currentUser.user_name).maybeSingle();
-  if (!existing) {
-    await _supabase.from('announcement_reads').insert({ announcement_id: id, user_name: currentUser.user_name });
-    await loadDuyurular();
-    renderDuyurular();
+if (currentUser.role !== 'admin') {
+    const { data: existingRead } = await _supabase.from('announcement_reads').select('id').eq('announcement_id', id).eq('user_name', currentUser.user_name).maybeSingle();
+    if (!existingRead) {
+      okuBtn.innerHTML = `<button onclick="okuduOnay('${id}')" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl transition-all flex items-center justify-center gap-2"><i class="fa-solid fa-circle-check"></i> Okudum & Onayladım</button>`;
+    }
   }
 }
 
@@ -1625,7 +1625,15 @@ function closeDuyuruModal() {
   document.getElementById('duyuruModal').classList.remove('flex');
 }
 
-async function saveDuyuru() {
+async function okuduOnay(id) {
+  await _supabase.from('announcement_reads').insert({ announcement_id: id, user_name: currentUser.user_name });
+  const okuBtn = document.getElementById('ddet-okuyanlar-btn');
+  if (okuBtn) okuBtn.innerHTML = '<div class="flex items-center gap-2 text-emerald-500 text-sm font-black"><i class="fa-solid fa-circle-check"></i> Okundu & Onaylandı</div>';
+  _addShownPopup(id);
+  await checkDuyuruPopup();
+  await loadDuyurular();
+}
+    async function saveDuyuru() {
   const title = document.getElementById('duyuruBaslik').value.trim();
   const body = document.getElementById('duyuruMetin').value.trim();
   const team = document.getElementById('duyuruEkip').value;
