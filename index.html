@@ -820,7 +820,7 @@ async function showDashboard(user){
     document.getElementById('loginPage').classList.add('hidden');
     document.getElementById('mainDashboard').classList.remove('hidden');
     document.getElementById('fb-reply-av').innerText=ini;
-applyRoleRestrictions();loadPeriods();checkFeedbackBadge();checkDuyuruPopup();setInterval(async()=>{if(currentUser.role!=='agent')return;checkFeedbackBadge();checkDuyuruPopup();},60000);}
+applyRoleRestrictions();loadPeriods();checkFeedbackBadge();setTimeout(()=>checkDuyuruPopup(),2000);setInterval(async()=>{if(currentUser.role!=='agent')return;checkFeedbackBadge();checkDuyuruPopup();},60000);}
 
 function applyRoleRestrictions(){
     if(currentUser.role==='agent'){
