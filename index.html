@@ -159,8 +159,8 @@
             <a href="#" id="nav-uretim" onclick="showPage('uretim')" class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-blue-500/10 text-blue-500 font-bold border border-blue-500/20 transition-all shadow-sm text-sm"><i class="fa-solid fa-chart-line"></i> Üretim Takip</a>
             <a href="#" id="nav-performans" onclick="showPage('performans')" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all text-sm"><i class="fa-solid fa-gauge-high"></i> Performans</a>
             <a href="#" id="nav-goalpex" onclick="showPage('goalpex')" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all text-sm"><i class="fa-solid fa-bullseye"></i> Goalpex</a>
-            <a href="#" id="nav-" onclick="showPage('')" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all text-sm">
-    <i class="fa-solid fa-bullhorn"></i><span></span>
+            <a href="#" id="nav-duyurular" onclick="showPage('duyurular')" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all text-sm">
+    <i class="fa-solid fa-bullhorn"></i><span>Duyurular</span>
     <span id="duyuru-badge" class="hidden fb-badge bg-rose-500 text-white ml-auto">0</span>
 </a>
             <a href="#" id="nav-feedback" onclick="showPage('feedback')" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all text-sm">
@@ -465,7 +465,7 @@
             </div>
         </div>
     </main>
-    <!--  SAYFASI -->
+    <!-- DUYURULAR SAYFASI -->
 <main id="page-duyurular" class="flex-1 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 min-w-0 hidden">
   <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 px-6 py-5 z-20">
     <div class="flex flex-col xl:flex-row items-center justify-between gap-4">
@@ -1382,7 +1382,6 @@ function exportToExcel(){
 
 function openPasswordModal(){     document.getElementById('pw-current').value='';     document.getElementById('pw-new').value='';     document.getElementById('pw-confirm').value='';     document.getElementById('pw-error').classList.add('hidden');     document.getElementById('pw-success').classList.add('hidden');     document.getElementById('passwordModal').classList.remove('hidden');     document.getElementById('passwordModal').classList.add('flex'); } function closePasswordModal(){     document.getElementById('passwordModal').classList.add('hidden');     document.getElementById('passwordModal').classList.remove('flex'); } async function changePassword(){     const current=document.getElementById('pw-current').value;     const newPw=document.getElementById('pw-new').value;     const confirm=document.getElementById('pw-confirm').value;     const errEl=document.getElementById('pw-error');     const sucEl=document.getElementById('pw-success');     errEl.classList.add('hidden');sucEl.classList.add('hidden');     if(!current||!newPw||!confirm){errEl.innerText='Tüm alanları doldurun.';errEl.classList.remove('hidden');return;}     if(newPw.length<6){errEl.innerText='Yeni şifre en az 6 karakter olmalı.';errEl.classList.remove('hidden');return;}     if(newPw!==confirm){errEl.innerText='Yeni şifreler eşleşmiyor.';errEl.classList.remove('hidden');return;}     const{error:signInError}=await _supabase.auth.signInWithPassword({email:currentUser.email,password:current});     if(signInError){errEl.innerText='Mevcut şifre hatalı.';errEl.classList.remove('hidden');return;}     const{error}=await _supabase.auth.updateUser({password:newPw});     if(error){errEl.innerText='Şifre güncellenemedi: '+error.message;errEl.classList.remove('hidden');return;}     sucEl.classList.remove('hidden');     setTimeout(()=>closePasswordModal(),2000); } function openPasswordModal(){     document.getElementById('pw-current').value='';     document.getElementById('pw-new').value='';     document.getElementById('pw-confirm').value='';     document.getElementById('pw-error').classList.add('hidden');     document.getElementById('pw-success').classList.add('hidden');     document.getElementById('passwordModal').classList.remove('hidden');     document.getElementById('passwordModal').classList.add('flex'); } function closePasswordModal(){     document.getElementById('passwordModal').classList.add('hidden');     document.getElementById('passwordModal').classList.remove('flex'); } async function changePassword(){     const current=document.getElementById('pw-current').value;     const newPw=document.getElementById('pw-new').value;     const confirm=document.getElementById('pw-confirm').value;     const errEl=document.getElementById('pw-error');     const sucEl=document.getElementById('pw-success');     errEl.classList.add('hidden');sucEl.classList.add('hidden');     if(!current||!newPw||!confirm){errEl.innerText='Tüm alanları doldurun.';errEl.classList.remove('hidden');return;}     if(newPw.length<6){errEl.innerText='Yeni şifre en az 6 karakter olmalı.';errEl.classList.remove('hidden');return;}     if(newPw!==confirm){errEl.innerText='Yeni şifreler eşleşmiyor.';errEl.classList.remove('hidden');return;}     const{error:signInError}=await _supabase.auth.signInWithPassword({email:currentUser.email,password:current});     if(signInError){errEl.innerText='Mevcut şifre hatalı.';errEl.classList.remove('hidden');return;}     const{error}=await _supabase.auth.updateUser({password:newPw});     if(error){errEl.innerText='Şifre güncellenemedi: '+error.message;errEl.classList.remove('hidden');return;}     sucEl.classList.remove('hidden');     setTimeout(()=>closePasswordModal(),2000); } function toggleLoading(s){document.getElementById('loading-overlay').classList.toggle('hidden',!s);}
 // ══════════════════════════════════════════
-// ══════════════════════════════════════════
 // DUYURULAR
 // ══════════════════════════════════════════
 let duyurularData = [];
@@ -1391,7 +1390,7 @@ let activeDuyuruId = null;
 
 async function loadDuyurular() {
   const userTeam = (rawUsers.find(u => u.user_name === currentUser.user_name) || {}).team || 'all';
-  let query = _supabase.from('announcements').select('*').order('created_at', { ascending: false });
+  let query = supabase.from('announcements').select('*').order('created_at', { ascending: false });
   if (currentUser.role !== 'admin') {
     query = query.eq('is_archived', false).in('team', [userTeam, 'all']);
   }
@@ -1404,7 +1403,7 @@ async function loadDuyurular() {
 
 async function updateDuyuruBadge() {
   if (!duyurularData.length) { document.getElementById('duyuru-badge').classList.add('hidden'); return; }
-  const { data: reads } = await _supabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);
+  const { data: reads } = await supabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);
   const readIds = (reads || []).map(r => r.announcement_id);
   const userTeam = (rawUsers.find(u => u.user_name === currentUser.user_name) || {}).team || 'all';
   const unread = duyurularData.filter(d => !d.is_archived && !readIds.includes(d.id) && (currentUser.role === 'admin' || d.team === userTeam || d.team === 'all'));
@@ -1454,7 +1453,9 @@ function switchDuyuruTab(tab) {
   renderDuyurular();
 }
 
-function filterDuyurular() { renderDuyurular(); }
+function filterDuyurular() {
+  renderDuyurular();
+}
 
 function renderDuyurular() {
   const q = (document.getElementById('duyuruSearch')?.value || '').toLowerCase();
@@ -1529,7 +1530,8 @@ async function openDuyuruDetay(id) {
     gorseller.appendChild(img);
   });
 
-  const { data: existing } = await _supabase.from('announcement_reads').select('id').eq('announcement_id', id).eq('user_name', currentUser.user_name).maybeSingle();
+  // Okudum butonu
+  const { data: existing } = await supabase.from('announcement_reads').select('id').eq('announcement_id', id).eq('user_name', currentUser.user_name).maybeSingle();
   const okuBtn = document.getElementById('detayOkuButon');
   if (existing) {
     okuBtn.innerHTML = '<div class="flex items-center gap-2 text-emerald-500 text-sm font-black"><i class="fa-solid fa-circle-check"></i> Okundu & Onaylandı</div>';
@@ -1537,10 +1539,12 @@ async function openDuyuruDetay(id) {
     okuBtn.innerHTML = `<button onclick="okuduOnay('${id}')" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl transition-all">✅ Okudum, Anladım</button>`;
   }
 
+  // Admin alanı
   const adminAlan = document.getElementById('detayAdminAlan');
   if (currentUser.role === 'admin') {
     adminAlan.classList.remove('hidden');
-    document.getElementById('detayArsivBtn').textContent = d.is_archived ? '📤 Arşivden Çıkar' : '🗂️ Arşivle';
+    const arsivBtn = document.getElementById('detayArsivBtn');
+    arsivBtn.textContent = d.is_archived ? '📤 Arşivden Çıkar' : '🗂️ Arşivle';
   } else {
     adminAlan.classList.add('hidden');
   }
@@ -1549,8 +1553,9 @@ async function openDuyuruDetay(id) {
   modal.classList.remove('hidden');
   modal.classList.add('flex');
 
+  // Okundu işaretle
   if (!existing) {
-    await _supabase.from('announcement_reads').insert({ announcement_id: id, user_name: currentUser.user_name });
+    await supabase.from('announcement_reads').insert({ announcement_id: id, user_name: currentUser.user_name });
     await loadDuyurular();
   }
 }
@@ -1566,6 +1571,7 @@ function closeDuyuruDetay() {
 }
 
 function openDuyuruModal() {
+  // Ekip seçeneği doldur
   const ekipSelect = document.getElementById('duyuruEkip');
   const teams = [...new Set(rawUsers.map(u => u.team).filter(Boolean))];
   ekipSelect.innerHTML = '<option value="all">Tüm Ekipler</option>' + teams.map(t => `<option value="${t}">${t}</option>`).join('');
@@ -1590,7 +1596,7 @@ async function saveDuyuru() {
   if (!title || !body) { errEl.textContent = 'Başlık ve metin zorunludur.'; errEl.classList.remove('hidden'); return; }
   errEl.classList.add('hidden');
 
-  const { error } = await _supabase.from('announcements').insert({
+  const { error } = await supabase.from('announcements').insert({
     title, body, team, category: cat,
     image_url_1: img1 || null,
     image_url_2: img2 || null,
@@ -1606,7 +1612,7 @@ async function saveDuyuru() {
 async function arsivleDuyuru() {
   if (!activeDuyuruId) return;
   const d = duyurularData.find(x => x.id === activeDuyuruId);
-  await _supabase.from('announcements').update({ is_archived: !d.is_archived }).eq('id', activeDuyuruId);
+  await supabase.from('announcements').update({ is_archived: !d.is_archived }).eq('id', activeDuyuruId);
   closeDuyuruDetay();
   await loadDuyurular();
 }
@@ -1614,14 +1620,14 @@ async function arsivleDuyuru() {
 async function silDuyuru() {
   if (!activeDuyuruId) return;
   if (!confirm('Bu duyuruyu silmek istediğinize emin misiniz?')) return;
-  await _supabase.from('announcements').delete().eq('id', activeDuyuruId);
+  await supabase.from('announcements').delete().eq('id', activeDuyuruId);
   closeDuyuruDetay();
   await loadDuyurular();
 }
 
 async function duyuruOkuyanlarRapor() {
   if (!activeDuyuruId) return;
-  const { data } = await _supabase.from('announcement_reads').select('user_name, read_at').eq('announcement_id', activeDuyuruId).order('read_at', { ascending: true });
+  const { data } = await supabase.from('announcement_reads').select('user_name, read_at').eq('announcement_id', activeDuyuruId).order('read_at', { ascending: true });
   if (!data || !data.length) { alert('Henüz kimse okumadı.'); return; }
   const text = data.map(r => {
     const tarih = new Date(r.read_at).toLocaleDateString('tr-TR');
