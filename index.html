@@ -1403,7 +1403,7 @@ async function loadDuyurular() {
 
 async function updateDuyuruBadge() {
   if (!duyurularData.length) { document.getElementById('duyuru-badge').classList.add('hidden'); return; }
-  const { data: reads } = await supabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);
+  const { data: reads } = await _supabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);
   const readIds = (reads || []).map(r => r.announcement_id);
   const userTeam = (rawUsers.find(u => u.user_name === currentUser.user_name) || {}).team || 'all';
   const unread = duyurularData.filter(d => !d.is_archived && !readIds.includes(d.id) && (currentUser.role === 'admin' || d.team === userTeam || d.team === 'all'));
@@ -1531,7 +1531,7 @@ async function openDuyuruDetay(id) {
   });
 
   // Okudum butonu
-  const { data: existing } = await supabase.from('announcement_reads').select('id').eq('announcement_id', id).eq('user_name', currentUser.user_name).maybeSingle();
+  const { data: existing } = await _supabase.from('announcement_reads').select('id').eq('announcement_id', id).eq('user_name', currentUser.user_name).maybeSingle();
   const okuBtn = document.getElementById('detayOkuButon');
   if (existing) {
     okuBtn.innerHTML = '<div class="flex items-center gap-2 text-emerald-500 text-sm font-black"><i class="fa-solid fa-circle-check"></i> Okundu & Onaylandı</div>';
@@ -1555,7 +1555,7 @@ async function openDuyuruDetay(id) {
 
   // Okundu işaretle
   if (!existing) {
-    await supabase.from('announcement_reads').insert({ announcement_id: id, user_name: currentUser.user_name });
+    await _supabase.from('announcement_reads').insert({ announcement_id: id, user_name: currentUser.user_name });
     await loadDuyurular();
   }
 }
@@ -1596,7 +1596,7 @@ async function saveDuyuru() {
   if (!title || !body) { errEl.textContent = 'Başlık ve metin zorunludur.'; errEl.classList.remove('hidden'); return; }
   errEl.classList.add('hidden');
 
-  const { error } = await supabase.from('announcements').insert({
+  const { error } = await _supabase.from('announcements').insert({
     title, body, team, category: cat,
     image_url_1: img1 || null,
     image_url_2: img2 || null,
@@ -1612,7 +1612,7 @@ async function saveDuyuru() {
 async function arsivleDuyuru() {
   if (!activeDuyuruId) return;
   const d = duyurularData.find(x => x.id === activeDuyuruId);
-  await supabase.from('announcements').update({ is_archived: !d.is_archived }).eq('id', activeDuyuruId);
+  await _supabase.from('announcements').update({ is_archived: !d.is_archived }).eq('id', activeDuyuruId);
   closeDuyuruDetay();
   await loadDuyurular();
 }
@@ -1620,14 +1620,14 @@ async function arsivleDuyuru() {
 async function silDuyuru() {
   if (!activeDuyuruId) return;
   if (!confirm('Bu duyuruyu silmek istediğinize emin misiniz?')) return;
-  await supabase.from('announcements').delete().eq('id', activeDuyuruId);
+  await _supabase.from('announcements').delete().eq('id', activeDuyuruId);
   closeDuyuruDetay();
   await loadDuyurular();
 }
 
 async function duyuruOkuyanlarRapor() {
   if (!activeDuyuruId) return;
-  const { data } = await supabase.from('announcement_reads').select('user_name, read_at').eq('announcement_id', activeDuyuruId).order('read_at', { ascending: true });
+  const { data } = await _supabase.from('announcement_reads').select('user_name, read_at').eq('announcement_id', activeDuyuruId).order('read_at', { ascending: true });
   if (!data || !data.length) { alert('Henüz kimse okumadı.'); return; }
   const text = data.map(r => {
     const tarih = new Date(r.read_at).toLocaleDateString('tr-TR');
