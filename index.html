@@ -515,34 +515,39 @@
         </div>
       </div>
       <div id="duyuru-detail-content" class="hidden flex-col flex-1 overflow-hidden bg-slate-50 dark:bg-slate-950">
+        <!-- Detay Header -->
         <div class="px-8 py-5 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shrink-0">
           <div class="flex items-start justify-between gap-4">
             <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 flex-wrap mb-1.5">
+              <div class="flex items-center gap-2 flex-wrap mb-2">
                 <span id="ddet-cat-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg"></span>
               </div>
-              <h3 id="ddet-title" class="font-black text-base tracking-tight leading-tight"></h3>
-              <div class="flex items-center gap-3 mt-1.5 flex-wrap">
-                <span class="text-xs text-slate-500 font-medium flex items-center gap-1.5">
-                  <span id="ddet-author-av" class="w-5 h-5 rounded-md bg-blue-600 inline-flex items-center justify-center text-white font-black text-[9px]"></span>
-                  <span id="ddet-author"></span>
-                </span>
-                <span class="text-[10px] text-slate-400 ml-auto" id="ddet-date"></span>
+              <h3 id="ddet-title" class="font-black text-lg tracking-tight leading-tight mb-2"></h3>
+              <div class="flex items-center gap-3 flex-wrap">
+                <div class="flex items-center gap-2">
+                  <span id="ddet-author-av" class="w-6 h-6 rounded-lg bg-blue-600 inline-flex items-center justify-center text-white font-black text-[9px]"></span>
+                  <span id="ddet-author" class="text-xs text-slate-500 font-bold"></span>
+                </div>
+                <span class="text-[10px] text-slate-400" id="ddet-date"></span>
               </div>
             </div>
             <div id="ddet-admin-btns" class="hidden flex gap-2 shrink-0">
-              <button id="ddet-arsiv-btn" onclick="arsivleDuyuruDetay()" class="px-3 py-1.5 text-xs font-bold text-amber-600 hover:bg-amber-500/10 rounded-lg transition-all"></button>
-              <button onclick="silDuyuruDetay()" class="px-3 py-1.5 text-xs font-bold text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all"><i class="fa-solid fa-trash-can"></i></button>
+              <button id="ddet-arsiv-btn" onclick="arsivleDuyuruDetay()" class="px-3 py-1.5 text-xs font-bold text-amber-600 hover:bg-amber-500/10 rounded-lg transition-all border border-amber-500/20"></button>
+              <button onclick="silDuyuruDetay()" class="px-3 py-1.5 text-xs font-bold text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all border border-rose-500/20"><i class="fa-solid fa-trash-can"></i></button>
             </div>
           </div>
         </div>
-        <div class="flex-1 overflow-y-auto px-8 py-6 space-y-4">
-          <p id="ddet-body" class="text-sm font-medium text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap"></p>
-          <div id="ddet-images" class="space-y-3"></div>
-          <div id="ddet-okuyanlar-btn" class="pt-2"></div>
+        <!-- İçerik -->
+        <div class="flex-1 overflow-y-auto">
+          <div class="px-8 py-6">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm mb-4">
+              <p id="ddet-body" class="text-sm text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap"></p>
+            </div>
+            <div id="ddet-images" class="space-y-3 mb-4"></div>
+            <div id="ddet-okuyanlar-btn"></div>
+          </div>
         </div>
       </div>
-    </div>
   </div>
 </main>
 
