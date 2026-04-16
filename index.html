@@ -754,15 +754,24 @@ function toggleTheme(){const d=document.documentElement.classList.toggle('dark')
 function initTheme(){const s=localStorage.getItem('theme')||'dark';document.documentElement.classList.toggle('dark',s==='dark');document.getElementById('theme-icon').className=s==='dark'?'fa-solid fa-sun text-lg':'fa-solid fa-moon text-lg';}
 
 function showPage(p){
-    ['uretim','performans','goalpex','feedback'].forEach(x=>document.getElementById(`page-${x}`).classList.toggle('hidden',x!==p));
+    ['uretim','performans','goalpex','feedback','duyurular'].forEach(x=>{
+        const el = document.getElementById(`page-${x}`);
+        if(el) el.classList.toggle('hidden',x!==p);
+    });
     const a='flex items-center gap-3 px-4 py-3 rounded-2xl bg-blue-500/10 text-blue-500 font-bold border border-blue-500/20 transition-all shadow-sm text-sm';
     const i='flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:text-blue-500 font-bold transition-all text-sm';
-    ['uretim','performans','goalpex','feedback'].forEach(x=>{document.getElementById(`nav-${x}`).className=x===p?a:i;});
-    const badge=document.getElementById('feedback-badge');
-    if(badge)document.getElementById('nav-feedback').appendChild(badge);
-    if(p==='performans')loadPerformans();
-    if(p==='feedback')loadFeedback();
-    if(p==='goalpex')loadGoalpex();
+    ['uretim','performans','goalpex','feedback','duyurular'].forEach(x=>{
+        const el = document.getElementById(`nav-${x}`);
+        if(el) el.className=x===p?a:i;
+    });
+    if(p==='performans') loadPerformans();
+    if(p==='feedback') loadFeedback();
+    if(p==='goalpex') loadGoalpex();
+    if(p==='duyurular'){
+        document.getElementById('duyuruEkleBtn')?.classList.toggle('hidden', currentUser.role !== 'admin');
+        document.getElementById('duyuru-tab-arsiv')?.classList.toggle('hidden', currentUser.role !== 'admin');
+        loadDuyurular();
+    }
 }
 
 document.addEventListener('DOMContentLoaded',async()=>{
@@ -1372,6 +1381,261 @@ function exportToExcel(){
 }
 
 function openPasswordModal(){     document.getElementById('pw-current').value='';     document.getElementById('pw-new').value='';     document.getElementById('pw-confirm').value='';     document.getElementById('pw-error').classList.add('hidden');     document.getElementById('pw-success').classList.add('hidden');     document.getElementById('passwordModal').classList.remove('hidden');     document.getElementById('passwordModal').classList.add('flex'); } function closePasswordModal(){     document.getElementById('passwordModal').classList.add('hidden');     document.getElementById('passwordModal').classList.remove('flex'); } async function changePassword(){     const current=document.getElementById('pw-current').value;     const newPw=document.getElementById('pw-new').value;     const confirm=document.getElementById('pw-confirm').value;     const errEl=document.getElementById('pw-error');     const sucEl=document.getElementById('pw-success');     errEl.classList.add('hidden');sucEl.classList.add('hidden');     if(!current||!newPw||!confirm){errEl.innerText='Tüm alanları doldurun.';errEl.classList.remove('hidden');return;}     if(newPw.length<6){errEl.innerText='Yeni şifre en az 6 karakter olmalı.';errEl.classList.remove('hidden');return;}     if(newPw!==confirm){errEl.innerText='Yeni şifreler eşleşmiyor.';errEl.classList.remove('hidden');return;}     const{error:signInError}=await _supabase.auth.signInWithPassword({email:currentUser.email,password:current});     if(signInError){errEl.innerText='Mevcut şifre hatalı.';errEl.classList.remove('hidden');return;}     const{error}=await _supabase.auth.updateUser({password:newPw});     if(error){errEl.innerText='Şifre güncellenemedi: '+error.message;errEl.classList.remove('hidden');return;}     sucEl.classList.remove('hidden');     setTimeout(()=>closePasswordModal(),2000); } function openPasswordModal(){     document.getElementById('pw-current').value='';     document.getElementById('pw-new').value='';     document.getElementById('pw-confirm').value='';     document.getElementById('pw-error').classList.add('hidden');     document.getElementById('pw-success').classList.add('hidden');     document.getElementById('passwordModal').classList.remove('hidden');     document.getElementById('passwordModal').classList.add('flex'); } function closePasswordModal(){     document.getElementById('passwordModal').classList.add('hidden');     document.getElementById('passwordModal').classList.remove('flex'); } async function changePassword(){     const current=document.getElementById('pw-current').value;     const newPw=document.getElementById('pw-new').value;     const confirm=document.getElementById('pw-confirm').value;     const errEl=document.getElementById('pw-error');     const sucEl=document.getElementById('pw-success');     errEl.classList.add('hidden');sucEl.classList.add('hidden');     if(!current||!newPw||!confirm){errEl.innerText='Tüm alanları doldurun.';errEl.classList.remove('hidden');return;}     if(newPw.length<6){errEl.innerText='Yeni şifre en az 6 karakter olmalı.';errEl.classList.remove('hidden');return;}     if(newPw!==confirm){errEl.innerText='Yeni şifreler eşleşmiyor.';errEl.classList.remove('hidden');return;}     const{error:signInError}=await _supabase.auth.signInWithPassword({email:currentUser.email,password:current});     if(signInError){errEl.innerText='Mevcut şifre hatalı.';errEl.classList.remove('hidden');return;}     const{error}=await _supabase.auth.updateUser({password:newPw});     if(error){errEl.innerText='Şifre güncellenemedi: '+error.message;errEl.classList.remove('hidden');return;}     sucEl.classList.remove('hidden');     setTimeout(()=>closePasswordModal(),2000); } function toggleLoading(s){document.getElementById('loading-overlay').classList.toggle('hidden',!s);}
+// ══════════════════════════════════════════
+// DUYURULAR
+// ══════════════════════════════════════════
+let duyurularData = [];
+let activeDuyuruTab = 'surec';
+let activeDuyuruId = null;
+
+async function loadDuyurular() {
+  const userTeam = (rawUsers.find(u => u.user_name === currentUser.user_name) || {}).team || 'all';
+  let query = supabase.from('announcements').select('*').order('created_at', { ascending: false });
+  if (currentUser.role !== 'admin') {
+    query = query.eq('is_archived', false).in('team', [userTeam, 'all']);
+  }
+  const { data, error } = await query;
+  if (error) { console.error(error); return; }
+  duyurularData = data || [];
+  renderDuyurular();
+  updateDuyuruBadge();
+}
+
+async function updateDuyuruBadge() {
+  if (!duyurularData.length) { document.getElementById('duyuru-badge').classList.add('hidden'); return; }
+  const { data: reads } = await supabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);
+  const readIds = (reads || []).map(r => r.announcement_id);
+  const userTeam = (rawUsers.find(u => u.user_name === currentUser.user_name) || {}).team || 'all';
+  const unread = duyurularData.filter(d => !d.is_archived && !readIds.includes(d.id) && (currentUser.role === 'admin' || d.team === userTeam || d.team === 'all'));
+  const badge = document.getElementById('duyuru-badge');
+  if (unread.length > 0) {
+    badge.textContent = unread.length;
+    badge.classList.remove('hidden');
+    showDuyuruPopup(unread);
+  } else {
+    badge.classList.add('hidden');
+  }
+}
+
+function showDuyuruPopup(unreadList) {
+  if (!unreadList.length) return;
+  const popup = document.getElementById('duyuruPopup');
+  const text = document.getElementById('popupDuyuruText');
+  if (unreadList.length === 1) {
+    text.textContent = `"${unreadList[0].title}" başlıklı yeni bir duyuru var.`;
+  } else {
+    text.textContent = `${unreadList.length} adet okunmamış duyurunuz var.`;
+  }
+  popup.classList.remove('hidden');
+  popup.classList.add('flex');
+}
+
+function closeDuyuruPopup(goTo) {
+  const popup = document.getElementById('duyuruPopup');
+  popup.classList.add('hidden');
+  popup.classList.remove('flex');
+  if (goTo) showPage('duyurular');
+}
+
+function switchDuyuruTab(tab) {
+  activeDuyuruTab = tab;
+  ['surec','operasyon','arsiv'].forEach(t => {
+    const btn = document.getElementById(`duyuru-tab-${t}`);
+    if (!btn) return;
+    if (t === tab) {
+      btn.classList.add('border-blue-500','text-blue-500');
+      btn.classList.remove('border-transparent','text-slate-400');
+    } else {
+      btn.classList.remove('border-blue-500','text-blue-500');
+      btn.classList.add('border-transparent','text-slate-400');
+    }
+  });
+  renderDuyurular();
+}
+
+function filterDuyurular() {
+  renderDuyurular();
+}
+
+function renderDuyurular() {
+  const q = (document.getElementById('duyuruSearch')?.value || '').toLowerCase();
+  const liste = document.getElementById('duyuruListesi');
+  const empty = document.getElementById('duyuruEmpty');
+  if (!liste) return;
+
+  let filtered = duyurularData.filter(d => {
+    if (activeDuyuruTab === 'arsiv') return d.is_archived;
+    if (d.is_archived) return false;
+    if (d.category !== activeDuyuruTab) return false;
+    if (q) return d.title.toLowerCase().includes(q) || d.body.toLowerCase().includes(q);
+    return true;
+  });
+
+  if (!filtered.length) {
+    liste.innerHTML = '';
+    empty.classList.remove('hidden');
+    empty.classList.add('flex');
+    return;
+  }
+  empty.classList.add('hidden');
+  empty.classList.remove('flex');
+
+  liste.innerHTML = filtered.map(d => {
+    const tarih = new Date(d.created_at).toLocaleDateString('tr-TR', { day:'2-digit', month:'2-digit', year:'numeric' });
+    const saat  = new Date(d.created_at).toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' });
+    const catColor = d.category === 'surec' ? 'bg-blue-500/10 text-blue-500' : 'bg-amber-500/10 text-amber-600';
+    const catLabel = d.category === 'surec' ? '📋 Süreç' : '📣 Operasyon';
+    const arsivBadge = d.is_archived ? '<span class="px-2 py-0.5 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-500 text-[10px] font-black uppercase">Arşiv</span>' : '';
+    return `
+      <div onclick="openDuyuruDetay('${d.id}')" class="bg-white dark:bg-slate-900 rounded-[1.5rem] border border-slate-200 dark:border-slate-800 p-5 shadow-sm hover:shadow-md hover:border-blue-500/30 transition-all cursor-pointer">
+        <div class="flex items-start justify-between gap-3 mb-2">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider ${catColor}">${catLabel}</span>
+            ${arsivBadge}
+          </div>
+          <span class="text-[10px] text-slate-400 font-bold whitespace-nowrap">${tarih} · ${saat}</span>
+        </div>
+        <h4 class="text-sm font-black text-slate-800 dark:text-slate-100 mb-1">${d.title}</h4>
+        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium line-clamp-2">${d.body}</p>
+        ${d.image_url_1 ? `<div class="mt-3"><img src="${d.image_url_1}" class="rounded-xl max-h-32 object-cover border border-slate-200 dark:border-slate-700" onerror="this.style.display='none'"></div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+async function openDuyuruDetay(id) {
+  const d = duyurularData.find(x => x.id === id);
+  if (!d) return;
+  activeDuyuruId = id;
+
+  document.getElementById('detayBaslik').textContent = d.title;
+  const tarih = new Date(d.created_at).toLocaleDateString('tr-TR', { day:'2-digit', month:'2-digit', year:'numeric' });
+  const saat  = new Date(d.created_at).toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' });
+  const catColor = d.category === 'surec' ? 'bg-blue-500/10 text-blue-500' : 'bg-amber-500/10 text-amber-600';
+  const catLabel = d.category === 'surec' ? '📋 Süreç' : '📣 Operasyon';
+
+  document.getElementById('detayMeta').innerHTML = `
+    <span class="px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase ${catColor}">${catLabel}</span>
+    <span class="text-[10px] text-slate-400 font-bold">${tarih} · ${saat}</span>
+    <span class="text-[10px] text-slate-400 font-bold">· ${d.created_by}</span>`;
+
+  document.getElementById('detayMetin').textContent = d.body;
+
+  const gorseller = document.getElementById('detayGorseller');
+  gorseller.innerHTML = '';
+  [d.image_url_1, d.image_url_2].filter(Boolean).forEach(url => {
+    const img = document.createElement('img');
+    img.src = url;
+    img.className = 'rounded-xl w-full object-cover border border-slate-200 dark:border-slate-700';
+    img.onerror = () => img.style.display = 'none';
+    gorseller.appendChild(img);
+  });
+
+  // Okudum butonu
+  const { data: existing } = await supabase.from('announcement_reads').select('id').eq('announcement_id', id).eq('user_name', currentUser.user_name).maybeSingle();
+  const okuBtn = document.getElementById('detayOkuButon');
+  if (existing) {
+    okuBtn.innerHTML = '<div class="flex items-center gap-2 text-emerald-500 text-sm font-black"><i class="fa-solid fa-circle-check"></i> Okundu & Onaylandı</div>';
+  } else {
+    okuBtn.innerHTML = `<button onclick="okuduOnay('${id}')" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl transition-all">✅ Okudum, Anladım</button>`;
+  }
+
+  // Admin alanı
+  const adminAlan = document.getElementById('detayAdminAlan');
+  if (currentUser.role === 'admin') {
+    adminAlan.classList.remove('hidden');
+    const arsivBtn = document.getElementById('detayArsivBtn');
+    arsivBtn.textContent = d.is_archived ? '📤 Arşivden Çıkar' : '🗂️ Arşivle';
+  } else {
+    adminAlan.classList.add('hidden');
+  }
+
+  const modal = document.getElementById('duyuruDetayModal');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+
+  // Okundu işaretle
+  if (!existing) {
+    await supabase.from('announcement_reads').insert({ announcement_id: id, user_name: currentUser.user_name });
+    await loadDuyurular();
+  }
+}
+
+async function okuduOnay(id) {
+  document.getElementById('detayOkuButon').innerHTML = '<div class="flex items-center gap-2 text-emerald-500 text-sm font-black"><i class="fa-solid fa-circle-check"></i> Okundu & Onaylandı</div>';
+}
+
+function closeDuyuruDetay() {
+  const modal = document.getElementById('duyuruDetayModal');
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+}
+
+function openDuyuruModal() {
+  // Ekip seçeneği doldur
+  const ekipSelect = document.getElementById('duyuruEkip');
+  const teams = [...new Set(rawUsers.map(u => u.team).filter(Boolean))];
+  ekipSelect.innerHTML = '<option value="all">Tüm Ekipler</option>' + teams.map(t => `<option value="${t}">${t}</option>`).join('');
+  document.getElementById('duyuruModal').classList.remove('hidden');
+  document.getElementById('duyuruModal').classList.add('flex');
+}
+
+function closeDuyuruModal() {
+  document.getElementById('duyuruModal').classList.add('hidden');
+  document.getElementById('duyuruModal').classList.remove('flex');
+}
+
+async function saveDuyuru() {
+  const title  = document.getElementById('duyuruBaslik').value.trim();
+  const body   = document.getElementById('duyuruMetin').value.trim();
+  const team   = document.getElementById('duyuruEkip').value;
+  const cat    = document.getElementById('duyuruKategori').value;
+  const img1   = document.getElementById('duyuruGorsel1').value.trim();
+  const img2   = document.getElementById('duyuruGorsel2').value.trim();
+  const errEl  = document.getElementById('duyuruModalError');
+
+  if (!title || !body) { errEl.textContent = 'Başlık ve metin zorunludur.'; errEl.classList.remove('hidden'); return; }
+  errEl.classList.add('hidden');
+
+  const { error } = await supabase.from('announcements').insert({
+    title, body, team, category: cat,
+    image_url_1: img1 || null,
+    image_url_2: img2 || null,
+    created_by: currentUser.user_name
+  });
+  if (error) { errEl.textContent = 'Hata: ' + error.message; errEl.classList.remove('hidden'); return; }
+
+  closeDuyuruModal();
+  ['duyuruBaslik','duyuruMetin','duyuruGorsel1','duyuruGorsel2'].forEach(id => document.getElementById(id).value = '');
+  await loadDuyurular();
+}
+
+async function arsivleDuyuru() {
+  if (!activeDuyuruId) return;
+  const d = duyurularData.find(x => x.id === activeDuyuruId);
+  await supabase.from('announcements').update({ is_archived: !d.is_archived }).eq('id', activeDuyuruId);
+  closeDuyuruDetay();
+  await loadDuyurular();
+}
+
+async function silDuyuru() {
+  if (!activeDuyuruId) return;
+  if (!confirm('Bu duyuruyu silmek istediğinize emin misiniz?')) return;
+  await supabase.from('announcements').delete().eq('id', activeDuyuruId);
+  closeDuyuruDetay();
+  await loadDuyurular();
+}
+
+async function duyuruOkuyanlarRapor() {
+  if (!activeDuyuruId) return;
+  const { data } = await supabase.from('announcement_reads').select('user_name, read_at').eq('announcement_id', activeDuyuruId).order('read_at', { ascending: true });
+  if (!data || !data.length) { alert('Henüz kimse okumadı.'); return; }
+  const text = data.map(r => {
+    const tarih = new Date(r.read_at).toLocaleDateString('tr-TR');
+    const saat  = new Date(r.read_at).toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' });
+    return `${r.user_name} — ${tarih} ${saat}`;
+  }).join('\n');
+  alert(`Okuyanlar (${data.length} kişi):\n\n${text}`);
+}
 </script>
 </body>
 </html>
