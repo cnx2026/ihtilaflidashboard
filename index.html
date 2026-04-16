@@ -820,7 +820,7 @@ async function showDashboard(user){
     document.getElementById('loginPage').classList.add('hidden');
     document.getElementById('mainDashboard').classList.remove('hidden');
     document.getElementById('fb-reply-av').innerText=ini;
-applyRoleRestrictions();loadPeriods();checkFeedbackBadge();setTimeout(()=>checkDuyuruPopup(),4000);setInterval(async()=>{if(currentUser.role!=='agent')return;checkFeedbackBadge();checkDuyuruPopup();},60000);}
+applyRoleRestrictions();loadPeriods();checkFeedbackBadge();setTimeout(()=>checkDuyuruPopup(),4000);setInterval(()=>checkDuyuruPopup(),30000);setInterval(async()=>{if(currentUser.role!=='agent')return;checkFeedbackBadge();checkDuyuruPopup();},60000);}
 
 function applyRoleRestrictions(){
     if(currentUser.role==='agent'){
@@ -1405,7 +1405,7 @@ function openPasswordModal(){     document.getElementById('pw-current').value=''
 let duyurularData = [];
 let activeDuyuruTab = 'surec';
 let activeDuyuruId = null;
-let _popupShown = false;
+let _popupShown = false; function _getShownPopups() { try { return JSON.parse(localStorage.getItem('shownDuyuruPopups') || '[]'); } catch(e) { return []; } } function _addShownPopup(id) { const arr = _getShownPopups(); if (!arr.includes(id)) { arr.push(id); localStorage.setItem('shownDuyuruPopups', JSON.stringify(arr)); } }
 
 async function checkDuyuruPopup() {
   try {
@@ -1422,7 +1422,7 @@ async function checkDuyuruPopup() {
     const bo = document.getElementById('duyuru-badge-operasyon');
     if (bs) { bs.textContent = surecUnread; bs.classList.toggle('hidden', surecUnread === 0); }
     if (bo) { bo.textContent = operasyonUnread; bo.classList.toggle('hidden', operasyonUnread === 0); }
-    if (unread.length > 0 && !_popupShown) { _popupShown = true; showDuyuruPopup(unread); }
+    const shownIds = _getShownPopups(); const realUnread = unread.filter(d => !shownIds.includes(d.id)); if (realUnread.length > 0) { showDuyuruPopup(realUnread); }
   } catch(e) { console.error(e); }
 }
 
@@ -1458,7 +1458,7 @@ async function updateDuyuruBadge() {
   const bo = document.getElementById('duyuru-badge-operasyon');
   if (bs) { bs.textContent = surecUnread; bs.classList.toggle('hidden', surecUnread === 0); }
   if (bo) { bo.textContent = operasyonUnread; bo.classList.toggle('hidden', operasyonUnread === 0); }
-  if (unread.length > 0 && !_popupShown) { _popupShown = true; showDuyuruPopup(unread); }
+  const shownIds = _getShownPopups(); const realUnread = unread.filter(d => !shownIds.includes(d.id)); if (realUnread.length > 0) { showDuyuruPopup(realUnread); }
 }
 
 function showDuyuruPopup(unreadList) {
@@ -1474,6 +1474,7 @@ function showDuyuruPopup(unreadList) {
   }
   popup.classList.remove('hidden');
   popup.classList.add('flex');
+    unreadList.forEach(d => _addShownPopup(d.id));
 }
 
 function closeDuyuruPopup(goTo) {
