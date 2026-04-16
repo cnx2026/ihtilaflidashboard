@@ -820,7 +820,7 @@ async function showDashboard(user){
     document.getElementById('loginPage').classList.add('hidden');
     document.getElementById('mainDashboard').classList.remove('hidden');
     document.getElementById('fb-reply-av').innerText=ini;
-applyRoleRestrictions();loadPeriods();checkFeedbackBadge();setInterval(async()=>{if(currentUser.role!=='agent')return;checkFeedbackBadge();},30000);}
+applyRoleRestrictions();loadPeriods();checkFeedbackBadge();checkDuyuruPopup();setInterval(async()=>{if(currentUser.role!=='agent')return;checkFeedbackBadge();checkDuyuruPopup();},60000);}
 
 function applyRoleRestrictions(){
     if(currentUser.role==='agent'){
@@ -1407,7 +1407,7 @@ let activeDuyuruTab = 'surec';
 let activeDuyuruId = null;
 let _popupShown = false;
 
-async function loadDuyurular() {
+async function checkDuyuruPopup() {   if (_popupShown) return;   const userTeam = (rawUsers.find(u => u.user_name === currentUser.user_name) || {}).team || 'all';   const { data } = await _supabase.from('announcements').select('id,title,category').eq('is_archived', false);   if (!data || !data.length) return;   const { data: reads } = await _supabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);   const readIds = (reads || []).map(r => r.announcement_id);   const unread = data.filter(d => !readIds.includes(d.id));   if (unread.length > 0) { _popupShown = true; showDuyuruPopup(unread); } }  async function loadDuyurular() {
   const userTeam = (rawUsers.find(u => u.user_name === currentUser.user_name) || {}).team || 'all';
   let query = _supabase.from('announcements').select('*').order('created_at', { ascending: false });
   if (currentUser.role !== 'admin') {
