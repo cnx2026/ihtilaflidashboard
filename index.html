@@ -1607,7 +1607,7 @@ async function openDuyuruDetay(id) {
 if (currentUser.role !== 'admin') {
     const { data: existingRead } = await _supabase.from('announcement_reads').select('id').eq('announcement_id', id).eq('user_name', currentUser.user_name).maybeSingle();
     if (!existingRead) {
-      okuBtn.innerHTML = `<button onclick="okuduOnay('${id}')" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl transition-all flex items-center justify-center gap-2"><i class="fa-solid fa-circle-check"></i> Okudum & Onayladım</button>`;
+      okuBtn.innerHTML = `<div class="flex items-center gap-3 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl"><div class="flex-1"><p class="text-xs font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-0.5">Onay Gerekli</p><p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Bu duyuruyu okuduğunuzu onaylayın.</p></div><button onclick="okuduOnay('${id}')" class="shrink-0 flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-xl shadow-lg transition-all uppercase tracking-widest"><i class="fa-solid fa-circle-check"></i> Okudum & Onayladım</button></div>`;
     }
   }
 }
