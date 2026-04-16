@@ -465,45 +465,83 @@
             </div>
         </div>
     </main>
-    <!-- DUYURULAR SAYFASI -->
+    
+  <!-- DUYURULAR SAYFASI - V2 -->
 <main id="page-duyurular" class="flex-1 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 min-w-0 hidden">
-  <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 px-6 py-5 z-20">
-    <div class="flex flex-col xl:flex-row items-center justify-between gap-4">
+  <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 px-6 py-4 z-20 shrink-0">
+    <div class="flex flex-wrap items-center justify-between gap-3">
       <div>
         <h2 class="text-xl font-black tracking-tighter uppercase">Duyurular</h2>
         <p class="text-xs text-slate-400 font-medium">Operasyon ve süreç bildirimleri.</p>
       </div>
-      <div class="flex items-center gap-3 w-full xl:w-auto">
-        <div class="relative flex-1 xl:w-72">
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="relative min-w-[220px]">
           <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
           <input type="text" id="duyuruSearch" onkeyup="filterDuyurular()" placeholder="Başlık veya içerikte ara..." class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-blue-500 outline-none shadow-sm transition-all text-slate-800 dark:text-slate-100">
+        </div>
+        <div id="duyuru-export-btns" class="hidden flex gap-2">
+          <button onclick="exportDuyurularExcel()" class="flex items-center gap-2 px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white text-xs font-black rounded-2xl transition-all uppercase tracking-widest"><i class="fa-solid fa-file-excel"></i> Tüm Duyurular</button>
+          <button onclick="exportDuyuruOkunduExcel()" class="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black rounded-2xl transition-all uppercase tracking-widest"><i class="fa-solid fa-chart-bar"></i> Okundu Raporu</button>
         </div>
         <button id="duyuruEkleBtn" onclick="openDuyuruModal()" class="hidden items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black rounded-2xl shadow-lg transition-all uppercase tracking-widest">
           <i class="fa-solid fa-plus"></i> Yeni Duyuru
         </button>
       </div>
     </div>
-    <!-- Sekmeler -->
-    <div class="flex gap-1 mt-4 border-b border-slate-200 dark:border-slate-800">
-      <button id="duyuru-tab-surec" onclick="switchDuyuruTab('surec')" class="px-5 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-blue-500 text-blue-500 transition-all">
-        📋 Süreç
-      </button>
-      <button id="duyuru-tab-operasyon" onclick="switchDuyuruTab('operasyon')" class="px-5 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-transparent text-slate-400 hover:text-blue-500 transition-all">
-        📣 Operasyon
-      </button>
-      <button id="duyuru-tab-arsiv" onclick="switchDuyuruTab('arsiv')" class="hidden px-5 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-transparent text-slate-400 hover:text-blue-500 transition-all">
-        🗂️ Arşiv
-      </button>
+    <div class="flex gap-1 mt-3 border-b border-slate-200 dark:border-slate-800">
+      <button id="duyuru-tab-surec" onclick="switchDuyuruTab('surec')" class="px-5 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-blue-500 text-blue-500 transition-all">📋 Süreç</button>
+      <button id="duyuru-tab-operasyon" onclick="switchDuyuruTab('operasyon')" class="px-5 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-transparent text-slate-400 hover:text-blue-500 transition-all">📣 Operasyon</button>
+      <button id="duyuru-tab-arsiv" onclick="switchDuyuruTab('arsiv')" class="hidden px-5 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-transparent text-slate-400 hover:text-blue-500 transition-all">🗂️ Arşiv</button>
     </div>
   </header>
-
-  <div class="flex-1 overflow-y-auto p-6">
-    <div id="duyuruListesi" class="space-y-4 max-w-3xl mx-auto"></div>
-    <div id="duyuruEmpty" class="hidden flex flex-col items-center justify-center py-20 text-center">
-      <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center mb-4">
-        <i class="fa-solid fa-bullhorn text-2xl text-slate-400"></i>
+  <div class="flex-1 flex overflow-hidden">
+    <div class="w-80 xl:w-96 shrink-0 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-white dark:bg-slate-900">
+      <div id="duyuruListesi" class="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800"></div>
+      <div id="duyuruEmpty" class="hidden flex-col items-center justify-center py-20 text-center px-4">
+        <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center mb-4">
+          <i class="fa-solid fa-bullhorn text-2xl text-slate-400"></i>
+        </div>
+        <p class="text-sm font-bold text-slate-400">Henüz duyuru yok.</p>
       </div>
-      <p class="text-sm font-bold text-slate-400">Henüz duyuru yok.</p>
+    </div>
+    <div class="flex-1 flex flex-col overflow-hidden">
+      <div id="duyuru-detail-empty" class="flex-1 flex flex-col items-center justify-center gap-4 bg-slate-50 dark:bg-slate-950">
+        <div class="w-20 h-20 rounded-3xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+          <i class="fa-solid fa-bullhorn text-slate-400 text-3xl"></i>
+        </div>
+        <div class="text-center">
+          <p class="font-black text-slate-500 dark:text-slate-400 tracking-tight">Bir duyuru seçin</p>
+          <p class="text-xs text-slate-400 dark:text-slate-600 font-medium mt-1">Listeden bir duyuruya tıklayarak detayları görüntüleyin.</p>
+        </div>
+      </div>
+      <div id="duyuru-detail-content" class="hidden flex-col flex-1 overflow-hidden bg-slate-50 dark:bg-slate-950">
+        <div class="px-8 py-5 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shrink-0">
+          <div class="flex items-start justify-between gap-4">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap mb-1.5">
+                <span id="ddet-cat-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg"></span>
+              </div>
+              <h3 id="ddet-title" class="font-black text-base tracking-tight leading-tight"></h3>
+              <div class="flex items-center gap-3 mt-1.5 flex-wrap">
+                <span class="text-xs text-slate-500 font-medium flex items-center gap-1.5">
+                  <span id="ddet-author-av" class="w-5 h-5 rounded-md bg-blue-600 inline-flex items-center justify-center text-white font-black text-[9px]"></span>
+                  <span id="ddet-author"></span>
+                </span>
+                <span class="text-[10px] text-slate-400 ml-auto" id="ddet-date"></span>
+              </div>
+            </div>
+            <div id="ddet-admin-btns" class="hidden flex gap-2 shrink-0">
+              <button id="ddet-arsiv-btn" onclick="arsivleDuyuruDetay()" class="px-3 py-1.5 text-xs font-bold text-amber-600 hover:bg-amber-500/10 rounded-lg transition-all"></button>
+              <button onclick="silDuyuruDetay()" class="px-3 py-1.5 text-xs font-bold text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all"><i class="fa-solid fa-trash-can"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="flex-1 overflow-y-auto px-8 py-6 space-y-4">
+          <p id="ddet-body" class="text-sm font-medium text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap"></p>
+          <div id="ddet-images" class="space-y-3"></div>
+          <div id="ddet-okuyanlar-btn" class="pt-2"></div>
+        </div>
+      </div>
     </div>
   </div>
 </main>
@@ -549,28 +587,6 @@
   </div>
 </div>
 
-<!-- DUYURU DETAY MODALI -->
-<div id="duyuruDetayModal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-  <div class="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl w-full max-w-lg p-8 space-y-5 border border-slate-200 dark:border-slate-800 max-h-[90vh] overflow-y-auto">
-    <div class="flex items-center justify-between">
-      <h3 id="detayBaslik" class="text-lg font-black tracking-tight"></h3>
-      <button onclick="closeDuyuruDetay()" class="w-8 h-8 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-rose-500 transition-colors"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div id="detayMeta" class="flex items-center gap-2 flex-wrap"></div>
-    <p id="detayMetin" class="text-sm font-medium text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap"></p>
-    <div id="detayGorseller" class="space-y-3"></div>
-    <div id="detayOkuButon" class="pt-2"></div>
-    <div id="detayAdminAlan" class="hidden space-y-3 pt-2 border-t border-slate-200 dark:border-slate-800">
-      <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Admin İşlemleri</p>
-      <div class="flex gap-2 flex-wrap">
-        <button id="detayArsivBtn" onclick="arsivleDuyuru()" class="px-4 py-2 bg-amber-500/10 text-amber-600 text-xs font-black rounded-xl border border-amber-500/20 hover:bg-amber-500/20 transition-all">🗂️ Arşivle</button>
-        <button onclick="silDuyuru()" class="px-4 py-2 bg-rose-500/10 text-rose-500 text-xs font-black rounded-xl border border-rose-500/20 hover:bg-rose-500/20 transition-all">🗑️ Sil</button>
-        <button onclick="duyuruOkuyanlarRapor()" class="px-4 py-2 bg-blue-500/10 text-blue-500 text-xs font-black rounded-xl border border-blue-500/20 hover:bg-blue-500/20 transition-all">📊 Okuyanlar Raporu</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- POP-UP BİLDİRİM -->
 <div id="duyuruPopup" class="fixed inset-0 z-[300] hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
   <div class="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl w-full max-w-sm p-8 border border-slate-200 dark:border-slate-800 text-center space-y-4">
@@ -578,7 +594,7 @@
       <i class="fa-solid fa-bullhorn text-2xl text-blue-500"></i>
     </div>
     <h3 class="text-lg font-black tracking-tight">Yeni Duyuru!</h3>
-    <p id="popupDuyuruText" class="text-sm text-slate-500 dark:text-slate-400 font-medium"></p>
+    <p id="popupDuyuruText" class="text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed"></p>
     <div class="flex gap-3">
       <button onclick="closeDuyuruPopup(false)" class="flex-1 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-black rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">Sonra Gör</button>
       <button onclick="closeDuyuruPopup(true)" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black rounded-2xl transition-all">Duyuruya Git</button>
@@ -771,6 +787,7 @@ function showPage(p){
         document.getElementById('duyuruEkleBtn')?.classList.toggle('hidden', currentUser.role !== 'admin');
         document.getElementById('duyuru-tab-arsiv')?.classList.toggle('hidden', currentUser.role !== 'admin');
         loadDuyurular();
+        if(currentUser.role==='admin'){document.getElementById('duyuru-export-btns')?.classList.remove('hidden');document.getElementById('duyuru-export-btns')?.classList.add('flex');}
     }
 }
 
@@ -1382,11 +1399,13 @@ function exportToExcel(){
 
 function openPasswordModal(){     document.getElementById('pw-current').value='';     document.getElementById('pw-new').value='';     document.getElementById('pw-confirm').value='';     document.getElementById('pw-error').classList.add('hidden');     document.getElementById('pw-success').classList.add('hidden');     document.getElementById('passwordModal').classList.remove('hidden');     document.getElementById('passwordModal').classList.add('flex'); } function closePasswordModal(){     document.getElementById('passwordModal').classList.add('hidden');     document.getElementById('passwordModal').classList.remove('flex'); } async function changePassword(){     const current=document.getElementById('pw-current').value;     const newPw=document.getElementById('pw-new').value;     const confirm=document.getElementById('pw-confirm').value;     const errEl=document.getElementById('pw-error');     const sucEl=document.getElementById('pw-success');     errEl.classList.add('hidden');sucEl.classList.add('hidden');     if(!current||!newPw||!confirm){errEl.innerText='Tüm alanları doldurun.';errEl.classList.remove('hidden');return;}     if(newPw.length<6){errEl.innerText='Yeni şifre en az 6 karakter olmalı.';errEl.classList.remove('hidden');return;}     if(newPw!==confirm){errEl.innerText='Yeni şifreler eşleşmiyor.';errEl.classList.remove('hidden');return;}     const{error:signInError}=await _supabase.auth.signInWithPassword({email:currentUser.email,password:current});     if(signInError){errEl.innerText='Mevcut şifre hatalı.';errEl.classList.remove('hidden');return;}     const{error}=await _supabase.auth.updateUser({password:newPw});     if(error){errEl.innerText='Şifre güncellenemedi: '+error.message;errEl.classList.remove('hidden');return;}     sucEl.classList.remove('hidden');     setTimeout(()=>closePasswordModal(),2000); } function openPasswordModal(){     document.getElementById('pw-current').value='';     document.getElementById('pw-new').value='';     document.getElementById('pw-confirm').value='';     document.getElementById('pw-error').classList.add('hidden');     document.getElementById('pw-success').classList.add('hidden');     document.getElementById('passwordModal').classList.remove('hidden');     document.getElementById('passwordModal').classList.add('flex'); } function closePasswordModal(){     document.getElementById('passwordModal').classList.add('hidden');     document.getElementById('passwordModal').classList.remove('flex'); } async function changePassword(){     const current=document.getElementById('pw-current').value;     const newPw=document.getElementById('pw-new').value;     const confirm=document.getElementById('pw-confirm').value;     const errEl=document.getElementById('pw-error');     const sucEl=document.getElementById('pw-success');     errEl.classList.add('hidden');sucEl.classList.add('hidden');     if(!current||!newPw||!confirm){errEl.innerText='Tüm alanları doldurun.';errEl.classList.remove('hidden');return;}     if(newPw.length<6){errEl.innerText='Yeni şifre en az 6 karakter olmalı.';errEl.classList.remove('hidden');return;}     if(newPw!==confirm){errEl.innerText='Yeni şifreler eşleşmiyor.';errEl.classList.remove('hidden');return;}     const{error:signInError}=await _supabase.auth.signInWithPassword({email:currentUser.email,password:current});     if(signInError){errEl.innerText='Mevcut şifre hatalı.';errEl.classList.remove('hidden');return;}     const{error}=await _supabase.auth.updateUser({password:newPw});     if(error){errEl.innerText='Şifre güncellenemedi: '+error.message;errEl.classList.remove('hidden');return;}     sucEl.classList.remove('hidden');     setTimeout(()=>closePasswordModal(),2000); } function toggleLoading(s){document.getElementById('loading-overlay').classList.toggle('hidden',!s);}
 // ══════════════════════════════════════════
+// ══════════════════════════════════════════
 // DUYURULAR
 // ══════════════════════════════════════════
 let duyurularData = [];
 let activeDuyuruTab = 'surec';
 let activeDuyuruId = null;
+let _popupShown = false;
 
 async function loadDuyurular() {
   const userTeam = (rawUsers.find(u => u.user_name === currentUser.user_name) || {}).team || 'all';
@@ -1397,6 +1416,10 @@ async function loadDuyurular() {
   const { data, error } = await query;
   if (error) { console.error(error); return; }
   duyurularData = data || [];
+  if (currentUser.role === 'admin') {
+    document.getElementById('duyuru-export-btns').classList.remove('hidden');
+    document.getElementById('duyuru-export-btns').classList.add('flex');
+  }
   renderDuyurular();
   updateDuyuruBadge();
 }
@@ -1411,7 +1434,7 @@ async function updateDuyuruBadge() {
   if (unread.length > 0) {
     badge.textContent = unread.length;
     badge.classList.remove('hidden');
-    showDuyuruPopup(unread);
+    if (!_popupShown) { _popupShown = true; showDuyuruPopup(unread); }
   } else {
     badge.classList.add('hidden');
   }
@@ -1422,9 +1445,11 @@ function showDuyuruPopup(unreadList) {
   const popup = document.getElementById('duyuruPopup');
   const text = document.getElementById('popupDuyuruText');
   if (unreadList.length === 1) {
-    text.textContent = `"${unreadList[0].title}" başlıklı yeni bir duyuru var.`;
+    const d = unreadList[0];
+    const catLabel = d.category === 'surec' ? 'Süreç' : 'Operasyon';
+    text.textContent = `${catLabel} ile ilgili "${d.title}" başlıklı yeni bir duyurunuz var. Aksiyon almanız rica edilir.`;
   } else {
-    text.textContent = `${unreadList.length} adet okunmamış duyurunuz var.`;
+    text.textContent = `${unreadList.length} adet okunmamış duyurunuz var. Aksiyon almanız rica edilir.`;
   }
   popup.classList.remove('hidden');
   popup.classList.add('flex');
@@ -1434,7 +1459,9 @@ function closeDuyuruPopup(goTo) {
   const popup = document.getElementById('duyuruPopup');
   popup.classList.add('hidden');
   popup.classList.remove('flex');
-  if (goTo) showPage('duyurular');
+  if (goTo) {
+    showPage('duyurular');
+  }
 }
 
 function switchDuyuruTab(tab) {
@@ -1442,27 +1469,19 @@ function switchDuyuruTab(tab) {
   ['surec','operasyon','arsiv'].forEach(t => {
     const btn = document.getElementById(`duyuru-tab-${t}`);
     if (!btn) return;
-    if (t === tab) {
-      btn.classList.add('border-blue-500','text-blue-500');
-      btn.classList.remove('border-transparent','text-slate-400');
-    } else {
-      btn.classList.remove('border-blue-500','text-blue-500');
-      btn.classList.add('border-transparent','text-slate-400');
-    }
+    if (t === tab) { btn.classList.add('border-blue-500','text-blue-500'); btn.classList.remove('border-transparent','text-slate-400'); }
+    else { btn.classList.remove('border-blue-500','text-blue-500'); btn.classList.add('border-transparent','text-slate-400'); }
   });
   renderDuyurular();
 }
 
-function filterDuyurular() {
-  renderDuyurular();
-}
+function filterDuyurular() { renderDuyurular(); }
 
 function renderDuyurular() {
   const q = (document.getElementById('duyuruSearch')?.value || '').toLowerCase();
   const liste = document.getElementById('duyuruListesi');
   const empty = document.getElementById('duyuruEmpty');
   if (!liste) return;
-
   let filtered = duyurularData.filter(d => {
     if (activeDuyuruTab === 'arsiv') return d.is_archived;
     if (d.is_archived) return false;
@@ -1470,35 +1489,35 @@ function renderDuyurular() {
     if (q) return d.title.toLowerCase().includes(q) || d.body.toLowerCase().includes(q);
     return true;
   });
-
   if (!filtered.length) {
     liste.innerHTML = '';
-    empty.classList.remove('hidden');
-    empty.classList.add('flex');
+    empty.classList.remove('hidden'); empty.classList.add('flex');
     return;
   }
-  empty.classList.add('hidden');
-  empty.classList.remove('flex');
-
+  empty.classList.add('hidden'); empty.classList.remove('flex');
   liste.innerHTML = filtered.map(d => {
-    const tarih = new Date(d.created_at).toLocaleDateString('tr-TR', { day:'2-digit', month:'2-digit', year:'numeric' });
-    const saat  = new Date(d.created_at).toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' });
+    const tarih = new Date(d.created_at).toLocaleDateString('tr-TR', {day:'2-digit',month:'2-digit',year:'numeric'});
+    const saat = new Date(d.created_at).toLocaleTimeString('tr-TR', {hour:'2-digit',minute:'2-digit'});
     const catColor = d.category === 'surec' ? 'bg-blue-500/10 text-blue-500' : 'bg-amber-500/10 text-amber-600';
     const catLabel = d.category === 'surec' ? '📋 Süreç' : '📣 Operasyon';
-    const arsivBadge = d.is_archived ? '<span class="px-2 py-0.5 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-500 text-[10px] font-black uppercase">Arşiv</span>' : '';
-    return `
-      <div onclick="openDuyuruDetay('${d.id}')" class="bg-white dark:bg-slate-900 rounded-[1.5rem] border border-slate-200 dark:border-slate-800 p-5 shadow-sm hover:shadow-md hover:border-blue-500/30 transition-all cursor-pointer">
-        <div class="flex items-start justify-between gap-3 mb-2">
-          <div class="flex items-center gap-2 flex-wrap">
-            <span class="px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider ${catColor}">${catLabel}</span>
-            ${arsivBadge}
-          </div>
-          <span class="text-[10px] text-slate-400 font-bold whitespace-nowrap">${tarih} · ${saat}</span>
+    const isActive = d.id === activeDuyuruId;
+    return `<div onclick="openDuyuruDetay('${d.id}')" class="fb-item px-4 py-3.5 ${isActive?'fb-active':''} cursor-pointer">
+      <div class="flex items-start gap-3">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center text-sm shrink-0 mt-0.5 ${catColor}">
+          <i class="fa-solid ${d.category==='surec'?'fa-clipboard-list':'fa-bullhorn'}"></i>
         </div>
-        <h4 class="text-sm font-black text-slate-800 dark:text-slate-100 mb-1">${d.title}</h4>
-        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium line-clamp-2">${d.body}</p>
-        ${d.image_url_1 ? `<div class="mt-3"><img src="${d.image_url_1}" class="rounded-xl max-h-32 object-cover border border-slate-200 dark:border-slate-700" onerror="this.style.display='none'"></div>` : ''}
-      </div>`;
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 mb-0.5">
+            <span class="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md ${catColor}">${catLabel}</span>
+          </div>
+          <p class="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">${d.title}</p>
+          <div class="flex items-center justify-between gap-2 mt-0.5">
+            <p class="text-xs text-slate-400 truncate">${(d.body||'').substring(0,50)}</p>
+            <p class="text-[10px] text-slate-400 whitespace-nowrap shrink-0">${tarih}</p>
+          </div>
+        </div>
+      </div>
+    </div>`;
   }).join('');
 }
 
@@ -1506,72 +1525,62 @@ async function openDuyuruDetay(id) {
   const d = duyurularData.find(x => x.id === id);
   if (!d) return;
   activeDuyuruId = id;
+  renderDuyurular();
 
-  document.getElementById('detayBaslik').textContent = d.title;
-  const tarih = new Date(d.created_at).toLocaleDateString('tr-TR', { day:'2-digit', month:'2-digit', year:'numeric' });
-  const saat  = new Date(d.created_at).toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' });
   const catColor = d.category === 'surec' ? 'bg-blue-500/10 text-blue-500' : 'bg-amber-500/10 text-amber-600';
   const catLabel = d.category === 'surec' ? '📋 Süreç' : '📣 Operasyon';
+  const tarih = new Date(d.created_at).toLocaleDateString('tr-TR', {day:'2-digit',month:'2-digit',year:'numeric'});
+  const saat = new Date(d.created_at).toLocaleTimeString('tr-TR', {hour:'2-digit',minute:'2-digit'});
 
-  document.getElementById('detayMeta').innerHTML = `
-    <span class="px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase ${catColor}">${catLabel}</span>
-    <span class="text-[10px] text-slate-400 font-bold">${tarih} · ${saat}</span>
-    <span class="text-[10px] text-slate-400 font-bold">· ${d.created_by}</span>`;
+  const badge = document.getElementById('ddet-cat-badge');
+  badge.className = `text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg ${catColor}`;
+  badge.textContent = catLabel;
+  document.getElementById('ddet-title').textContent = d.title;
+  document.getElementById('ddet-author').textContent = d.created_by;
+  document.getElementById('ddet-author-av').textContent = mkIni(d.created_by);
+  document.getElementById('ddet-date').textContent = `${tarih} · ${saat}`;
+  document.getElementById('ddet-body').textContent = d.body;
 
-  document.getElementById('detayMetin').textContent = d.body;
-
-  const gorseller = document.getElementById('detayGorseller');
-  gorseller.innerHTML = '';
+  const images = document.getElementById('ddet-images');
+  images.innerHTML = '';
   [d.image_url_1, d.image_url_2].filter(Boolean).forEach(url => {
     const img = document.createElement('img');
     img.src = url;
     img.className = 'rounded-xl w-full object-cover border border-slate-200 dark:border-slate-700';
     img.onerror = () => img.style.display = 'none';
-    gorseller.appendChild(img);
+    images.appendChild(img);
   });
 
-  // Okudum butonu
-  const { data: existing } = await _supabase.from('announcement_reads').select('id').eq('announcement_id', id).eq('user_name', currentUser.user_name).maybeSingle();
-  const okuBtn = document.getElementById('detayOkuButon');
-  if (existing) {
-    okuBtn.innerHTML = '<div class="flex items-center gap-2 text-emerald-500 text-sm font-black"><i class="fa-solid fa-circle-check"></i> Okundu & Onaylandı</div>';
-  } else {
-    okuBtn.innerHTML = `<button onclick="okuduOnay('${id}')" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl transition-all">✅ Okudum, Anladım</button>`;
-  }
-
-  // Admin alanı
-  const adminAlan = document.getElementById('detayAdminAlan');
+  const adminBtns = document.getElementById('ddet-admin-btns');
+  const okuBtn = document.getElementById('ddet-okuyanlar-btn');
   if (currentUser.role === 'admin') {
-    adminAlan.classList.remove('hidden');
-    const arsivBtn = document.getElementById('detayArsivBtn');
-    arsivBtn.textContent = d.is_archived ? '📤 Arşivden Çıkar' : '🗂️ Arşivle';
+    adminBtns.classList.remove('hidden'); adminBtns.classList.add('flex');
+    const arsivBtn = document.getElementById('ddet-arsiv-btn');
+    arsivBtn.innerHTML = d.is_archived ? '📤 Arşivden Çıkar' : '🗂️ Arşivle';
+    okuBtn.innerHTML = `<button onclick="duyuruOkuyanlarExcel('${id}')" class="flex items-center gap-2 px-4 py-2 bg-blue-500/10 text-blue-500 text-xs font-black rounded-xl border border-blue-500/20 hover:bg-blue-500/20 transition-all"><i class="fa-solid fa-chart-bar"></i> Okuyanlar Raporu</button>`;
   } else {
-    adminAlan.classList.add('hidden');
+    adminBtns.classList.add('hidden'); adminBtns.classList.remove('flex');
+    const { data: existing } = await _supabase.from('announcement_reads').select('id').eq('announcement_id', id).eq('user_name', currentUser.user_name).maybeSingle();
+    if (existing) {
+      okuBtn.innerHTML = '<div class="flex items-center gap-2 text-emerald-500 text-sm font-black"><i class="fa-solid fa-circle-check"></i> Okundu & Onaylandı</div>';
+    } else {
+      okuBtn.innerHTML = '';
+    }
   }
 
-  const modal = document.getElementById('duyuruDetayModal');
-  modal.classList.remove('hidden');
-  modal.classList.add('flex');
+  document.getElementById('duyuru-detail-empty').classList.add('hidden');
+  document.getElementById('duyuru-detail-content').classList.remove('hidden');
+  document.getElementById('duyuru-detail-content').classList.add('flex');
 
-  // Okundu işaretle
+  const { data: existing } = await _supabase.from('announcement_reads').select('id').eq('announcement_id', id).eq('user_name', currentUser.user_name).maybeSingle();
   if (!existing) {
     await _supabase.from('announcement_reads').insert({ announcement_id: id, user_name: currentUser.user_name });
     await loadDuyurular();
+    renderDuyurular();
   }
 }
 
-async function okuduOnay(id) {
-  document.getElementById('detayOkuButon').innerHTML = '<div class="flex items-center gap-2 text-emerald-500 text-sm font-black"><i class="fa-solid fa-circle-check"></i> Okundu & Onaylandı</div>';
-}
-
-function closeDuyuruDetay() {
-  const modal = document.getElementById('duyuruDetayModal');
-  modal.classList.add('hidden');
-  modal.classList.remove('flex');
-}
-
 function openDuyuruModal() {
-  // Ekip seçeneği doldur
   const ekipSelect = document.getElementById('duyuruEkip');
   const teams = [...new Set(rawUsers.map(u => u.team).filter(Boolean))];
   ekipSelect.innerHTML = '<option value="all">Tüm Ekipler</option>' + teams.map(t => `<option value="${t}">${t}</option>`).join('');
@@ -1585,56 +1594,133 @@ function closeDuyuruModal() {
 }
 
 async function saveDuyuru() {
-  const title  = document.getElementById('duyuruBaslik').value.trim();
-  const body   = document.getElementById('duyuruMetin').value.trim();
-  const team   = document.getElementById('duyuruEkip').value;
-  const cat    = document.getElementById('duyuruKategori').value;
-  const img1   = document.getElementById('duyuruGorsel1').value.trim();
-  const img2   = document.getElementById('duyuruGorsel2').value.trim();
-  const errEl  = document.getElementById('duyuruModalError');
-
+  const title = document.getElementById('duyuruBaslik').value.trim();
+  const body = document.getElementById('duyuruMetin').value.trim();
+  const team = document.getElementById('duyuruEkip').value;
+  const cat = document.getElementById('duyuruKategori').value;
+  const img1 = document.getElementById('duyuruGorsel1').value.trim();
+  const img2 = document.getElementById('duyuruGorsel2').value.trim();
+  const errEl = document.getElementById('duyuruModalError');
   if (!title || !body) { errEl.textContent = 'Başlık ve metin zorunludur.'; errEl.classList.remove('hidden'); return; }
   errEl.classList.add('hidden');
-
   const { error } = await _supabase.from('announcements').insert({
     title, body, team, category: cat,
-    image_url_1: img1 || null,
-    image_url_2: img2 || null,
+    image_url_1: img1 || null, image_url_2: img2 || null,
     created_by: currentUser.user_name
   });
   if (error) { errEl.textContent = 'Hata: ' + error.message; errEl.classList.remove('hidden'); return; }
-
   closeDuyuruModal();
   ['duyuruBaslik','duyuruMetin','duyuruGorsel1','duyuruGorsel2'].forEach(id => document.getElementById(id).value = '');
+  _popupShown = false;
   await loadDuyurular();
 }
 
-async function arsivleDuyuru() {
+async function arsivleDuyuruDetay() {
   if (!activeDuyuruId) return;
   const d = duyurularData.find(x => x.id === activeDuyuruId);
   await _supabase.from('announcements').update({ is_archived: !d.is_archived }).eq('id', activeDuyuruId);
-  closeDuyuruDetay();
+  document.getElementById('duyuru-detail-empty').classList.remove('hidden');
+  document.getElementById('duyuru-detail-content').classList.add('hidden');
+  document.getElementById('duyuru-detail-content').classList.remove('flex');
+  activeDuyuruId = null;
   await loadDuyurular();
 }
 
-async function silDuyuru() {
+async function silDuyuruDetay() {
   if (!activeDuyuruId) return;
   if (!confirm('Bu duyuruyu silmek istediğinize emin misiniz?')) return;
   await _supabase.from('announcements').delete().eq('id', activeDuyuruId);
-  closeDuyuruDetay();
+  document.getElementById('duyuru-detail-empty').classList.remove('hidden');
+  document.getElementById('duyuru-detail-content').classList.add('hidden');
+  document.getElementById('duyuru-detail-content').classList.remove('flex');
+  activeDuyuruId = null;
   await loadDuyurular();
 }
 
-async function duyuruOkuyanlarRapor() {
-  if (!activeDuyuruId) return;
-  const { data } = await _supabase.from('announcement_reads').select('user_name, read_at').eq('announcement_id', activeDuyuruId).order('read_at', { ascending: true });
-  if (!data || !data.length) { alert('Henüz kimse okumadı.'); return; }
-  const text = data.map(r => {
-    const tarih = new Date(r.read_at).toLocaleDateString('tr-TR');
-    const saat  = new Date(r.read_at).toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' });
-    return `${r.user_name} — ${tarih} ${saat}`;
-  }).join('\n');
-  alert(`Okuyanlar (${data.length} kişi):\n\n${text}`);
+async function duyuruOkuyanlarExcel(id) {
+  const d = duyurularData.find(x => x.id === id);
+  const { data: reads } = await _supabase.from('announcement_reads').select('user_name, read_at').eq('announcement_id', id).order('read_at', { ascending: true });
+  const { data: allUsers } = await _supabase.from('users').select('user_name, team').limit(10000);
+  const userTeam = d.team === 'all' ? null : d.team;
+  const hedef = userTeam ? (allUsers||[]).filter(u => u.team === userTeam) : (allUsers||[]);
+  const readMap = {};
+  (reads||[]).forEach(r => { readMap[r.user_name] = r.read_at; });
+  const rows = hedef.map(u => ({
+    'Temsilci': u.user_name,
+    'Ekip': u.team || '-',
+    'Okundu': readMap[u.user_name] ? 'Evet' : 'Hayır',
+    'Okunma Tarihi': readMap[u.user_name] ? new Date(readMap[u.user_name]).toLocaleDateString('tr-TR') : '-',
+    'Okunma Saati': readMap[u.user_name] ? new Date(readMap[u.user_name]).toLocaleTimeString('tr-TR', {hour:'2-digit',minute:'2-digit'}) : '-'
+  }));
+  const okuyanSayi = rows.filter(r => r['Okundu'] === 'Evet').length;
+  const toplamSayi = rows.length;
+  const okumaOran = toplamSayi > 0 ? ((okuyanSayi / toplamSayi) * 100).toFixed(1) + '%' : '0%';
+  rows.push({});
+  rows.push({'Temsilci': 'İletilen Temsilci Sayısı', 'Ekip': toplamSayi, 'Okundu': '', 'Okunma Tarihi': '', 'Okunma Saati': ''});
+  rows.push({'Temsilci': 'Okuyan Sayısı', 'Ekip': okuyanSayi, 'Okundu': '', 'Okunma Tarihi': '', 'Okunma Saati': ''});
+  rows.push({'Temsilci': 'Okuma Oranı', 'Ekip': okumaOran, 'Okundu': '', 'Okunma Tarihi': '', 'Okunma Saati': ''});
+  const ws = XLSX.utils.json_to_sheet(rows);
+  ws['!cols'] = [{wch:25},{wch:15},{wch:10},{wch:15},{wch:12}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Okundu Raporu');
+  XLSX.writeFile(wb, `Duyuru_Okundu_${d.title.substring(0,20)}.xlsx`);
+}
+
+async function exportDuyurularExcel() {
+  const rows = duyurularData.filter(d => !d.is_archived).map(d => ({
+    'Duyuru Sahibi': d.created_by,
+    'Tarih': new Date(d.created_at).toLocaleDateString('tr-TR'),
+    'Saat': new Date(d.created_at).toLocaleTimeString('tr-TR', {hour:'2-digit',minute:'2-digit'}),
+    'Kategori': d.category === 'surec' ? 'Süreç' : 'Operasyon',
+    'Başlık': d.title,
+    'Ekip': d.team === 'all' ? 'Tüm Ekipler' : d.team,
+    'Duyuru Metni': d.body
+  }));
+  const ws = XLSX.utils.json_to_sheet(rows);
+  ws['!cols'] = [{wch:20},{wch:12},{wch:8},{wch:12},{wch:30},{wch:15},{wch:50}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Tüm Duyurular');
+  XLSX.writeFile(wb, 'Tum_Duyurular.xlsx');
+}
+
+async function exportDuyuruOkunduExcel() {
+  if (duyurularData.length === 0) { alert('Duyuru bulunamadı.'); return; }
+  const { data: allReads } = await _supabase.from('announcement_reads').select('announcement_id, user_name, read_at');
+  const { data: allUsers } = await _supabase.from('users').select('user_name, team').limit(10000);
+  const aktifDuyurular = duyurularData.filter(d => !d.is_archived);
+  let allRows = [];
+  aktifDuyurular.forEach(d => {
+    const reads = (allReads||[]).filter(r => r.announcement_id === d.id);
+    const readMap = {};
+    reads.forEach(r => { readMap[r.user_name] = r.read_at; });
+    const hedef = d.team === 'all' ? (allUsers||[]) : (allUsers||[]).filter(u => u.team === d.team);
+    const okuyanSayi = hedef.filter(u => readMap[u.user_name]).length;
+    hedef.forEach(u => {
+      allRows.push({
+        'Duyuru Başlığı': d.title,
+        'Kategori': d.category === 'surec' ? 'Süreç' : 'Operasyon',
+        'Temsilci': u.user_name,
+        'Ekip': u.team || '-',
+        'Okundu': readMap[u.user_name] ? 'Evet' : 'Hayır',
+        'Okunma Tarihi': readMap[u.user_name] ? new Date(readMap[u.user_name]).toLocaleDateString('tr-TR') : '-',
+        'Okunma Saati': readMap[u.user_name] ? new Date(readMap[u.user_name]).toLocaleTimeString('tr-TR', {hour:'2-digit',minute:'2-digit'}) : '-'
+      });
+    });
+    allRows.push({
+      'Duyuru Başlığı': '— ÖZET —',
+      'Kategori': '',
+      'Temsilci': `İletilen: ${hedef.length}`,
+      'Ekip': `Okuyan: ${okuyanSayi}`,
+      'Okundu': `Oran: ${hedef.length > 0 ? ((okuyanSayi/hedef.length)*100).toFixed(1)+'%' : '0%'}`,
+      'Okunma Tarihi': '', 'Okunma Saati': ''
+    });
+    allRows.push({});
+  });
+  const ws = XLSX.utils.json_to_sheet(allRows);
+  ws['!cols'] = [{wch:30},{wch:12},{wch:25},{wch:15},{wch:10},{wch:15},{wch:12}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Okundu Raporu');
+  XLSX.writeFile(wb, 'Duyuru_Okundu_Raporu.xlsx');
 }
 </script>
 </body>
