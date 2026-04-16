@@ -1407,21 +1407,23 @@ let activeDuyuruTab = 'surec';
 let activeDuyuruId = null;
 let _popupShown = false;
 
-async function checkDuyuruPopup() {   if (_popupShown) return;   const userTeam = (rawUsers.find(u => u.user_name === currentUser.user_name) || {}).team || 'all';   const { data } = await _supabase.from('announcements').select('id,title,category').eq('is_archived', false);   if (!data || !data.length) return;   const { data: reads } = await _supabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);   const readIds = (reads || []).map(r => r.announcement_id);   const unread = data.filter(d => !readIds.includes(d.id));   if (unread.length > 0) { _popupShown = true; showDuyuruPopup(unread); } }  async function loadDuyurular() {
-  const userTeam = (rawUsers.find(u => u.user_name === currentUser.user_name) || {}).team || 'all';
-  let query = _supabase.from('announcements').select('*').order('created_at', { ascending: false });
-  if (currentUser.role !== 'admin') {
-    query = query.eq('is_archived', false).in('team', [userTeam, 'all']);
-  }
-  const { data, error } = await query;
-  if (error) { console.error(error); return; }
-  duyurularData = data || [];
-  if (currentUser.role === 'admin') {
-    document.getElementById('duyuru-export-btns').classList.remove('hidden');
-    document.getElementById('duyuru-export-btns').classList.add('flex');
-  }
-  renderDuyurular();
-  updateDuyuruBadge();
+async function checkDuyuruPopup() {
+  try {
+    const userTeam = (rawUsers.find(u => u.user_name === currentUser.user_name) || {}).team || 'all';
+    const { data: allD } = await _supabase.from('announcements').select('id,title,category,team,is_archived').eq('is_archived', false);
+    if (!allD || !allD.length) return;
+    const filtered = currentUser.role === 'admin' ? allD : allD.filter(d => d.team === userTeam || d.team === 'all');
+    const { data: reads } = await _supabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);
+    const readIds = (reads || []).map(r => r.announcement_id);
+    const unread = filtered.filter(d => !readIds.includes(d.id));
+    const surecUnread = unread.filter(d => d.category === 'surec').length;
+    const operasyonUnread = unread.filter(d => d.category === 'operasyon').length;
+    const bs = document.getElementById('duyuru-badge-surec');
+    const bo = document.getElementById('duyuru-badge-operasyon');
+    if (bs) { bs.textContent = surecUnread; bs.classList.toggle('hidden', surecUnread === 0); }
+    if (bo) { bo.textContent = operasyonUnread; bo.classList.toggle('hidden', operasyonUnread === 0); }
+    if (unread.length > 0 && !_popupShown) { _popupShown = true; showDuyuruPopup(unread); }
+  } catch(e) { console.error(e); }
 }
 
 async function updateDuyuruBadge() {
