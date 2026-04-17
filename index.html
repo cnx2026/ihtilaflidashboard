@@ -587,7 +587,7 @@
       <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Başlık Ara</label>
       <div class="relative">
         <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
-        <input type="text" id="exportFilterBaslik" placeholder="Başlık ara..." class="fb-input pl-9" oninput="filterExportBasliklar()">
+        <input type="text" id="exportFilterBaslik" placeholder="Başlık ara..." class="fb-input pl-9" oninput="filterExportBasliklar()" onkeydown="if(event.key==='Enter')filterExportBasliklar()"><button onclick="filterExportBasliklar()" class="absolute right-3 top-1/2 -translate-y-1/2 text-blue-500 hover:text-blue-400"><i class="fa-solid fa-chevron-down text-xs"></i></button>
       </div>
       <div id="exportBaslikList" class="max-h-32 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl mt-1 divide-y divide-slate-100 dark:divide-slate-800"></div>
     </div>
@@ -1745,14 +1745,15 @@ async function duyuruOkuyanlarExcel(id) {
     'Okundu': readMap[u.user_name] ? 'Evet' : 'Hayır',
     'Okunma Tarihi': readMap[u.user_name] ? new Date(readMap[u.user_name]).toLocaleDateString('tr-TR') : '-',
     'Okunma Saati': readMap[u.user_name] ? new Date(readMap[u.user_name]).toLocaleTimeString('tr-TR', {hour:'2-digit',minute:'2-digit'}) : '-'
+      'Okuma Süresi': readMap[u.user_name] ? (() => { const diff = Math.floor((new Date(readMap[u.user_name]) - new Date(d.created_at)) / 60000); if(diff<60) return `${diff} dakika`; const s=Math.floor(diff/60); const dk=diff%60; return dk>0?`${s} saat ${dk} dakika`:`${s} saat`; })() : '-',
   }));
   const okuyanSayi = rows.filter(r => r['Okundu'] === 'Evet').length;
   const toplamSayi = rows.length;
   const okumaOran = toplamSayi > 0 ? ((okuyanSayi / toplamSayi) * 100).toFixed(1) + '%' : '0%';
   rows.push({});
-  rows.push({'Temsilci': 'İletilen Temsilci Sayısı', 'Ekip': toplamSayi, 'Okundu': '', 'Okunma Tarihi': '', 'Okunma Saati': ''});
-  rows.push({'Temsilci': 'Okuyan Sayısı', 'Ekip': okuyanSayi, 'Okundu': '', 'Okunma Tarihi': '', 'Okunma Saati': ''});
-  rows.push({'Temsilci': 'Okuma Oranı', 'Ekip': okumaOran, 'Okundu': '', 'Okunma Tarihi': '', 'Okunma Saati': ''});
+  rows.push({'Temsilci': 'İletilen Temsilci Sayısı', 'Ekip': toplamSayi, 'Okundu': '', 'Okunma Tarihi': '', 'Okunma Saati': '', 'Okuma Süresi': ''});
+  rows.push({'Temsilci': 'Okuyan Sayısı', 'Ekip': okuyanSayi, 'Okundu': '', 'Okunma Tarihi': '', 'Okunma Saati': '', 'Okuma Süresi': ''});
+  rows.push({'Temsilci': 'Okuma Oranı', 'Ekip': okumaOran, 'Okundu': '', 'Okunma Tarihi': '', 'Okunma Saati': '', 'Okuma Süresi': ''});
   const ws = XLSX.utils.json_to_sheet(rows);
   ws['!cols'] = [{wch:25},{wch:15},{wch:10},{wch:15},{wch:12}];
   const wb = XLSX.utils.book_new();
