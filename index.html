@@ -583,6 +583,14 @@
       <select id="exportFilterGonderen" class="fb-select">
         <option value="all">Tüm Gönderenler</option>
       </select>
+    <div class="space-y-1" id="exportBaslikDiv" class="hidden">
+      <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Başlık Ara</label>
+      <div class="relative">
+        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+        <input type="text" id="exportFilterBaslik" placeholder="Başlık ara..." class="fb-input pl-9" oninput="filterExportBasliklar()">
+      </div>
+      <div id="exportBaslikList" class="max-h-32 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl mt-1 divide-y divide-slate-100 dark:divide-slate-800"></div>
+    </div>
     </div>
     <button onclick="runDuyuruExport()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl transition-all"><i class="fa-solid fa-file-excel mr-2"></i> İndir</button>
   </div>
@@ -1768,9 +1776,13 @@ function openDuyuruExportModal(type) {
   gondSel.innerHTML = '<option value="all">Tüm Gönderenler</option>' + gonderenler.map(g => `<option value="${g}">${g}</option>`).join('');
   document.getElementById('duyuruExportModal').classList.remove('hidden');
   document.getElementById('duyuruExportModal').classList.add('flex');
+    document.getElementById('exportFilterBaslik').value = '';
+    document.getElementById('exportBaslikList').innerHTML = '';
+    _selectedExportBaslikId = null;
+    filterExportBasliklar();
 }
 
-function closeDuyuruExportModal() {
+function filterExportBasliklar() {   const q = (document.getElementById('exportFilterBaslik')?.value || '').toLowerCase();   const ay = document.getElementById('exportFilterAy').value;   const kat = document.getElementById('exportFilterKategori').value;   let filtered = duyurularData.filter(d => {     if (kat !== 'all' && d.category !== kat) return false;     if (ay !== 'all') { const dt = new Date(d.created_at); const dAy = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`; if (dAy !== ay) return false; }     if (q && !d.title.toLowerCase().includes(q)) return false;     return true;   });   const list = document.getElementById('exportBaslikList');   list.innerHTML = filtered.map(d => `<div class="px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-blue-500/10 cursor-pointer" onclick="selectExportBaslik('${d.id}','${d.title.replace(/'/g,'\'')}')">${d.title}</div>`).join('') || '<div class="px-3 py-2 text-xs text-slate-400">Sonuç bulunamadı</div>'; }  let _selectedExportBaslikId = null; function selectExportBaslik(id, title) {   _selectedExportBaslikId = id;   document.getElementById('exportFilterBaslik').value = title;   document.getElementById('exportBaslikList').innerHTML = ''; }  function closeDuyuruExportModal() {
   document.getElementById('duyuruExportModal').classList.add('hidden');
   document.getElementById('duyuruExportModal').classList.remove('flex');
 }
@@ -1789,7 +1801,8 @@ async function runDuyuruExport() {
       const dAy = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`;
       if (dAy !== ay) return false;
     }
-    return true;
+    if (_selectedExportBaslikId && d.id !== _selectedExportBaslikId) return false;
+      return true;
   });
   if (_exportModalType === 'tumDuyurular') {
     const rows = filtered.map(d => ({
@@ -1886,11 +1899,13 @@ async function exportDuyuruOkunduExcel() {
     hedef.forEach(u => {
       allRows.push({
         'Duyuru Başlığı': d.title,
+        'Duyuru Sahibi': d.created_by,
         'Kategori': d.category === 'surec' ? 'Süreç' : 'Operasyon',
         'Temsilci': u.user_name,
         'Ekip': u.team || '-',
         'Okundu': readMap[u.user_name] ? 'Evet' : 'Hayır',
         'Okunma Tarihi': readMap[u.user_name] ? new Date(readMap[u.user_name]).toLocaleDateString('tr-TR') : '-',
+          'Okuma Süresi': readMap[u.user_name] ? (() => { const diff = Math.floor((new Date(readMap[u.user_name]) - new Date(d.created_at)) / 60000); if(diff<60) return `${diff} dakika`; const s=Math.floor(diff/60); const dk=diff%60; return dk>0?`${s} saat ${dk} dakika`:`${s} saat`; })() : '-',
         'Okunma Saati': readMap[u.user_name] ? new Date(readMap[u.user_name]).toLocaleTimeString('tr-TR', {hour:'2-digit',minute:'2-digit'}) : '-'
       });
     });
