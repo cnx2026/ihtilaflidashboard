@@ -653,6 +653,21 @@
 </div>
 </div>
 
+    <!-- GERİ BİLDİRİM POP-UP -->
+<div id="feedbackPopup" class="fixed inset-0 z-[300] hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+  <div class="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl w-full max-w-sm p-8 border border-slate-200 dark:border-slate-800 text-center space-y-4">
+    <div class="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center mx-auto">
+      <i class="fa-solid fa-envelope text-2xl text-blue-500"></i>
+    </div>
+    <h3 class="text-lg font-black tracking-tight">Yeni Geri Bildirim!</h3>
+    <p id="feedbackPopupText" class="text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed"></p>
+    <div class="flex gap-3">
+      <button onclick="closeFeedbackPopup(false)" class="flex-1 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-black rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">Sonra Gör</button>
+      <button onclick="closeFeedbackPopup(true)" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black rounded-2xl transition-all">Geri Bildirime Git</button>
+    </div>
+  </div>
+</div>
+    
 <!-- ── ÜRETİM ÖZEL EXPORT MODAL ── -->
 <div id="uretimOzelModal" class="fixed inset-0 z-[120] hidden items-center justify-center bg-slate-950/70 backdrop-blur-sm">
     <div class="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-2xl p-8 mx-4 max-h-[90vh] overflow-y-auto">
@@ -870,7 +885,7 @@ async function showDashboard(user){
     document.getElementById('loginPage').classList.add('hidden');
     document.getElementById('mainDashboard').classList.remove('hidden');
     document.getElementById('fb-reply-av').innerText=ini;
-applyRoleRestrictions();loadPeriods();checkFeedbackBadge();setTimeout(()=>checkDuyuruPopup(),2000);setInterval(()=>checkDuyuruPopup(),30000);setInterval(async()=>{if(currentUser.role!=='agent')return;checkFeedbackBadge();checkDuyuruPopup();},60000);}
+applyRoleRestrictions();loadPeriods();checkFeedbackBadge();checkFeedbackPopup();setTimeout(()=>checkDuyuruPopup(),2000);setInterval(()=>checkDuyuruPopup(),30000);setInterval(async()=>{if(currentUser.role!=='agent')return;checkFeedbackBadge();checkFeedbackPopup();checkDuyuruPopup();},60000);}
 
 function applyRoleRestrictions(){
     if(currentUser.role==='agent'){
@@ -889,7 +904,29 @@ function applyRoleRestrictions(){
 
 // ════ GERİ BİLDİRİM ════════════════════════════════════════════
 
-async function checkFeedbackBadge(){
+let _shownFeedbackPopups = JSON.parse(localStorage.getItem('shownFeedbackPopups') || '[]');
+
+async function checkFeedbackPopup() {
+  if (currentUser.role !== 'agent') return;
+  const { data } = await _supabase.from('feedback').select('id,from_user,topic,title,type').eq('to_user', currentUser.user_name).eq('is_read', false);
+  if (!data || !data.length) return;
+  const unseen = data.filter(fb => !_shownFeedbackPopups.includes(fb.id));
+  if (!unseen.length) return;
+  const fb = unseen[0];
+  const typeLabel = fb.type === 'Olumlu' ? 'Olumlu' : fb.type === 'Olumsuz' ? 'Olumsuz' : 'Bilgilendirme';
+  document.getElementById('feedbackPopupText').textContent = `${fb.from_user} tarafından ${fb.topic} & ${fb.title} sebebiyle ${typeLabel} tipinde yeni geri bildiriminiz bulunmaktadır. Dönüşünüz rica edilir.`;
+  _shownFeedbackPopups.push(fb.id);
+  localStorage.setItem('shownFeedbackPopups', JSON.stringify(_shownFeedbackPopups));
+  document.getElementById('feedbackPopup').classList.remove('hidden');
+  document.getElementById('feedbackPopup').classList.add('flex');
+}
+
+function closeFeedbackPopup(goTo) {
+  document.getElementById('feedbackPopup').classList.add('hidden');
+  document.getElementById('feedbackPopup').classList.remove('flex');
+  if (goTo) showPage('feedback');
+}
+    async function checkFeedbackBadge(){
     if(currentUser.role!=='agent')return;
     const{data}=await _supabase.from('feedback').select('id,type,to_user').eq('is_read',false);
     const tumUnread=(data||[]);
