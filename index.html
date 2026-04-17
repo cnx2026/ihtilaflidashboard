@@ -1779,7 +1779,6 @@ function openDuyuruExportModal(type) {
     document.getElementById('exportFilterBaslik').value = '';
     document.getElementById('exportBaslikList').innerHTML = '';
     _selectedExportBaslikId = null;
-    filterExportBasliklar();
 }
 
 function filterExportBasliklar() {   const q = (document.getElementById('exportFilterBaslik')?.value || '').toLowerCase();   const ay = document.getElementById('exportFilterAy').value;   const kat = document.getElementById('exportFilterKategori').value;   let filtered = duyurularData.filter(d => {     if (kat !== 'all' && d.category !== kat) return false;     if (ay !== 'all') { const dt = new Date(d.created_at); const dAy = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`; if (dAy !== ay) return false; }     if (q && !d.title.toLowerCase().includes(q)) return false;     return true;   });   const list = document.getElementById('exportBaslikList');   list.innerHTML = filtered.map(d => `<div class="px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-blue-500/10 cursor-pointer" onclick="selectExportBaslik('${d.id}','${d.title.replace(/'/g,'\'')}')">${d.title}</div>`).join('') || '<div class="px-3 py-2 text-xs text-slate-400">Sonuç bulunamadı</div>'; }  let _selectedExportBaslikId = null; function selectExportBaslik(id, title) {   _selectedExportBaslikId = id;   document.getElementById('exportFilterBaslik').value = title;   document.getElementById('exportBaslikList').innerHTML = ''; }  function closeDuyuruExportModal() {
