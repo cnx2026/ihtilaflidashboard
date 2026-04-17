@@ -916,7 +916,7 @@ async function checkFeedbackPopup() {
       _shownFeedbackPopups.push('olumlu_'+fb.id);
       localStorage.setItem('shownFeedbackPopups', JSON.stringify(_shownFeedbackPopups));
       _pendingFeedbackId = fb.id;
-      document.getElementById('feedbackPopupText').textContent = `Ekip arkadaşınız ${fb.to_user} adına ${fb.from_user} tarafından ${fb.topic} & "${fb.title}" sebebiyle olumlu yeni bir geri bildirim bulunmaktadır.`;
+      document.getElementById('feedbackPopupText').innerHTML = `Ekip arkadaşınız <strong class="text-slate-700 dark:text-slate-200">${fb.to_user}</strong> adına <strong class="text-slate-700 dark:text-slate-200">${fb.from_user}</strong> tarafından <strong class="text-blue-500">${fb.topic}</strong> & "<strong class="text-blue-500">${fb.title}</strong>" sebebiyle <strong class="text-emerald-500">olumlu</strong> yeni bir geri bildirim bulunmaktadır.`;
       document.getElementById('feedbackPopup').classList.remove('hidden');
       document.getElementById('feedbackPopup').classList.add('flex');
       return;
@@ -929,7 +929,7 @@ async function checkFeedbackPopup() {
   const fb = unseen[0];
   const typeLabel = fb.type === 'Olumlu' ? 'olumlu' : fb.type === 'Olumsuz' ? 'olumsuz' : 'bilgilendirme';
   _pendingFeedbackId = fb.id;
-  document.getElementById('feedbackPopupText').textContent = `${fb.from_user} tarafından ${fb.topic} & "${fb.title}" sebebiyle ${typeLabel} tipinde yeni bir geri bildiriminiz bulunmaktadır. Dönüşünüz rica edilir.`;
+  document.getElementById('feedbackPopupText').innerHTML = `<strong class="text-slate-700 dark:text-slate-200">${fb.from_user}</strong> tarafından <strong class="text-blue-500">${fb.topic}</strong> & "<strong class="text-blue-500">${fb.title}</strong>" sebebiyle <strong class="${fb.type==='Olumlu'?'text-emerald-500':fb.type==='Olumsuz'?'text-rose-500':'text-indigo-500'}">${typeLabel}</strong> tipinde yeni bir geri bildiriminiz bulunmaktadır. Dönüşünüz rica edilir.`;
   _shownFeedbackPopups.push(fb.id);
   localStorage.setItem('shownFeedbackPopups', JSON.stringify(_shownFeedbackPopups));
   document.getElementById('feedbackPopup').classList.remove('hidden');
