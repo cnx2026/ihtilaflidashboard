@@ -908,23 +908,42 @@ let _shownFeedbackPopups = JSON.parse(localStorage.getItem('shownFeedbackPopups'
 
 async function checkFeedbackPopup() {
   if (currentUser.role !== 'agent') return;
-  const { data } = await _supabase.from('feedback').select('id,from_user,topic,title,type').eq('to_user', currentUser.user_name).eq('is_read', false);
+  const { data: olumluData } = await _supabase.from('feedback').select('id,from_user,to_user,topic,title,type').eq('type','Olumlu').eq('is_read',false).neq('to_user',currentUser.user_name);
+  if (olumluData && olumluData.length > 0) {
+    const unseenOlumlu = olumluData.filter(fb => !_shownFeedbackPopups.includes('olumlu_'+fb.id));
+    if (unseenOlumlu.length > 0) {
+      const fb = unseenOlumlu[0];
+      _shownFeedbackPopups.push('olumlu_'+fb.id);
+      localStorage.setItem('shownFeedbackPopups', JSON.stringify(_shownFeedbackPopups));
+      _pendingFeedbackId = fb.id;
+      document.getElementById('feedbackPopupText').textContent = `Ekip arkadaşınız ${fb.to_user} adına ${fb.from_user} tarafından ${fb.topic} & "${fb.title}" sebebiyle olumlu yeni bir geri bildirim bulunmaktadır.`;
+      document.getElementById('feedbackPopup').classList.remove('hidden');
+      document.getElementById('feedbackPopup').classList.add('flex');
+      return;
+    }
+  }
+  const { data } = await _supabase.from('feedback').select('id,from_user,topic,title,type').eq('to_user',currentUser.user_name).eq('is_read',false);
   if (!data || !data.length) return;
   const unseen = data.filter(fb => !_shownFeedbackPopups.includes(fb.id));
   if (!unseen.length) return;
   const fb = unseen[0];
-  const typeLabel = fb.type === 'Olumlu' ? 'Olumlu' : fb.type === 'Olumsuz' ? 'Olumsuz' : 'Bilgilendirme';
-  document.getElementById('feedbackPopupText').textContent = `${fb.from_user} tarafından ${fb.topic} & ${fb.title} sebebiyle ${typeLabel} tipinde yeni geri bildiriminiz bulunmaktadır. Dönüşünüz rica edilir.`;
+  const typeLabel = fb.type === 'Olumlu' ? 'olumlu' : fb.type === 'Olumsuz' ? 'olumsuz' : 'bilgilendirme';
+  _pendingFeedbackId = fb.id;
+  document.getElementById('feedbackPopupText').textContent = `${fb.from_user} tarafından ${fb.topic} & "${fb.title}" sebebiyle ${typeLabel} tipinde yeni bir geri bildiriminiz bulunmaktadır. Dönüşünüz rica edilir.`;
   _shownFeedbackPopups.push(fb.id);
   localStorage.setItem('shownFeedbackPopups', JSON.stringify(_shownFeedbackPopups));
   document.getElementById('feedbackPopup').classList.remove('hidden');
   document.getElementById('feedbackPopup').classList.add('flex');
 }
 
+let _pendingFeedbackId = null;
 function closeFeedbackPopup(goTo) {
   document.getElementById('feedbackPopup').classList.add('hidden');
   document.getElementById('feedbackPopup').classList.remove('flex');
-  if (goTo) showPage('feedback');
+  if (goTo && _pendingFeedbackId) {
+    showPage('feedback');
+    setTimeout(() => openFbDetail(_pendingFeedbackId), 600);
+  }
 }
     async function checkFeedbackBadge(){
     if(currentUser.role!=='agent')return;
