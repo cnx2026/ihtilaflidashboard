@@ -480,8 +480,8 @@
           <input type="text" id="duyuruSearch" onkeyup="filterDuyurular()" placeholder="Başlık veya içerikte ara..." class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-blue-500 outline-none shadow-sm transition-all text-slate-800 dark:text-slate-100">
         </div>
         <div id="duyuru-export-btns" class="hidden flex gap-2">
-          <button onclick="exportDuyurularExcel()" class="flex items-center gap-2 px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white text-xs font-black rounded-2xl transition-all uppercase tracking-widest"><i class="fa-solid fa-file-excel"></i> Tüm Duyurular</button>
-          <button onclick="exportDuyuruOkunduExcel()" class="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black rounded-2xl transition-all uppercase tracking-widest"><i class="fa-solid fa-chart-bar"></i> Okundu Raporu</button>
+          <button onclick="openDuyuruExportModal('tumDuyurular')" class="flex items-center gap-2 px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white text-xs font-black rounded-2xl transition-all uppercase tracking-widest"><i class="fa-solid fa-file-excel"></i> Tüm Duyurular</button>
+          <button onclick="openDuyuruExportModal('okunduRaporu')" class="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black rounded-2xl transition-all uppercase tracking-widest"><i class="fa-solid fa-chart-bar"></i> Okundu Raporu</button>
         </div>
         <button id="duyuruEkleBtn" onclick="openDuyuruModal()" class="hidden items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black rounded-2xl shadow-lg transition-all uppercase tracking-widest">
           <i class="fa-solid fa-plus"></i> Yeni Duyuru
@@ -551,6 +551,43 @@
   </div>
 </main>
 
+    <!-- DUYURU EXPORT MODALI -->
+<div id="duyuruExportModal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+  <div class="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl w-full max-w-md p-8 space-y-5 border border-slate-200 dark:border-slate-800">
+    <div class="flex items-center justify-between">
+      <h3 id="exportModalTitle" class="text-lg font-black tracking-tight">Export</h3>
+      <button onclick="closeDuyuruExportModal()" class="w-8 h-8 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-rose-500 transition-colors"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="space-y-1">
+      <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Kategori</label>
+      <select id="exportFilterKategori" class="fb-select">
+        <option value="all">Tümü</option>
+        <option value="surec">📋 Süreç</option>
+        <option value="operasyon">📣 Operasyon</option>
+      </select>
+    </div>
+    <div class="space-y-1">
+      <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Ekip</label>
+      <select id="exportFilterEkip" class="fb-select">
+        <option value="all">Tüm Ekipler</option>
+      </select>
+    </div>
+    <div class="space-y-1">
+      <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Ay</label>
+      <select id="exportFilterAy" class="fb-select">
+        <option value="all">Tüm Aylar</option>
+      </select>
+    </div>
+    <div class="space-y-1">
+      <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Gönderen</label>
+      <select id="exportFilterGonderen" class="fb-select">
+        <option value="all">Tüm Gönderenler</option>
+      </select>
+    </div>
+    <button onclick="runDuyuruExport()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl transition-all"><i class="fa-solid fa-file-excel mr-2"></i> İndir</button>
+  </div>
+</div>
+    
 <!-- DUYURU EKLEME MODALI -->
 <div id="duyuruModal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
   <div class="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl w-full max-w-lg p-8 space-y-5 border border-slate-200 dark:border-slate-800">
@@ -1715,6 +1752,108 @@ async function duyuruOkuyanlarExcel(id) {
   XLSX.writeFile(wb, `Duyuru_Okundu_${d.title.substring(0,20)}.xlsx`);
 }
 
+    let _exportModalType = 'tumDuyurular';
+
+function openDuyuruExportModal(type) {
+  _exportModalType = type;
+  document.getElementById('exportModalTitle').textContent = type === 'tumDuyurular' ? 'Tüm Duyurular Export' : 'Okundu Raporu Export';
+  const ekipSel = document.getElementById('exportFilterEkip');
+  const teams = [...new Set(rawUsers.map(u => u.team).filter(Boolean))].sort();
+  ekipSel.innerHTML = '<option value="all">Tüm Ekipler</option>' + teams.map(t => `<option value="${t}">${t}</option>`).join('');
+  const aySel = document.getElementById('exportFilterAy');
+  const aylar = [...new Set(duyurularData.map(d => { const dt = new Date(d.created_at); return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`; }))].sort().reverse();
+  aySel.innerHTML = '<option value="all">Tüm Aylar</option>' + aylar.map(a => { const [y,m] = a.split('-'); const ayAdi = ['','Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'][parseInt(m)]; return `<option value="${a}">${ayAdi} ${y}</option>`; }).join('');
+  const gondSel = document.getElementById('exportFilterGonderen');
+  const gonderenler = [...new Set(duyurularData.map(d => d.created_by).filter(Boolean))].sort();
+  gondSel.innerHTML = '<option value="all">Tüm Gönderenler</option>' + gonderenler.map(g => `<option value="${g}">${g}</option>`).join('');
+  document.getElementById('duyuruExportModal').classList.remove('hidden');
+  document.getElementById('duyuruExportModal').classList.add('flex');
+}
+
+function closeDuyuruExportModal() {
+  document.getElementById('duyuruExportModal').classList.add('hidden');
+  document.getElementById('duyuruExportModal').classList.remove('flex');
+}
+
+async function runDuyuruExport() {
+  const kat = document.getElementById('exportFilterKategori').value;
+  const ekip = document.getElementById('exportFilterEkip').value;
+  const ay = document.getElementById('exportFilterAy').value;
+  const gond = document.getElementById('exportFilterGonderen').value;
+  let filtered = duyurularData.filter(d => {
+    if (kat !== 'all' && d.category !== kat) return false;
+    if (ekip !== 'all' && d.team !== ekip) return false;
+    if (gond !== 'all' && d.created_by !== gond) return false;
+    if (ay !== 'all') {
+      const dt = new Date(d.created_at);
+      const dAy = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`;
+      if (dAy !== ay) return false;
+    }
+    return true;
+  });
+  if (_exportModalType === 'tumDuyurular') {
+    const rows = filtered.map(d => ({
+      'Duyuru Sahibi': d.created_by,
+      'Tarih': new Date(d.created_at).toLocaleDateString('tr-TR'),
+      'Saat': new Date(d.created_at).toLocaleTimeString('tr-TR', {hour:'2-digit',minute:'2-digit'}),
+      'Kategori': d.category === 'surec' ? 'Süreç' : 'Operasyon',
+      'Başlık': d.title,
+      'Ekip': d.team === 'all' ? 'Tüm Ekipler' : d.team,
+      'Duyuru Metni': d.body
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    ws['!cols'] = [{wch:20},{wch:12},{wch:8},{wch:12},{wch:30},{wch:15},{wch:50}];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Tüm Duyurular');
+    XLSX.writeFile(wb, 'Tum_Duyurular.xlsx');
+  } else {
+    await exportDuyuruOkunduExcelFiltered(filtered);
+  }
+  closeDuyuruExportModal();
+}
+
+async function exportDuyuruOkunduExcelFiltered(filteredDuyurular) {
+  const { data: allReads } = await _supabase.from('announcement_reads').select('announcement_id, user_name, read_at');
+  const { data: allUsers } = await _supabase.from('users').select('user_name, team, role').limit(10000);
+  const aktifDuyurular = filteredDuyurular.filter(d => !d.is_archived);
+  let allRows = [];
+  aktifDuyurular.forEach(d => {
+    const reads = (allReads||[]).filter(r => r.announcement_id === d.id);
+    const readMap = {};
+    reads.forEach(r => { readMap[r.user_name] = r.read_at; });
+    const hedef = d.team === 'all' ? (allUsers||[]).filter(u => u.role !== 'admin') : (allUsers||[]).filter(u => u.team === d.team && u.role !== 'admin');
+    const okuyanSayi = hedef.filter(u => readMap[u.user_name]).length;
+    hedef.forEach(u => {
+      const okumaZamani = readMap[u.user_name];
+      const duyuruZamani = new Date(d.created_at);
+      let sure = '-';
+      if (okumaZamani) {
+        const diff = Math.floor((new Date(okumaZamani) - duyuruZamani) / 60000);
+        if (diff < 60) sure = `${diff} dakika`;
+        else { const s = Math.floor(diff/60); const dk = diff%60; sure = dk > 0 ? `${s} saat ${dk} dakika` : `${s} saat`; }
+      }
+      allRows.push({
+        'Duyuru Başlığı': d.title,
+        'Kategori': d.category === 'surec' ? 'Süreç' : 'Operasyon',
+        'Duyuru Tarihi': new Date(d.created_at).toLocaleDateString('tr-TR'),
+        'Duyuru Saati': new Date(d.created_at).toLocaleTimeString('tr-TR', {hour:'2-digit',minute:'2-digit'}),
+        'Temsilci': u.user_name,
+        'Ekip': u.team || '-',
+        'Okundu': okumaZamani ? 'Evet' : 'Hayır',
+        'Okunma Tarihi': okumaZamani ? new Date(okumaZamani).toLocaleDateString('tr-TR') : '-',
+        'Okunma Saati': okumaZamani ? new Date(okumaZamani).toLocaleTimeString('tr-TR', {hour:'2-digit',minute:'2-digit'}) : '-',
+        'Okuma Süresi': sure
+      });
+    });
+    allRows.push({'Duyuru Başlığı':'— ÖZET —','Kategori':'','Duyuru Tarihi':'','Duyuru Saati':'','Temsilci':`İletilen: ${hedef.length}`,'Ekip':`Okuyan: ${okuyanSayi}`,'Okundu':`Oran: ${hedef.length>0?((okuyanSayi/hedef.length)*100).toFixed(1)+'%':'0%'}`,'Okunma Tarihi':'','Okunma Saati':'','Okuma Süresi':''});
+    allRows.push({});
+  });
+  const ws = XLSX.utils.json_to_sheet(allRows);
+  ws['!cols'] = [{wch:30},{wch:12},{wch:12},{wch:10},{wch:25},{wch:15},{wch:8},{wch:12},{wch:10},{wch:15}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Okundu Raporu');
+  XLSX.writeFile(wb, 'Duyuru_Okundu_Raporu.xlsx');
+}
 async function exportDuyurularExcel() {
   const rows = duyurularData.filter(d => !d.is_archived).map(d => ({
     'Duyuru Sahibi': d.created_by,
