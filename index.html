@@ -625,12 +625,24 @@
       <textarea id="duyuruMetin" rows="4" placeholder="Duyuru içeriği..." class="fb-input"></textarea>
     </div>
     <div class="space-y-1">
-      <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Görsel 1 (URL)</label>
-      <input type="text" id="duyuruGorsel1" placeholder="https://..." class="fb-input">
+      <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Görsel 1</label>
+      <div class="flex items-center gap-2">
+        <label for="duyuruGorselDosya1" class="flex items-center gap-2 px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-black rounded-xl cursor-pointer transition-all border border-slate-200 dark:border-slate-700"><i class="fa-solid fa-paperclip"></i> Dosya Seç</label>
+        <input type="file" id="duyuruGorselDosya1" accept="image/*" class="hidden" onchange="previewDosya(this,'previewImg1','duyuruGorsel1Url','duyuruGorsel1Adi')">
+        <span id="duyuruGorsel1Adi" class="text-xs text-slate-400 truncate">Dosya seçilmedi</span>
+      </div>
+      <input type="hidden" id="duyuruGorsel1Url">
+      <div id="previewImg1" class="hidden mt-2 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700"><img class="w-full max-h-32 object-cover"></div>
     </div>
     <div class="space-y-1">
-      <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Görsel 2 (URL)</label>
-      <input type="text" id="duyuruGorsel2" placeholder="https://..." class="fb-input">
+      <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Görsel 2</label>
+      <div class="flex items-center gap-2">
+        <label for="duyuruGorselDosya2" class="flex items-center gap-2 px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-black rounded-xl cursor-pointer transition-all border border-slate-200 dark:border-slate-700"><i class="fa-solid fa-paperclip"></i> Dosya Seç</label>
+        <input type="file" id="duyuruGorselDosya2" accept="image/*" class="hidden" onchange="previewDosya(this,'previewImg2','duyuruGorsel2Url','duyuruGorsel2Adi')">
+        <span id="duyuruGorsel2Adi" class="text-xs text-slate-400 truncate">Dosya seçilmedi</span>
+      </div>
+      <input type="hidden" id="duyuruGorsel2Url">
+      <div id="previewImg2" class="hidden mt-2 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700"><img class="w-full max-h-32 object-cover"></div>
     </div>
       <div class="space-y-1">
       <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Alarm Süresi (Dakika)</label>
@@ -1795,13 +1807,38 @@ async function okuduOnay(id) {
   await checkDuyuruPopup();
   await loadDuyurular();
 }
+    function previewDosya(input, previewId, urlId, adiId) {
+  const file = input.files[0];
+  if (!file) return;
+  document.getElementById(adiId).textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const preview = document.getElementById(previewId);
+    const img = preview.querySelector('img');
+    img.src = e.target.result;
+    preview.classList.remove('hidden');
+  };
+  reader.readAsDataURL(file);
+}
+
+async function uploadGorsel(file) {
+  if (!file) return null;
+  const ext = file.name.split('.').pop();
+  const fileName = `${Date.now()}_${Math.random().toString(36).substring(2,8)}.${ext}`;
+  const { data, error } = await _supabase.storage.from('duyuru-gorseller').upload(fileName, file, { upsert: true });
+  if (error) { console.error('Görsel yükleme hatası:', error); return null; }
+  const { data: urlData } = _supabase.storage.from('duyuru-gorseller').getPublicUrl(fileName);
+  return urlData.publicUrl;
+}
     async function saveDuyuru() {
   const title = document.getElementById('duyuruBaslik').value.trim();
   const body = document.getElementById('duyuruMetin').value.trim();
   const team = document.getElementById('duyuruEkip').value;
   const cat = document.getElementById('duyuruKategori').value;
-  const img1 = document.getElementById('duyuruGorsel1').value.trim();
-  const img2 = document.getElementById('duyuruGorsel2').value.trim();
+  const dosya1 = document.getElementById('duyuruGorselDosya1').files[0];
+  const dosya2 = document.getElementById('duyuruGorselDosya2').files[0];
+  const img1 = dosya1 ? await uploadGorsel(dosya1) : null;
+  const img2 = dosya2 ? await uploadGorsel(dosya2) : null;
         const alarmDakika = parseInt(document.getElementById('duyuruAlarmDakika').value) || 15;
   const errEl = document.getElementById('duyuruModalError');
   if (!title || !body) { errEl.textContent = 'Başlık ve metin zorunludur.'; errEl.classList.remove('hidden'); return; }
@@ -1813,7 +1850,7 @@ async function okuduOnay(id) {
   });
   if (error) { errEl.textContent = 'Hata: ' + error.message; errEl.classList.remove('hidden'); return; }
   closeDuyuruModal();
-  ['duyuruBaslik','duyuruMetin','duyuruGorsel1','duyuruGorsel2'].forEach(id => document.getElementById(id).value = '');
+  ['duyuruBaslik','duyuruMetin'].forEach(id => document.getElementById(id).value = '');   document.getElementById('duyuruGorselDosya1').value='';document.getElementById('duyuruGorselDosya2').value='';   document.getElementById('duyuruGorsel1Adi').textContent='Dosya seçilmedi';document.getElementById('duyuruGorsel2Adi').textContent='Dosya seçilmedi';   document.getElementById('previewImg1').classList.add('hidden');document.getElementById('previewImg2').classList.add('hidden');
   _popupShown = false;
   await loadDuyurular();
 }
