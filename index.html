@@ -1771,7 +1771,7 @@ async function openDuyuruDetay(id) {
   [d.image_url_1, d.image_url_2].filter(Boolean).forEach((url, i) => {
     const wrapper = document.createElement('div');
     wrapper.className = 'cursor-pointer group relative';
-    wrapper.style = 'width:100%;max-width:480px;height:200px;border-radius:16px;overflow:hidden;border:1px solid rgba(100,116,139,0.2);box-shadow:0 4px 16px rgba(0,0,0,0.15)';
+    wrapper.style = 'width:100%;max-width:640px;height:280px;border-radius:16px;overflow:hidden;border:1px solid rgba(100,116,139,0.2);box-shadow:0 4px 16px rgba(0,0,0,0.15)';
     wrapper.onclick = () => openImageLightbox(url);
     const img = document.createElement('img');
     img.src = url;
