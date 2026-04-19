@@ -2025,7 +2025,6 @@ async function exportDuyuruOkunduExcel() {
       'Okunma Tarihi': '', 'Okunma Saati': '', 'Okuma Süresi': ''
     });
     allRows.push({});
-  });
   const ws = XLSX.utils.json_to_sheet(allRows);
   ws['!cols'] = [{wch:30},{wch:12},{wch:25},{wch:15},{wch:10},{wch:15},{wch:12}];
   const wb = XLSX.utils.book_new();
