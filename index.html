@@ -909,7 +909,7 @@ async function showDashboard(user){
     document.getElementById('loginPage').classList.add('hidden');
     document.getElementById('mainDashboard').classList.remove('hidden');
     document.getElementById('fb-reply-av').innerText=ini;
-applyRoleRestrictions();loadPeriods();setTimeout(()=>{checkFeedbackBadge();checkFeedbackPopup();checkDuyuruPopup();checkDuyuruAlarm();},4000);setInterval(()=>{if(currentUser.role!=='agent')return;checkFeedbackBadge();checkFeedbackPopup();checkDuyuruPopup();},60000);setInterval(()=>checkDuyuruAlarm(),300000);}
+applyRoleRestrictions();loadPeriods();setInterval(()=>{if(currentUser.role!=='agent')return;checkFeedbackBadge();checkFeedbackPopup();checkDuyuruPopup();},60000);setInterval(()=>checkDuyuruAlarm(),300000);}
 function applyRoleRestrictions(){
     if(currentUser.role==='agent'){
         document.getElementById('kpi-card-cwt').classList.add('hidden');
@@ -1219,7 +1219,7 @@ async function loadPeriods(){
     const{data}=await _supabase.from('period_summary').select('period').order('period',{ascending:false}).limit(10000);
     const unique=[...new Set((data||[]).map(d=>d.period))];
     document.getElementById('periodFilter').innerHTML=unique.map(p=>`<option value="${p}">${formatPeriodText(p)}</option>`).join('');
-    fetchAndRender();
+    await fetchAndRender();     checkFeedbackBadge();checkFeedbackPopup();checkDuyuruPopup();checkDuyuruAlarm();
 }
 
 async function fetchAndRender(){
