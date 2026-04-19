@@ -909,7 +909,7 @@ async function showDashboard(user){
     document.getElementById('loginPage').classList.add('hidden');
     document.getElementById('mainDashboard').classList.remove('hidden');
     document.getElementById('fb-reply-av').innerText=ini;
-applyRoleRestrictions();loadPeriods();setInterval(()=>{if(currentUser.role!=='agent')return;checkFeedbackBadge();checkFeedbackPopup();checkDuyuruPopup();},60000);setInterval(()=>checkDuyuruAlarm(),300000);}
+applyRoleRestrictions();loadPeriods();setInterval(()=>{if(currentUser.role!=='agent')return;checkFeedbackBadge();checkFeedbackPopup();checkDuyuruPopup();},60000);setInterval(()=>checkDuyuruAlarm(),30000);}
 function applyRoleRestrictions(){
     if(currentUser.role==='agent'){
         document.getElementById('kpi-card-cwt').classList.add('hidden');
