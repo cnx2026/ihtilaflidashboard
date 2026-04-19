@@ -1854,7 +1854,8 @@ async function duyuruOkuyanlarExcel(id) {
     'Okundu': readMap[u.user_name] ? 'Evet' : 'Hayır',
     'Okunma Tarihi': readMap[u.user_name] ? new Date(readMap[u.user_name]).toLocaleDateString('tr-TR') : '-',
     'Okunma Saati': readMap[u.user_name] ? new Date(readMap[u.user_name]).toLocaleTimeString('tr-TR', {hour:'2-digit',minute:'2-digit'}) : '-',
-    'Okuma Suresi': !readMap[u.user_name] ? '-' : (function(){ var diff=Math.floor((new Date(readMap[u.user_name])-new Date(d.created_at))/60000); if(diff<60){return diff+' dakika';} var s=Math.floor(diff/60); var dk=diff%60; if(dk>0){return s+' saat '+dk+' dakika';} return s+' saat'; })()
+    'Okuma Suresi': !readMap[u.user_name] ? '-' : (function(){ var diff=Math.floor((new Date(readMap[u.user_name])-new Date(d.created_at))/60000); if(diff<60){return diff+' dakika';} var s=Math.floor(diff/60); var dk=diff%60; if(dk>0){return s+' saat '+dk+' dakika';} return s+' saat'; })(),
+      }));
   const okuyanSayi = rows.filter(r => r['Okundu'] === 'Evet').length;
   const toplamSayi = rows.length;
   const okumaOran = toplamSayi > 0 ? ((okuyanSayi / toplamSayi) * 100).toFixed(1) + '%' : '0%';
