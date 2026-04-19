@@ -1860,9 +1860,9 @@ async function duyuruOkuyanlarExcel(id) {
   const toplamSayi = rows.length;
   const okumaOran = toplamSayi > 0 ? ((okuyanSayi / toplamSayi) * 100).toFixed(1) + '%' : '0%';
   rows.push({});
-  rows.push({'Temsilci': 'İletilen Temsilci Sayısı', 'Ekip': toplamSayi, 'Okundu': '', 'Okunma Tarihi': '', 'Okunma Saati': '', 'Okuma Süresi': '', 'Okuma Süresi': ''});
-  rows.push({'Temsilci': 'Okuyan Sayısı', 'Ekip': okuyanSayi, 'Okundu': '', 'Okunma Tarihi': '', 'Okunma Saati': '', 'Okuma Süresi': '', 'Okuma Süresi': ''});
-  rows.push({'Temsilci': 'Okuma Oranı', 'Ekip': okumaOran, 'Okundu': '', 'Okunma Tarihi': '', 'Okunma Saati': '', 'Okuma Süresi': '', 'Okuma Süresi': ''});
+  rows.push({'Temsilci': 'İletilen Temsilci Sayısı', 'Ekip': toplamSayi, 'Okundu': '', 'Okunma Tarihi': '', 'Okunma Saati': '', 'Okuma Suresi': ''});
+  rows.push({'Temsilci': 'Okuyan Sayısı', 'Ekip': okuyanSayi, 'Okundu': '', 'Okunma Tarihi': '', 'Okunma Saati': '', 'Okuma Suresi': ''});
+  rows.push({'Temsilci': 'Okuma Oranı', 'Ekip': okumaOran, 'Okundu': '', 'Okunma Tarihi': '', 'Okunma Saati': '', 'Okuma Suresi': ''});
   const ws = XLSX.utils.json_to_sheet(rows);
   ws['!cols'] = [{wch:25},{wch:15},{wch:10},{wch:15},{wch:12}];
   const wb = XLSX.utils.book_new();
