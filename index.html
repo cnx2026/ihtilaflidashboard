@@ -632,6 +632,13 @@
       <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Görsel 2 (URL)</label>
       <input type="text" id="duyuruGorsel2" placeholder="https://..." class="fb-input">
     </div>
+      <div class="space-y-1">
+      <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Alarm Süresi (Dakika)</label>
+      <div class="flex items-center gap-2">
+        <input type="number" id="duyuruAlarmDakika" value="15" min="5" max="1440" class="fb-input" style="width:120px">
+        <span class="text-xs text-slate-400 font-medium">dakika içinde okunmazsa alarm gönderilir</span>
+      </div>
+    </div>
     <div id="duyuruModalError" class="hidden py-2 px-4 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-sm font-medium text-center"></div>
     <button onclick="saveDuyuru()" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl transition-all">Duyuru Yayınla</button>
   </div>
@@ -885,7 +892,7 @@ async function showDashboard(user){
     document.getElementById('loginPage').classList.add('hidden');
     document.getElementById('mainDashboard').classList.remove('hidden');
     document.getElementById('fb-reply-av').innerText=ini;
-applyRoleRestrictions();loadPeriods();checkFeedbackBadge();checkFeedbackPopup();setTimeout(()=>checkDuyuruPopup(),2000);setInterval(()=>checkDuyuruPopup(),30000);setInterval(async()=>{if(currentUser.role!=='agent')return;checkFeedbackBadge();checkFeedbackPopup();checkDuyuruPopup();},60000);}
+applyRoleRestrictions();loadPeriods();checkFeedbackBadge();checkFeedbackPopup();setTimeout(()=>checkDuyuruPopup(),2000);setTimeout(()=>checkDuyuruAlarm(),5000);setInterval(()=>checkDuyuruPopup(),30000);setInterval(()=>checkDuyuruAlarm(),300000);setInterval(()=>checkDuyuruAlarm(),300000);setInterval(()=>checkDuyuruAlarm(),300000);setInterval(async()=>{if(currentUser.role!=='agent')return;checkFeedbackBadge();checkFeedbackPopup();checkDuyuruPopup();},60000);}
 
 function applyRoleRestrictions(){
     if(currentUser.role==='agent'){
@@ -1513,7 +1520,35 @@ let activeDuyuruTab = 'surec';
 let activeDuyuruId = null; let duyuruOkumaOranlari = {};
 let _popupShown = false; function _getShownPopups() { try { return JSON.parse(localStorage.getItem('shownDuyuruPopups') || '[]'); } catch(e) { return []; } } function _addShownPopup(id) { const arr = _getShownPopups(); if (!arr.includes(id)) { arr.push(id); localStorage.setItem('shownDuyuruPopups', JSON.stringify(arr)); } }
 
-async function checkDuyuruPopup() {
+async function checkDuyuruAlarm() {
+  if (currentUser.role !== 'agent') return;
+  const { data: userRow } = await _supabase.from('users').select('team').eq('user_name', currentUser.user_name).maybeSingle();
+  const userTeam = userRow?.team || 'all';
+  const { data: allD } = await _supabase.from('announcements').select('id,title,category,team,alarm_minutes,created_at').eq('is_archived', false);
+  if (!allD || !allD.length) return;
+  const filtered = allD.filter(d => d.team === userTeam || d.team === 'all');
+  const { data: reads } = await _supabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);
+  const readIds = (reads || []).map(r => r.announcement_id);
+  const alarmKey = 'shownDuyuruAlarms';
+  const shownAlarms = JSON.parse(localStorage.getItem(alarmKey) || '[]');
+  const now = new Date();
+  filtered.forEach(d => {
+    if (readIds.includes(d.id)) return;
+    if (shownAlarms.includes(d.id)) return;
+    const alarmSure = d.alarm_minutes || 15;
+    const duyuruZamani = new Date(d.created_at);
+    const gecenDakika = Math.floor((now - duyuruZamani) / 60000);
+    if (gecenDakika >= alarmSure) {
+      shownAlarms.push(d.id);
+      localStorage.setItem(alarmKey, JSON.stringify(shownAlarms));
+      const catLabel = d.category === 'surec' ? 'Süreç' : 'Operasyon';
+      document.getElementById('popupDuyuruText').innerHTML = `⚠️ <strong>${catLabel}</strong> ile ilgili "<strong>${d.title}</strong>" başlıklı duyuruyu henüz okumadınız. Lütfen en kısa sürede okuyunuz.`;
+      document.getElementById('duyuruPopup').classList.remove('hidden');
+      document.getElementById('duyuruPopup').classList.add('flex');
+    }
+  });
+}
+    async function checkDuyuruPopup() {
   try {
     const userTeam = (rawUsers.find(u => u.user_name === currentUser.user_name) || {}).team || 'all';
     const { data: allD } = await _supabase.from('announcements').select('id,title,category,team,is_archived').eq('is_archived', false);
@@ -1750,13 +1785,14 @@ async function okuduOnay(id) {
   const cat = document.getElementById('duyuruKategori').value;
   const img1 = document.getElementById('duyuruGorsel1').value.trim();
   const img2 = document.getElementById('duyuruGorsel2').value.trim();
+        const alarmDakika = parseInt(document.getElementById('duyuruAlarmDakika').value) || 15;
   const errEl = document.getElementById('duyuruModalError');
   if (!title || !body) { errEl.textContent = 'Başlık ve metin zorunludur.'; errEl.classList.remove('hidden'); return; }
   errEl.classList.add('hidden');
   const { error } = await _supabase.from('announcements').insert({
     title, body, team, category: cat,
     image_url_1: img1 || null, image_url_2: img2 || null,
-    created_by: currentUser.user_name
+    created_by: currentUser.user_name,     alarm_minutes: alarmDakika
   });
   if (error) { errEl.textContent = 'Hata: ' + error.message; errEl.classList.remove('hidden'); return; }
   closeDuyuruModal();
