@@ -1630,7 +1630,7 @@ const catLabel = d.category === 'surec' ? 'Süreç' : 'Operasyon';
     const filtered = currentUser.role === 'admin' ? allD : allD.filter(d => d.team === userTeam || d.team === 'all');
     const { data: reads } = await _supabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);
     const readIds = (reads || []).map(r => r.announcement_id);
-    const unread = filtered.filter(d => !readIds.includes(d.id));
+    const unread = filtered.filter(d => !readIds.includes(d.id) && d.created_by !== currentUser.user_name);
     const surecUnread = unread.filter(d => d.category === 'surec').length;
     const operasyonUnread = unread.filter(d => d.category === 'operasyon').length;
     const bs = document.getElementById('duyuru-badge-surec');
@@ -1666,7 +1666,7 @@ async function updateDuyuruBadge() {
   const { data: reads } = await _supabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);
   const readIds = (reads || []).map(r => r.announcement_id);
   const userTeam = (rawUsers.find(u => u.user_name === currentUser.user_name) || {}).team || 'all';
-  const unread = duyurularData.filter(d => !d.is_archived && !readIds.includes(d.id) && (currentUser.role === 'admin' || d.team === userTeam || d.team === 'all'));
+  const unread = duyurularData.filter(d => !d.is_archived && !readIds.includes(d.id) && d.created_by !== currentUser.user_name && (currentUser.role === 'admin' || d.team === userTeam || d.team === 'all'));
   const surecUnread = unread.filter(d => d.category === 'surec').length;
   const operasyonUnread = unread.filter(d => d.category === 'operasyon').length;
   const bs = document.getElementById('duyuru-badge-surec');
