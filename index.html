@@ -1995,42 +1995,54 @@ async function exportDuyurularExcel() {
 async function exportDuyuruOkunduExcel() {
   if (duyurularData.length === 0) { alert('Duyuru bulunamadı.'); return; }
   const { data: allReads } = await _supabase.from('announcement_reads').select('announcement_id, user_name, read_at');
-  const { data: allUsers } = await _supabase.from('users').select('user_name, team').limit(10000);
+  const { data: allUsers } = await _supabase.from('users').select('user_name, team, role').limit(10000);
   const aktifDuyurular = duyurularData.filter(d => !d.is_archived);
   let allRows = [];
-  aktifDuyurular.forEach(d => {
+  for (const d of aktifDuyurular) {
     const reads = (allReads||[]).filter(r => r.announcement_id === d.id);
     const readMap = {};
     reads.forEach(r => { readMap[r.user_name] = r.read_at; });
-    const hedef = d.team === 'all' ? (allUsers||[]) : (allUsers||[]).filter(u => u.team === d.team);
+    const hedef = d.team === 'all' ? (allUsers||[]).filter(u => u.role !== 'admin') : (allUsers||[]).filter(u => u.team === d.team && u.role !== 'admin');
     const okuyanSayi = hedef.filter(u => readMap[u.user_name]).length;
-    hedef.forEach(u => {
+    for (const u of hedef) {
+      const okumaZamani = readMap[u.user_name];
+      let sure = '-';
+      if (okumaZamani) {
+        const diff = Math.floor((new Date(okumaZamani) - new Date(d.created_at)) / 60000);
+        if (diff < 60) { sure = diff + ' dakika'; }
+        else { const s = Math.floor(diff/60); const dk = diff%60; sure = dk > 0 ? s+' saat '+dk+' dakika' : s+' saat'; }
+      }
       allRows.push({
-        'Duyuru Başlığı': d.title,
+        'Duyuru Basligi': d.title,
         'Duyuru Sahibi': d.created_by,
-        'Kategori': d.category === 'surec' ? 'Süreç' : 'Operasyon',
+        'Kategori': d.category === 'surec' ? 'Surec' : 'Operasyon',
         'Temsilci': u.user_name,
         'Ekip': u.team || '-',
-        'Okundu': readMap[u.user_name] ? 'Evet' : 'Hayır',
-        'Okunma Tarihi': readMap[u.user_name] ? new Date(readMap[u.user_name]).toLocaleDateString('tr-TR') : '-',
-        'Okunma Saati': readMap[u.user_name] ? new Date(readMap[u.user_name]).toLocaleTimeString('tr-TR', {hour:'2-digit',minute:'2-digit'}) : '-',
-        'Okuma Suresi': !readMap[u.user_name] ? '-' : (function(){ var diff=Math.floor((new Date(readMap[u.user_name])-new Date(d.created_at))/60000); if(diff<60){return diff+' dakika';} var s=Math.floor(diff/60); var dk=diff%60; if(dk>0){return s+' saat '+dk+' dakika';} return s+' saat'; })()
-    });
+        'Okundu': okumaZamani ? 'Evet' : 'Hayir',
+        'Okunma Tarihi': okumaZamani ? new Date(okumaZamani).toLocaleDateString('tr-TR') : '-',
+        'Okunma Saati': okumaZamani ? new Date(okumaZamani).toLocaleTimeString('tr-TR', {hour:'2-digit',minute:'2-digit'}) : '-',
+        'Okuma Suresi': sure
+      });
+    }
     allRows.push({
-      'Duyuru Başlığı': '— ÖZET —',
+      'Duyuru Basligi': '-- OZET --',
+      'Duyuru Sahibi': '',
       'Kategori': '',
-      'Temsilci': `İletilen: ${hedef.length}`,
-      'Ekip': `Okuyan: ${okuyanSayi}`,
-      'Okundu': `Oran: ${hedef.length > 0 ? ((okuyanSayi/hedef.length)*100).toFixed(1)+'%' : '0%'}`,
-      'Okunma Tarihi': '', 'Okunma Saati': '', 'Okuma Süresi': ''
+      'Temsilci': 'Iletilen: ' + hedef.length,
+      'Ekip': 'Okuyan: ' + okuyanSayi,
+      'Okundu': 'Oran: ' + (hedef.length > 0 ? ((okuyanSayi/hedef.length)*100).toFixed(1)+'%' : '0%'),
+      'Okunma Tarihi': '',
+      'Okunma Saati': '',
+      'Okuma Suresi': ''
     });
     allRows.push({});
-        });
+  }
   const ws = XLSX.utils.json_to_sheet(allRows);
-  ws['!cols'] = [{wch:30},{wch:12},{wch:25},{wch:15},{wch:10},{wch:15},{wch:12}];
+  ws['!cols'] = [{wch:30},{wch:20},{wch:12},{wch:25},{wch:15},{wch:10},{wch:15},{wch:12},{wch:15}];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Okundu Raporu');
   XLSX.writeFile(wb, 'Duyuru_Okundu_Raporu.xlsx');
+}
 }
 </script>
 </body>
