@@ -875,7 +875,7 @@
 <script>
 const SUPABASE_URL = 'https://xtikjrtxowjcpvbmsgxh.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0aWtqcnR4b3dqY3B2Ym1zZ3hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDYxMDUsImV4cCI6MjA4OTc4MjEwNX0.VWOBROBGR52E9gzxx-whsJZ0J8yBn_tPBb838dYxaHU';
-const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {   auth: { persistSession: false },   global: { fetch: (...args) => fetch(...args) },   db: { schema: 'public' } });
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {   auth: { persistSession: true },   global: { fetch: (...args) => fetch(...args) },   db: { schema: 'public' } });
     // Cache Sistemi
 const _cache = {};
 const CACHE_DURATION = 60 * 60 * 1000; // 1 saat
