@@ -2115,7 +2115,7 @@ async function exportDuyuruOkunduExcelFiltered(filteredDuyurular) {
     const reads = (allReads||[]).filter(r => r.announcement_id === d.id);
     const readMap = {};
     reads.forEach(r => { readMap[r.user_name] = r.read_at; });
-    const hedef = d.team === 'all' ? (allUsers||[]).filter(u => u.role !== 'admin') : (allUsers||[]).filter(u => u.team === d.team && u.role !== 'admin');
+    const hedef = d.team === 'all' ? (allUsers||[]).filter(u => u.role !== 'admin' && !['bahriye.ozertas','muhammet.memis','beyza.yurtseven'].includes(u.user_name)) : (allUsers||[]).filter(u => u.team === d.team && u.role !== 'admin' && !['bahriye.ozertas','muhammet.memis','beyza.yurtseven'].includes(u.user_name));
     const okuyanSayi = hedef.filter(u => readMap[u.user_name]).length;
     hedef.forEach(u => {
       const okumaZamani = readMap[u.user_name];
@@ -2175,7 +2175,7 @@ async function exportDuyuruOkunduExcel() {
     const reads = (allReads||[]).filter(r => r.announcement_id === d.id);
     const readMap = {};
     reads.forEach(r => { readMap[r.user_name] = r.read_at; });
-    const hedef = d.team === 'all' ? (allUsers||[]).filter(u => u.role !== 'admin') : (allUsers||[]).filter(u => u.team === d.team && u.role !== 'admin');
+    const hedef = d.team === 'all' ? (allUsers||[]).filter(u => u.role !== 'admin' && !['bahriye.ozertas','muhammet.memis','beyza.yurtseven'].includes(u.user_name)) : (allUsers||[]).filter(u => u.team === d.team && u.role !== 'admin' && !['bahriye.ozertas','muhammet.memis','beyza.yurtseven'].includes(u.user_name));
     const okuyanSayi = hedef.filter(u => readMap[u.user_name]).length;
     for (const u of hedef) {
       const okumaZamani = readMap[u.user_name];
