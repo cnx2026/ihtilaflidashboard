@@ -1337,8 +1337,9 @@ async function loadPeriods(){
     fetchAndRender();     setTimeout(()=>{checkFeedbackBadge();checkFeedbackPopup();checkDuyuruPopup();checkDuyuruAlarm();},3000);
 }
 
-async function fetchAndRender(){
-    toggleLoading(true);const period=document.getElementById('periodFilter').value;
+let _uretimLoaded = false;
+    async function fetchAndRender(){
+    if(_uretimLoaded){return;}toggleLoading(true);const period=document.getElementById('periodFilter').value;
     try{
         const cwtFetch=fetch(`${SUPABASE_URL}/rest/v1/cwt_data?period=eq.${encodeURIComponent(period)}&select=user_name,cwt,date`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}}).then(r=>r.json());
         const dvsFetch=fetch(`${SUPABASE_URL}/rest/v1/dvs_data?period=eq.${encodeURIComponent(period)}&select=planned_hc,actual_hc`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}}).then(r=>r.json());
@@ -1370,7 +1371,7 @@ async function fetchAndRender(){
         const tls=[...new Set(fullData.map(d=>d.team_leader).filter(t=>t&&t!=='-'))].sort();
         document.getElementById('tlFilter').innerHTML='<option value="all">Tüm Liderler</option>'+tls.map(t=>`<option value="${t}">${t}</option>`).join('');
         if(currentUser.role==='agent'){const userTeam=rawUsers.find(u=>u.user_name?.toLowerCase().trim()===currentUser.user_name?.toLowerCase().trim())?.team||'';if(userTeam){fullData=fullData.filter(d=>d.team===userTeam);}}
-        applyFilters();
+        _uretimLoaded=true;applyFilters();
     }catch(err){console.error(err);}finally{toggleLoading(false);}
 }
 
