@@ -1030,7 +1030,7 @@ let _shownFeedbackPopups = JSON.parse(localStorage.getItem('shownFeedbackPopups'
 
 async function checkFeedbackPopup() {
   if (currentUser.role !== 'agent') return;
-  const { data: olumluData } = await _cachedSupabase.from('feedback').select('id,from_user,to_user,topic,title,type').eq('type','Olumlu').eq('is_read',false).neq('to_user',currentUser.user_name);
+  const { data: olumluData } = await _supabase.from('feedback').select('id,from_user,to_user,topic,title,type').eq('type','Olumlu').eq('is_read',false).neq('to_user',currentUser.user_name);
   if (olumluData && olumluData.length > 0) {
     const unseenOlumlu = olumluData.filter(fb => !_shownFeedbackPopups.includes('olumlu_'+fb.id));
     if (unseenOlumlu.length > 0) {
