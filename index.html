@@ -998,7 +998,7 @@ async function handleLogin(e){
 function handleLogout(){_supabase.auth.signOut().then(()=>location.reload());}
 
 async function showDashboard(user){
-    const{data:rows}=await _cachedSupabase.from('users').select('user_name,role').eq('user_mail',user.email).limit(1);
+    const{data:rows}=await _supabase.from('users').select('user_name,role').eq('user_mail',user.email).limit(1);
     const r=rows&&rows.length>0?rows[0]:null;
     currentUser={role:r?.role||'agent',user_name:r?.user_name||user.email.split('@')[0].replace('.',' '),email:user.email};
     const ini=mkIni(currentUser.user_name);
@@ -1345,7 +1345,7 @@ async function fetchAndRender(){
         const[dailyRes,summaryRes,userRes,cwtData,dvsData]=await Promise.all([
             _cachedSupabase.from('daily_data').select('*').eq('period',period).limit(10000),
             _cachedSupabase.from('period_summary').select('*').eq('period',period).limit(10000),
-            _cachedSupabase.from('users').select('*').limit(10000),cwtFetch,dvsFetch]);
+            _supabase.from('users').select('*').limit(10000),cwtFetch,dvsFetch]);
         rawUsers=userRes.data||[];cwtAllData=Array.isArray(cwtData)?cwtData:[];dailyAllData=dailyRes.data||[];
         const dvsArr=Array.isArray(dvsData)?dvsData:[];
         const tp=dvsArr.reduce((s,d)=>s+(parseFloat(d.planned_hc)||0),0);
@@ -1499,7 +1499,7 @@ function exportUretimOzel(){
         if(error||!data||data.length===0){document.getElementById('goalpexTableBody').innerHTML=`<tr><td colspan="10" class="px-5 py-16 text-center"><div class="flex flex-col items-center gap-3"><div class="w-14 h-14 rounded-2xl bg-violet-500/10 flex items-center justify-center"><i class="fa-solid fa-bullseye text-violet-500 text-2xl"></i></div><p class="text-slate-400 font-bold text-sm">Bu dönem için Goalpex verisi bulunamadı</p></div></td></tr>`;return;}
 
         // Ekip ve lider filtrelerini doldur
-        const{data:users}=await _cachedSupabase.from('users').select('user_name,team,team_leader').limit(10000);
+        const{data:users}=await _supabase.from('users').select('user_name,team,team_leader').limit(10000);
         const userMap={};(users||[]).forEach(u=>{userMap[u.user_name]={team:u.team||'-',tl:u.team_leader||'-'};});
         const allData=data.map(row=>({...row,team:userMap[row.user_name]?.team||'-',tl:userMap[row.user_name]?.tl||'-'}));
         const teams=[...new Set(allData.map(d=>d.team).filter(t=>t&&t!=='-'))].sort();
@@ -1665,12 +1665,12 @@ function closeImageLightbox() {
 }
     function closeAlarmPopup(goTo) {   const popup = document.getElementById('duyuruAlarmPopup');   const id = popup.dataset.alarmId;   popup.classList.add('hidden');   popup.classList.remove('flex');   if (goTo && id) {     showPage('duyurular');     setTimeout(() => {       const d = duyurularData.find(x => x.id === id);       if (d) { switchDuyuruTab(d.category); setTimeout(() => openDuyuruDetay(id), 300); }     }, 500);   } }  async function checkDuyuruAlarm() {
   if (currentUser.role !== 'agent') return;
-  const { data: userRow } = await _cachedSupabase.from('users').select('team').eq('user_name', currentUser.user_name).maybeSingle();
+  const { data: userRow } = await _supabase.from('users').select('team').eq('user_name', currentUser.user_name).maybeSingle();
   const userTeam = userRow?.team || 'all';
   const { data: allD } = await _cachedSupabase.from('announcements').select('id,title,category,team,alarm_minutes,created_at').eq('is_archived', false);
   if (!allD || !allD.length) return;
   const filtered = allD.filter(d => d.team === userTeam || d.team === 'all');
-  const { data: reads } = await _cachedSupabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);
+  const { data: reads } = await _supabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);
   const readIds = (reads || []).map(r => r.announcement_id);
   const alarmKey = 'shownDuyuruAlarms';
   const shownAlarms = JSON.parse(localStorage.getItem(alarmKey) || '[]');
@@ -1698,7 +1698,7 @@ const catLabel = d.category === 'surec' ? 'Süreç' : 'Operasyon';
     const { data: allD } = await _cachedSupabase.from('announcements').select('id,title,category,team,is_archived').eq('is_archived', false);
     if (!allD || !allD.length) return;
     const filtered = currentUser.role === 'admin' ? allD : allD.filter(d => d.team === userTeam || d.team === 'all');
-    const { data: reads } = await _cachedSupabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);
+    const { data: reads } = await _supabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);
     const readIds = (reads || []).map(r => r.announcement_id);
     const unread = filtered.filter(d => !readIds.includes(d.id) && d.created_by !== currentUser.user_name);
     const surecUnread = unread.filter(d => d.category === 'surec').length;
@@ -1719,7 +1719,7 @@ const catLabel = d.category === 'surec' ? 'Süreç' : 'Operasyon';
   }
   const { data, error } = await query;
   if (error) { console.error(error); return; }
-  duyurularData = data || [];   if (currentUser.role === 'admin' && duyurularData.length > 0) {     const { data: reads } = await _cachedSupabase.from('announcement_reads').select('announcement_id');     const { data: allUsers } = await _cachedSupabase.from('users').select('user_name,team').limit(10000);     duyurularData.forEach(d => {       const hedef = d.team === 'all' ? (allUsers||[]).filter(u => u.role !== 'admin').length : (allUsers||[]).filter(u => u.team === d.team && u.role !== 'admin').length;       const okuyan = (reads||[]).filter(r => r.announcement_id === d.id).length;       duyuruOkumaOranlari[d.id] = hedef > 0 ? Math.round((okuyan / hedef) * 100) : 0;     });   }
+  duyurularData = data || [];   if (currentUser.role === 'admin' && duyurularData.length > 0) {     const { data: reads } = await _supabase.from('announcement_reads').select('announcement_id');     const { data: allUsers } = await _supabase.from('users').select('user_name,team').limit(10000);     duyurularData.forEach(d => {       const hedef = d.team === 'all' ? (allUsers||[]).filter(u => u.role !== 'admin').length : (allUsers||[]).filter(u => u.team === d.team && u.role !== 'admin').length;       const okuyan = (reads||[]).filter(r => r.announcement_id === d.id).length;       duyuruOkumaOranlari[d.id] = hedef > 0 ? Math.round((okuyan / hedef) * 100) : 0;     });   }
   if (currentUser.role === 'admin') {
     document.getElementById('duyuru-export-btns').classList.remove('hidden');
     document.getElementById('duyuru-export-btns').classList.add('flex');
@@ -1733,7 +1733,7 @@ async function updateDuyuruBadge() {
     document.getElementById('duyuru-badge-operasyon')?.classList.add('hidden');
     return;
   }
-  const { data: reads } = await _cachedSupabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);
+  const { data: reads } = await _supabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);
   const readIds = (reads || []).map(r => r.announcement_id);
   const userTeam = (rawUsers.find(u => u.user_name === currentUser.user_name) || {}).team || 'all';
   const unread = duyurularData.filter(d => !d.is_archived && !readIds.includes(d.id) && d.created_by !== currentUser.user_name && (currentUser.role === 'admin' || d.team === userTeam || d.team === 'all'));
@@ -1769,7 +1769,7 @@ function closeDuyuruPopup(goTo) {
   if (goTo) {
     showPage('duyurular');
     setTimeout(async () => {
-      const { data: reads } = await _cachedSupabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);
+      const { data: reads } = await _supabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);
       const readIds = (reads || []).map(r => r.announcement_id);
       const unread = duyurularData.filter(d => !d.is_archived && !readIds.includes(d.id));
       if (unread.length > 0) {
@@ -1892,7 +1892,7 @@ async function openDuyuruDetay(id) {
     okuBtn.innerHTML = `<button onclick="duyuruOkuyanlarExcel('${id}')" class="flex items-center gap-2 px-4 py-2 bg-blue-500/10 text-blue-500 text-xs font-black rounded-xl border border-blue-500/20 hover:bg-blue-500/20 transition-all"><i class="fa-solid fa-chart-bar"></i> Okuyanlar Raporu</button>`;
   } else {
     adminBtns.classList.add('hidden'); adminBtns.classList.remove('flex');
-    const { data: existing } = await _cachedSupabase.from('announcement_reads').select('id').eq('announcement_id', id).eq('user_name', currentUser.user_name).maybeSingle();
+    const { data: existing } = await _supabase.from('announcement_reads').select('id').eq('announcement_id', id).eq('user_name', currentUser.user_name).maybeSingle();
     if (existing) {
       okuBtn.innerHTML = '<div class="flex items-center gap-2 text-emerald-500 text-sm font-black"><i class="fa-solid fa-circle-check"></i> Okundu & Onaylandı</div>';
     } else {
@@ -1905,7 +1905,7 @@ async function openDuyuruDetay(id) {
   document.getElementById('duyuru-detail-content').classList.add('flex');
 
 if (currentUser.role !== 'admin') {
-    const { data: existingRead } = await _cachedSupabase.from('announcement_reads').select('id').eq('announcement_id', id).eq('user_name', currentUser.user_name).maybeSingle();
+    const { data: existingRead } = await _supabase.from('announcement_reads').select('id').eq('announcement_id', id).eq('user_name', currentUser.user_name).maybeSingle();
     if (!existingRead) {
       okuBtn.innerHTML = `<div class="flex items-center gap-3 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl"><div class="flex-1"><p class="text-xs font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-0.5">Onay Gerekli</p><p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Bu duyuruyu okuduğunuzu onaylayın.</p></div><button onclick="okuduOnay('${id}')" class="shrink-0 flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-xl shadow-lg transition-all uppercase tracking-widest"><i class="fa-solid fa-circle-check"></i> Okudum & Onayladım</button></div>`;
     }
@@ -1926,7 +1926,7 @@ function closeDuyuruModal() {
 }
 
 async function okuduOnay(id) {
-  await _cachedSupabase.from('announcement_reads').insert({ announcement_id: id, user_name: currentUser.user_name });
+  await _supabase.from('announcement_reads').insert({ announcement_id: id, user_name: currentUser.user_name });
   const okuBtn = document.getElementById('ddet-okuyanlar-btn');
   if (okuBtn) okuBtn.innerHTML = '<div class="flex items-center gap-2 text-emerald-500 text-sm font-black"><i class="fa-solid fa-circle-check"></i> Okundu & Onaylandı</div>';
   _addShownPopup(id);
@@ -2005,8 +2005,8 @@ async function silDuyuruDetay() {
 
 async function duyuruOkuyanlarExcel(id) {
   const d = duyurularData.find(x => x.id === id);
-  const { data: reads } = await _cachedSupabase.from('announcement_reads').select('user_name, read_at').eq('announcement_id', id).order('read_at', { ascending: true });
-  const { data: allUsers } = await _cachedSupabase.from('users').select('user_name, team').limit(10000);
+  const { data: reads } = await _supabase.from('announcement_reads').select('user_name, read_at').eq('announcement_id', id).order('read_at', { ascending: true });
+  const { data: allUsers } = await _supabase.from('users').select('user_name, team').limit(10000);
   const userTeam = d.team === 'all' ? null : d.team;
   const hedef = userTeam ? (allUsers||[]).filter(u => u.team === userTeam) : (allUsers||[]);
   const readMap = {};
@@ -2106,8 +2106,8 @@ async function runDuyuruExport() {
 }
 
 async function exportDuyuruOkunduExcelFiltered(filteredDuyurular) {
-  const { data: allReads } = await _cachedSupabase.from('announcement_reads').select('announcement_id, user_name, read_at');
-  const { data: allUsers } = await _cachedSupabase.from('users').select('user_name, team, role').limit(10000);
+  const { data: allReads } = await _supabase.from('announcement_reads').select('announcement_id, user_name, read_at');
+  const { data: allUsers } = await _supabase.from('users').select('user_name, team, role').limit(10000);
   const aktifDuyurular = filteredDuyurular.filter(d => !d.is_archived);
   let allRows = [];
   aktifDuyurular.forEach(d => {
@@ -2166,8 +2166,8 @@ async function exportDuyurularExcel() {
 
 async function exportDuyuruOkunduExcel() {
   if (duyurularData.length === 0) { alert('Duyuru bulunamadı.'); return; }
-  const { data: allReads } = await _cachedSupabase.from('announcement_reads').select('announcement_id, user_name, read_at');
-  const { data: allUsers } = await _cachedSupabase.from('users').select('user_name, team, role').limit(10000);
+  const { data: allReads } = await _supabase.from('announcement_reads').select('announcement_id, user_name, read_at');
+  const { data: allUsers } = await _supabase.from('users').select('user_name, team, role').limit(10000);
   const aktifDuyurular = duyurularData.filter(d => !d.is_archived);
   let allRows = [];
   for (const d of aktifDuyurular) {
