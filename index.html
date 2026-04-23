@@ -1512,7 +1512,7 @@ function exportUretimOzel(){
         if(curTeam&&teams.includes(curTeam))teamSel.value=curTeam;
         if(curTl&&tls.includes(curTl))tlSel.value=curTl;
 
-        window._goalpexAllData=allData;
+        window._goalpexAllData=allData;_goalpexLoaded=true;
         applyGoalpexFilter();
     }catch(e){console.error(e);}finally{toggleLoading(false);}
 }
