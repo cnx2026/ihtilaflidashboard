@@ -1214,7 +1214,7 @@ async function openFbDetail(id){
 }
 
 async function renderFbReplies(fb){
-    const{data:msgs}=await _cachedSupabase.from('feedback_messages').select('*').eq('feedback_id',fb.id).order('created_at',{ascending:true});
+    const{data:msgs}=await _supabase.from('feedback_messages').select('*').eq('feedback_id',fb.id).order('created_at',{ascending:true});
     const wrap=document.getElementById('fb-det-replies');
     if(!msgs||msgs.length===0){wrap.innerHTML='';return;}
     wrap.innerHTML=`<p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">${msgs.length} Yanıt</p>`+
@@ -1237,11 +1237,11 @@ async function renderFbReplies(fb){
 
 async function sendFbReply(){
     const text=document.getElementById('fb-reply-input').value.trim();if(!text||!fbCurrentId)return;     const fb=fbAllData.find(f=>f.id===fbCurrentId);
-    const{error}=await _cachedSupabase.from('feedback_messages').insert({feedback_id:fbCurrentId,sender:currentUser.user_name,message:text});
+    const{error}=await _supabase.from('feedback_messages').insert({feedback_id:fbCurrentId,sender:currentUser.user_name,message:text});
     if(!error){
         document.getElementById('fb-reply-input').value='';
         const fb=fbAllData.find(f=>f.id===fbCurrentId);if(fb)await renderFbReplies(fb);
-        const{data}=await _cachedSupabase.from('feedback_messages').select('*').eq('feedback_id',fbCurrentId).order('created_at',{ascending:true});
+        const{data}=await _supabase.from('feedback_messages').select('*').eq('feedback_id',fbCurrentId).order('created_at',{ascending:true});
         const idx=fbAllData.findIndex(f=>f.id===fbCurrentId);if(idx!==-1)fbAllData[idx].feedback_messages=data||[];
         const fbCur=fbAllData.find(f=>f.id===fbCurrentId);if(fbCur){const target=fbCur.from_user.toLowerCase().trim()===currentUser.user_name.toLowerCase().trim()?fbCur.to_user:fbCur.from_user;if(target.toLowerCase().trim()!==currentUser.user_name.toLowerCase().trim()){await _cachedSupabase.from('feedback').update({is_read:false}).eq('id',fbCurrentId);}}
         renderFbList();
@@ -1250,7 +1250,7 @@ async function sendFbReply(){
 
 async function deleteFeedback(){
     if(!fbCurrentId)return;if(!confirm('Bu geri bildirimi silmek istediğinize emin misiniz?'))return;
-    await _cachedSupabase.from('feedback_messages').delete().eq('feedback_id',fbCurrentId);
+    await _supabase.from('feedback_messages').delete().eq('feedback_id',fbCurrentId);
     await _cachedSupabase.from('feedback').delete().eq('id',fbCurrentId);
     fbAllData=fbAllData.filter(f=>f.id!==fbCurrentId);fbCurrentId=null;
     document.getElementById('fb-detail-empty').classList.remove('hidden');
@@ -1668,7 +1668,7 @@ function closeImageLightbox() {
   if (currentUser.role !== 'agent') return;
   const { data: userRow } = await _supabase.from('users').select('team').eq('user_name', currentUser.user_name).maybeSingle();
   const userTeam = userRow?.team || 'all';
-  const { data: allD } = await _cachedSupabase.from('announcements').select('id,title,category,team,alarm_minutes,created_at').eq('is_archived', false);
+  const { data: allD } = await _supabase.from('announcements').select('id,title,category,team,alarm_minutes,created_at').eq('is_archived', false);
   if (!allD || !allD.length) return;
   const filtered = allD.filter(d => d.team === userTeam || d.team === 'all');
   const { data: reads } = await _supabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);
@@ -1696,7 +1696,7 @@ const catLabel = d.category === 'surec' ? 'Süreç' : 'Operasyon';
     async function checkDuyuruPopup() {
   try {
     const userTeam = (rawUsers.find(u => u.user_name === currentUser.user_name) || {}).team || 'all';
-    const { data: allD } = await _cachedSupabase.from('announcements').select('id,title,category,team,is_archived').eq('is_archived', false);
+    const { data: allD } = await _supabase.from('announcements').select('id,title,category,team,is_archived').eq('is_archived', false);
     if (!allD || !allD.length) return;
     const filtered = currentUser.role === 'admin' ? allD : allD.filter(d => d.team === userTeam || d.team === 'all');
     const { data: reads } = await _supabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);
@@ -1714,7 +1714,7 @@ const catLabel = d.category === 'surec' ? 'Süreç' : 'Operasyon';
 
     async function loadDuyurular() {
   const userTeam = (rawUsers.find(u => u.user_name === currentUser.user_name) || {}).team || 'all';
-  let query = _cachedSupabase.from('announcements').select('*').order('created_at', { ascending: false });
+  let query = _supabase.from('announcements').select('*').order('created_at', { ascending: false });
   if (currentUser.role !== 'admin') {
     query = query.eq('is_archived', false).in('team', [userTeam, 'all']);
   }
@@ -1970,7 +1970,7 @@ async function uploadGorsel(file) {
   const errEl = document.getElementById('duyuruModalError');
   if (!title || !body) { errEl.textContent = 'Başlık ve metin zorunludur.'; errEl.classList.remove('hidden'); return; }
   errEl.classList.add('hidden');
-  const { error } = await _cachedSupabase.from('announcements').insert({
+  const { error } = await _supabase.from('announcements').insert({
     title, body, team, category: cat,
     image_url_1: img1 || null, image_url_2: img2 || null,
     created_by: currentUser.user_name,     alarm_minutes: alarmDakika
@@ -1985,7 +1985,7 @@ async function uploadGorsel(file) {
 async function arsivleDuyuruDetay() {
   if (!activeDuyuruId) return;
   const d = duyurularData.find(x => x.id === activeDuyuruId);
-  await _cachedSupabase.from('announcements').update({ is_archived: !d.is_archived }).eq('id', activeDuyuruId);
+  await _supabase.from('announcements').update({ is_archived: !d.is_archived }).eq('id', activeDuyuruId);
   document.getElementById('duyuru-detail-empty').classList.remove('hidden');
   document.getElementById('duyuru-detail-content').classList.add('hidden');
   document.getElementById('duyuru-detail-content').classList.remove('flex');
@@ -1996,7 +1996,7 @@ async function arsivleDuyuruDetay() {
 async function silDuyuruDetay() {
   if (!activeDuyuruId) return;
   if (!confirm('Bu duyuruyu silmek istediğinize emin misiniz?')) return;
-  await _cachedSupabase.from('announcements').delete().eq('id', activeDuyuruId);
+  await _supabase.from('announcements').delete().eq('id', activeDuyuruId);
   document.getElementById('duyuru-detail-empty').classList.remove('hidden');
   document.getElementById('duyuru-detail-content').classList.add('hidden');
   document.getElementById('duyuru-detail-content').classList.remove('flex');
