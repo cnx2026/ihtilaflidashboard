@@ -1008,7 +1008,7 @@ async function showDashboard(user){
     document.getElementById('loginPage').classList.add('hidden');
     document.getElementById('mainDashboard').classList.remove('hidden');
     document.getElementById('fb-reply-av').innerText=ini;
-applyRoleRestrictions();loadPeriods();setInterval(()=>{if(currentUser.role!=='agent')return;checkFeedbackBadge();},30000);setInterval(()=>{if(currentUser.role!=='agent')return;checkDuyuruPopup();},5000);setInterval(()=>checkDuyuruAlarm(),5000);}
+applyRoleRestrictions();loadPeriods();setInterval(()=>{if(currentUser.role!=='agent')return;checkFeedbackBadge();checkFeedbackPopup();},30000);setInterval(()=>{if(currentUser.role!=='agent')return;checkDuyuruPopup();},5000);setInterval(()=>checkDuyuruAlarm(),5000);}
 function applyRoleRestrictions(){
     if(currentUser.role==='agent'){
         document.getElementById('kpi-card-cwt').classList.add('hidden');
