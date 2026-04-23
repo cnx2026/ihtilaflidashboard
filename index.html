@@ -1927,7 +1927,7 @@ function closeDuyuruModal() {
 }
 
 async function okuduOnay(id) {
-  await _supabase.from('announcement_reads').insert({ announcement_id: id, user_name: currentUser.user_name });
+  const{data:existCheck}=await _supabase.from('announcement_reads').select('id').eq('announcement_id',id).eq('user_name',currentUser.user_name).maybeSingle();if(!existCheck){await _supabase.from('announcement_reads').insert({ announcement_id: id, user_name: currentUser.user_name });}
   const okuBtn = document.getElementById('ddet-okuyanlar-btn');
   if (okuBtn) okuBtn.innerHTML = '<div class="flex items-center gap-2 text-emerald-500 text-sm font-black"><i class="fa-solid fa-circle-check"></i> Okundu & Onaylandı</div>';
   _addShownPopup(id);
