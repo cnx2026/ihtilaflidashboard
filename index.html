@@ -2108,7 +2108,7 @@ async function runDuyuruExport() {
 
 async function exportDuyuruOkunduExcelFiltered(filteredDuyurular) {
   const { data: allReads } = await _supabase.from('announcement_reads').select('announcement_id, user_name, read_at');
-  const { data: allUsers } = await _supabase.from('users').select('user_name, team, role').limit(10000);
+  const { data: allUsersRaw } = await _supabase.from('users').select('user_name, team, role').limit(10000); const allUsers = (allUsersRaw||[]).filter(u => !['bahriye.ozertas','muhammet.memis','beyza.yurtseven'].includes(u.user_name));
   const aktifDuyurular = filteredDuyurular.filter(d => !d.is_archived);
   let allRows = [];
   aktifDuyurular.forEach(d => {
@@ -2168,7 +2168,7 @@ async function exportDuyurularExcel() {
 async function exportDuyuruOkunduExcel() {
   if (duyurularData.length === 0) { alert('Duyuru bulunamadı.'); return; }
   const { data: allReads } = await _supabase.from('announcement_reads').select('announcement_id, user_name, read_at');
-  const { data: allUsers } = await _supabase.from('users').select('user_name, team, role').limit(10000);
+  const { data: allUsersRaw } = await _supabase.from('users').select('user_name, team, role').limit(10000); const allUsers = (allUsersRaw||[]).filter(u => !['bahriye.ozertas','muhammet.memis','beyza.yurtseven'].includes(u.user_name));
   const aktifDuyurular = duyurularData.filter(d => !d.is_archived);
   let allRows = [];
   for (const d of aktifDuyurular) {
