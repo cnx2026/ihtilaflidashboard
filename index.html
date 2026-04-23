@@ -2009,7 +2009,7 @@ async function duyuruOkuyanlarExcel(id) {
   const { data: reads } = await _supabase.from('announcement_reads').select('user_name, read_at').eq('announcement_id', id).order('read_at', { ascending: true });
   const { data: allUsers } = await _supabase.from('users').select('user_name, team').limit(10000);
   const userTeam = d.team === 'all' ? null : d.team;
-  const hedef = userTeam ? (allUsers||[]).filter(u => u.team === userTeam) : (allUsers||[]);
+  const hedef = userTeam ? (allUsers||[]).filter(u => u.team === userTeam && u.role !== 'admin' && !['bahriye.ozertas','muhammet.memis','beyza.yurtseven'].includes(u.user_name)) : (allUsers||[]).filter(u => u.role !== 'admin' && !['bahriye.ozertas','muhammet.memis','beyza.yurtseven'].includes(u.user_name));
   const readMap = {};
   (reads||[]).forEach(r => { readMap[r.user_name] = r.read_at; });
   const rows = hedef.map(u => {
@@ -2108,7 +2108,7 @@ async function runDuyuruExport() {
 
 async function exportDuyuruOkunduExcelFiltered(filteredDuyurular) {
   const { data: allReads } = await _supabase.from('announcement_reads').select('announcement_id, user_name, read_at');
-  const { data: allUsersRaw } = await _supabase.from('users').select('user_name, team, role').limit(10000); const allUsers = (allUsersRaw||[]).filter(u => !['bahriye.ozertas','muhammet.memis','beyza.yurtseven'].includes(u.user_name));
+  const { data: allUsersRaw } = await _supabase.from('users').select('user_name, team, role').limit(10000); const allUsers = (allUsersRaw||[]).filter(u => u.role !== 'admin' && !['bahriye.ozertas','muhammet.memis','beyza.yurtseven'].includes(u.user_name));
   const aktifDuyurular = filteredDuyurular.filter(d => !d.is_archived);
   let allRows = [];
   aktifDuyurular.forEach(d => {
@@ -2168,7 +2168,7 @@ async function exportDuyurularExcel() {
 async function exportDuyuruOkunduExcel() {
   if (duyurularData.length === 0) { alert('Duyuru bulunamadı.'); return; }
   const { data: allReads } = await _supabase.from('announcement_reads').select('announcement_id, user_name, read_at');
-  const { data: allUsersRaw } = await _supabase.from('users').select('user_name, team, role').limit(10000); const allUsers = (allUsersRaw||[]).filter(u => !['bahriye.ozertas','muhammet.memis','beyza.yurtseven'].includes(u.user_name));
+  const { data: allUsersRaw } = await _supabase.from('users').select('user_name, team, role').limit(10000); const allUsers = (allUsersRaw||[]).filter(u => u.role !== 'admin' && !['bahriye.ozertas','muhammet.memis','beyza.yurtseven'].includes(u.user_name));
   const aktifDuyurular = duyurularData.filter(d => !d.is_archived);
   let allRows = [];
   for (const d of aktifDuyurular) {
