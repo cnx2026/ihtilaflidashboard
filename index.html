@@ -2007,7 +2007,7 @@ async function silDuyuruDetay() {
 async function duyuruOkuyanlarExcel(id) {
   const d = duyurularData.find(x => x.id === id);
   const { data: reads } = await _supabase.from('announcement_reads').select('user_name, read_at').eq('announcement_id', id).order('read_at', { ascending: true });
-  const { data: allUsers } = await _supabase.from('users').select('user_name, team').limit(10000);
+  const { data: allUsers } = await _supabase.from('users').select('user_name, team, role').limit(10000);
   const userTeam = d.team === 'all' ? null : d.team;
   const hedef = userTeam ? (allUsers||[]).filter(u => u.team === userTeam && u.role !== 'admin' && !['bahriye.ozertas','muhammet.memis','beyza.yurtseven'].includes(u.user_name)) : (allUsers||[]).filter(u => u.role !== 'admin' && !['bahriye.ozertas','muhammet.memis','beyza.yurtseven'].includes(u.user_name));
   const readMap = {};
