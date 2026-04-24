@@ -1339,7 +1339,7 @@ async function loadPeriods(){
 
 let _uretimLoaded = false; const _CACHE_TTL = 60*60*1000;
     async function fetchAndRender(){
-    const _uretimCacheKey='uretim_'+document.getElementById('periodFilter').value;const _uretimCache=localStorage.getItem(_uretimCacheKey);if(_uretimCache){const _uc=JSON.parse(_uretimCache);if(Date.now()-_uc.time<_CACHE_TTL){rawUsers=_uc.rawUsers;cwtAllData=_uc.cwtAllData;dailyAllData=_uc.dailyAllData;summaryAllData=_uc.summaryAllData;_uretimLoaded=true;const _uretimSaveKey='uretim_'+period;localStorage.setItem(_uretimSaveKey,JSON.stringify({time:Date.now(),rawUsers,cwtAllData,dailyAllData,summaryAllData}));applyFilters();return;}}if(_uretimLoaded){return;}toggleLoading(true);const period=document.getElementById('periodFilter').value;
+    const _uretimCacheKey='uretim_'+document.getElementById('periodFilter').value;const _uretimCache=localStorage.getItem(_uretimCacheKey);if(_uretimCache){const _uc=JSON.parse(_uretimCache);if(Date.now()-_uc.time<_CACHE_TTL){rawUsers=_uc.rawUsers;cwtAllData=_uc.cwtAllData;dailyAllData=_uc.dailyAllData;summaryRes={data:_uc.summaryResData};_uretimLoaded=true;const _uretimSaveKey='uretim_'+period;localStorage.setItem(_uretimSaveKey,JSON.stringify({time:Date.now(),rawUsers,cwtAllData,dailyAllData,summaryResData:summaryRes.data}));applyFilters();return;}}if(_uretimLoaded){return;}toggleLoading(true);const period=document.getElementById('periodFilter').value;
     try{
         const cwtFetch=fetch(`${SUPABASE_URL}/rest/v1/cwt_data?period=eq.${encodeURIComponent(period)}&select=user_name,cwt,date`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}}).then(r=>r.json());
         const dvsFetch=fetch(`${SUPABASE_URL}/rest/v1/dvs_data?period=eq.${encodeURIComponent(period)}&select=planned_hc,actual_hc`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}}).then(r=>r.json());
@@ -1371,7 +1371,7 @@ let _uretimLoaded = false; const _CACHE_TTL = 60*60*1000;
         const tls=[...new Set(fullData.map(d=>d.team_leader).filter(t=>t&&t!=='-'))].sort();
         document.getElementById('tlFilter').innerHTML='<option value="all">Tüm Liderler</option>'+tls.map(t=>`<option value="${t}">${t}</option>`).join('');
         if(currentUser.role==='agent'){const userTeam=rawUsers.find(u=>u.user_name?.toLowerCase().trim()===currentUser.user_name?.toLowerCase().trim())?.team||'';if(userTeam){fullData=fullData.filter(d=>d.team===userTeam);}}
-        _uretimLoaded=true;const _uretimSaveKey='uretim_'+period;localStorage.setItem(_uretimSaveKey,JSON.stringify({time:Date.now(),rawUsers,cwtAllData,dailyAllData,summaryAllData}));applyFilters();
+        _uretimLoaded=true;const _uretimSaveKey='uretim_'+period;localStorage.setItem(_uretimSaveKey,JSON.stringify({time:Date.now(),rawUsers,cwtAllData,dailyAllData,summaryResData:summaryRes.data}));applyFilters();
     }catch(err){console.error(err);}finally{toggleLoading(false);}
 }
 
