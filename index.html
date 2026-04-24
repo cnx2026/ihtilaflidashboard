@@ -1337,9 +1337,9 @@ async function loadPeriods(){
     fetchAndRender();     setTimeout(()=>{checkFeedbackBadge();checkFeedbackPopup();checkDuyuruPopup();checkDuyuruAlarm();},3000);
 }
 
-let _uretimLoaded = false;
+let _uretimLoaded = false; const _CACHE_TTL = 60*60*1000;
     async function fetchAndRender(){
-    if(_uretimLoaded){return;}toggleLoading(true);const period=document.getElementById('periodFilter').value;
+    const _uretimCacheKey='uretim_'+document.getElementById('periodFilter').value;const _uretimCache=localStorage.getItem(_uretimCacheKey);if(_uretimCache){const _uc=JSON.parse(_uretimCache);if(Date.now()-_uc.time<_CACHE_TTL){rawUsers=_uc.rawUsers;cwtAllData=_uc.cwtAllData;dailyAllData=_uc.dailyAllData;summaryAllData=_uc.summaryAllData;_uretimLoaded=true;const _uretimSaveKey='uretim_'+period;localStorage.setItem(_uretimSaveKey,JSON.stringify({time:Date.now(),rawUsers,cwtAllData,dailyAllData,summaryAllData}));applyFilters();return;}}if(_uretimLoaded){return;}toggleLoading(true);const period=document.getElementById('periodFilter').value;
     try{
         const cwtFetch=fetch(`${SUPABASE_URL}/rest/v1/cwt_data?period=eq.${encodeURIComponent(period)}&select=user_name,cwt,date`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}}).then(r=>r.json());
         const dvsFetch=fetch(`${SUPABASE_URL}/rest/v1/dvs_data?period=eq.${encodeURIComponent(period)}&select=planned_hc,actual_hc`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}}).then(r=>r.json());
@@ -1371,7 +1371,7 @@ let _uretimLoaded = false;
         const tls=[...new Set(fullData.map(d=>d.team_leader).filter(t=>t&&t!=='-'))].sort();
         document.getElementById('tlFilter').innerHTML='<option value="all">Tüm Liderler</option>'+tls.map(t=>`<option value="${t}">${t}</option>`).join('');
         if(currentUser.role==='agent'){const userTeam=rawUsers.find(u=>u.user_name?.toLowerCase().trim()===currentUser.user_name?.toLowerCase().trim())?.team||'';if(userTeam){fullData=fullData.filter(d=>d.team===userTeam);}}
-        _uretimLoaded=true;applyFilters();
+        _uretimLoaded=true;const _uretimSaveKey='uretim_'+period;localStorage.setItem(_uretimSaveKey,JSON.stringify({time:Date.now(),rawUsers,cwtAllData,dailyAllData,summaryAllData}));applyFilters();
     }catch(err){console.error(err);}finally{toggleLoading(false);}
 }
 
@@ -1485,7 +1485,7 @@ function exportUretimOzel(){
 }
 
 // ════ PERFORMANS ════════════════════════════════════════════════
-   let _goalpexLoaded=false;async function loadGoalpex(){if(_goalpexLoaded){return;}
+   let _goalpexLoaded=false;async function loadGoalpex(){const _goalpexCacheKey='goalpex_'+(document.getElementById('goalpexPeriodFilter')?.value||'');const _goalpexCache=localStorage.getItem(_goalpexCacheKey);if(_goalpexCache){const _gc=JSON.parse(_goalpexCache);if(Date.now()-_gc.time<_CACHE_TTL){window._goalpexAllData=_gc.goalpexAllData;_goalpexLoaded=true;applyGoalpexFilter();return;}}if(_goalpexLoaded){return;}
     toggleLoading(true);
     try{
         const{data:periods}=await _cachedSupabase.from('goalpex_data').select('period').order('period',{ascending:false}).limit(10000);
@@ -1512,7 +1512,7 @@ function exportUretimOzel(){
         if(curTeam&&teams.includes(curTeam))teamSel.value=curTeam;
         if(curTl&&tls.includes(curTl))tlSel.value=curTl;
 
-        window._goalpexAllData=allData;_goalpexLoaded=true;
+        window._goalpexAllData=allData;_goalpexLoaded=true;const _goalpexSaveKey='goalpex_'+(document.getElementById('goalpexPeriodFilter')?.value||'');localStorage.setItem(_goalpexSaveKey,JSON.stringify({time:Date.now(),goalpexAllData:allData}));
         applyGoalpexFilter();
     }catch(e){console.error(e);}finally{toggleLoading(false);}
 }
@@ -1616,7 +1616,7 @@ function exportGoalpexExcel(){
     XLSX.writeFile(wb,`Goalpex_${document.getElementById('goalpexPeriodFilter').value}.xlsx`);
 }
 let _performansLoaded=false;async function loadPerformans(){const{data}=await _cachedSupabase.from('performance_data').select('period').order('period',{ascending:false}).limit(10000);const unique=[...new Set((data||[]).map(d=>d.period))];document.getElementById('perfPeriodFilter').innerHTML=unique.map(p=>`<option value="${p}">${formatPeriodText(p)}</option>`).join('');if(unique.length>0)fetchPerformans();}
-async function fetchPerformans(){if(_performansLoaded){return;}toggleLoading(true);const period=document.getElementById('perfPeriodFilter').value;try{const{data}=await _cachedSupabase.from('performance_data').select('*').eq('period',period).limit(10000);perfAllData=data||[];const dd=[...new Set(perfAllData.map(d=>d.date).filter(d=>d!==null&&d!==undefined))].sort((a,b)=>b.localeCompare(a));document.getElementById('perfDateFilter').innerHTML='<option value="all">Tümü (Kümülatif)</option>'+dd.map(d=>`<option value="${d}">${formatDateTR(d)}</option>`).join('');_performansLoaded=true;applyPerfFilter();}catch(err){console.error(err);}finally{toggleLoading(false);}}
+async function fetchPerformans(){const _perfCacheKey='performans_'+document.getElementById('perfPeriodFilter').value;const _perfCache=localStorage.getItem(_perfCacheKey);if(_perfCache){const _pc=JSON.parse(_perfCache);if(Date.now()-_pc.time<_CACHE_TTL){perfAllData=_pc.perfAllData;const dd=[...new Set(perfAllData.map(d=>d.date).filter(d=>d!==null&&d!==undefined))].sort((a,b)=>b.localeCompare(a));document.getElementById('perfDateFilter').innerHTML='<option value="all">Tümü (Kümülatif)</option>'+dd.map(d=>`<option value="${d}">${formatDateTR(d)}</option>`).join('');_performansLoaded=true;localStorage.setItem('performans_'+period,JSON.stringify({time:Date.now(),perfAllData}));applyPerfFilter();return;}}if(_performansLoaded){return;}toggleLoading(true);const period=document.getElementById('perfPeriodFilter').value;try{const{data}=await _cachedSupabase.from('performance_data').select('*').eq('period',period).limit(10000);perfAllData=data||[];const dd=[...new Set(perfAllData.map(d=>d.date).filter(d=>d!==null&&d!==undefined))].sort((a,b)=>b.localeCompare(a));document.getElementById('perfDateFilter').innerHTML='<option value="all">Tümü (Kümülatif)</option>'+dd.map(d=>`<option value="${d}">${formatDateTR(d)}</option>`).join('');_performansLoaded=true;localStorage.setItem('performans_'+period,JSON.stringify({time:Date.now(),perfAllData}));applyPerfFilter();}catch(err){console.error(err);}finally{toggleLoading(false);}}
 function applyPerfFilter(){const sd=document.getElementById('perfDateFilter').value,s=document.getElementById('perfSearchInput').value.toLowerCase();let f=sd==='all'?perfAllData.filter(d=>d.date===null):perfAllData.filter(d=>d.date===sd);document.getElementById('perfTableSubtitle').innerText=sd==='all'?'Kümülatif Veriler':formatDateTR(sd)+' Verileri';if(s)f=f.filter(d=>d.user_name.toLowerCase().includes(s));renderPerfTables(f);}
 function renderPerfTables(data){const sorted=[...data].sort((a,b)=>(parseFloat(b.performance_pct)||0)-(parseFloat(a.performance_pct)||0));const maxA=Math.max(...sorted.map(d=>parseFloat(d.transaction_count)||0),1);const t10=document.getElementById('top10List');t10.innerHTML='';sorted.slice(0,10).forEach((row,i)=>{const rank=i+1,pct=parseFloat(row.performance_pct)||0,actual=parseFloat(row.transaction_count)||0;let bc='bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300';if(rank===1)bc='rank-1 text-white';if(rank===2)bc='rank-2 text-white';if(rank===3)bc='rank-3 text-white';t10.innerHTML+=`<div class="perf-row flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all" style="animation-delay:${i*0.05}s"><div class="w-7 h-7 shrink-0 rounded-lg flex items-center justify-center text-xs font-black ${bc}">${rank}</div><div class="flex-1 min-w-0"><p class="text-xs font-bold truncate">${row.user_name}</p><div class="mt-1 h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden"><div class="bar-fill h-full rounded-full ${pct>=100?'bg-emerald-500':'bg-rose-400'}" style="width:${Math.min((actual/maxA)*100,100)}%"></div></div></div><span class="text-[11px] font-black ${pct>=100?'text-emerald-500':'text-rose-500'} shrink-0">%${pct.toFixed(1)}</span></div>`;});const tbody=document.getElementById('perfTableBody');tbody.innerHTML='';sorted.forEach((row,i)=>{const pct=parseFloat(row.performance_pct)||0,actual=parseFloat(row.transaction_count)||0,avg=parseFloat(row.pool_average)||0,dist=actual-avg;tbody.innerHTML+=`<tr class="perf-row hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all" style="animation-delay:${i*0.03}s"><td class="px-5 py-3.5"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600 font-black text-[10px]">${row.user_name[0].toUpperCase()}</div><span class="font-bold text-sm truncate">${row.user_name}</span></div></td><td class="px-5 py-3.5 text-center text-slate-500 font-medium text-sm">${avg>0?avg.toFixed(0):'-'}</td><td class="px-5 py-3.5 text-center font-black text-sm">${actual>0?actual:'-'}</td><td class="px-5 py-3.5 text-center font-black text-sm ${pct>=100?'text-emerald-500':'text-rose-500'}">%${pct.toFixed(1)}</td><td class="px-5 py-3.5 text-center font-black text-sm ${dist>=0?'text-emerald-500':'text-rose-500'}">${avg>0?(dist>=0?'+':'')+dist.toFixed(0):'-'}</td></tr>`;});if(sorted.length===0){tbody.innerHTML=`<tr><td colspan="5" class="px-5 py-12 text-center text-slate-400 font-bold text-sm">Bu dönem için veri bulunamadı.</td></tr>`;t10.innerHTML=`<p class="p-4 text-center text-slate-400 text-xs font-bold">Veri yok</p>`;}}
 
