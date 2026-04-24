@@ -998,7 +998,7 @@ async function handleLogin(e){
 function handleLogout(){_supabase.auth.signOut().then(()=>location.reload());}
 
 async function showDashboard(user){
-    const{data:rows}=await _supabase.from('users').select('user_name,role').eq('user_mail',user.email).limit(1);
+    const{data:rows}=await _cachedSupabase.from('users').select('user_name,role').eq('user_mail',user.email).limit(1);
     const r=rows&&rows.length>0?rows[0]:null;
     currentUser={role:r?.role||'agent',user_name:r?.user_name||user.email.split('@')[0].replace('.',' '),email:user.email};
     const ini=mkIni(currentUser.user_name);
@@ -1008,7 +1008,7 @@ async function showDashboard(user){
     document.getElementById('loginPage').classList.add('hidden');
     document.getElementById('mainDashboard').classList.remove('hidden');
     document.getElementById('fb-reply-av').innerText=ini;
-applyRoleRestrictions();loadPeriods();setInterval(()=>{if(currentUser.role!=='agent')return;checkFeedbackBadge();checkFeedbackPopup();},30000);setInterval(()=>{if(currentUser.role!=='agent')return;checkDuyuruPopup();},5000);setInterval(()=>checkDuyuruAlarm(),5000);}
+applyRoleRestrictions();loadPeriods();setInterval(()=>{if(currentUser.role!=='agent')return;checkFeedbackBadge();},30000);setInterval(()=>{if(currentUser.role!=='agent')return;checkDuyuruPopup();},5000);setInterval(()=>checkDuyuruAlarm(),5000);}
 function applyRoleRestrictions(){
     if(currentUser.role==='agent'){
         document.getElementById('kpi-card-cwt').classList.add('hidden');
@@ -1030,7 +1030,7 @@ let _shownFeedbackPopups = JSON.parse(localStorage.getItem('shownFeedbackPopups'
 
 async function checkFeedbackPopup() {
   if (currentUser.role !== 'agent') return;
-  const { data: olumluData } = await _supabase.from('feedback').select('id,from_user,to_user,topic,title,type').eq('type','Olumlu').eq('is_read',false).neq('to_user',currentUser.user_name);
+  const { data: olumluData } = await _cachedSupabase.from('feedback').select('id,from_user,to_user,topic,title,type').eq('type','Olumlu').eq('is_read',false).neq('to_user',currentUser.user_name);
   if (olumluData && olumluData.length > 0) {
     const unseenOlumlu = olumluData.filter(fb => !_shownFeedbackPopups.includes('olumlu_'+fb.id));
     if (unseenOlumlu.length > 0) {
@@ -1044,7 +1044,7 @@ async function checkFeedbackPopup() {
       return;
     }
   }
-  const { data } = await _supabase.from('feedback').select('id,from_user,topic,title,type').eq('to_user',currentUser.user_name).eq('is_read',false);
+  const { data } = await _cachedSupabase.from('feedback').select('id,from_user,topic,title,type').eq('to_user',currentUser.user_name).eq('is_read',false);
   if (!data || !data.length) return;
   const unseen = data.filter(fb => !_shownFeedbackPopups.includes(fb.id));
   if (!unseen.length) return;
@@ -1214,7 +1214,7 @@ async function openFbDetail(id){
 }
 
 async function renderFbReplies(fb){
-    const{data:msgs}=await _supabase.from('feedback_messages').select('*').eq('feedback_id',fb.id).order('created_at',{ascending:true});
+    const{data:msgs}=await _cachedSupabase.from('feedback_messages').select('*').eq('feedback_id',fb.id).order('created_at',{ascending:true});
     const wrap=document.getElementById('fb-det-replies');
     if(!msgs||msgs.length===0){wrap.innerHTML='';return;}
     wrap.innerHTML=`<p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">${msgs.length} Yanıt</p>`+
@@ -1237,11 +1237,11 @@ async function renderFbReplies(fb){
 
 async function sendFbReply(){
     const text=document.getElementById('fb-reply-input').value.trim();if(!text||!fbCurrentId)return;     const fb=fbAllData.find(f=>f.id===fbCurrentId);
-    const{error}=await _supabase.from('feedback_messages').insert({feedback_id:fbCurrentId,sender:currentUser.user_name,message:text});
+    const{error}=await _cachedSupabase.from('feedback_messages').insert({feedback_id:fbCurrentId,sender:currentUser.user_name,message:text});
     if(!error){
         document.getElementById('fb-reply-input').value='';
         const fb=fbAllData.find(f=>f.id===fbCurrentId);if(fb)await renderFbReplies(fb);
-        const{data}=await _supabase.from('feedback_messages').select('*').eq('feedback_id',fbCurrentId).order('created_at',{ascending:true});
+        const{data}=await _cachedSupabase.from('feedback_messages').select('*').eq('feedback_id',fbCurrentId).order('created_at',{ascending:true});
         const idx=fbAllData.findIndex(f=>f.id===fbCurrentId);if(idx!==-1)fbAllData[idx].feedback_messages=data||[];
         const fbCur=fbAllData.find(f=>f.id===fbCurrentId);if(fbCur){const target=fbCur.from_user.toLowerCase().trim()===currentUser.user_name.toLowerCase().trim()?fbCur.to_user:fbCur.from_user;if(target.toLowerCase().trim()!==currentUser.user_name.toLowerCase().trim()){await _cachedSupabase.from('feedback').update({is_read:false}).eq('id',fbCurrentId);}}
         renderFbList();
@@ -1250,7 +1250,7 @@ async function sendFbReply(){
 
 async function deleteFeedback(){
     if(!fbCurrentId)return;if(!confirm('Bu geri bildirimi silmek istediğinize emin misiniz?'))return;
-    await _supabase.from('feedback_messages').delete().eq('feedback_id',fbCurrentId);
+    await _cachedSupabase.from('feedback_messages').delete().eq('feedback_id',fbCurrentId);
     await _cachedSupabase.from('feedback').delete().eq('id',fbCurrentId);
     fbAllData=fbAllData.filter(f=>f.id!==fbCurrentId);fbCurrentId=null;
     document.getElementById('fb-detail-empty').classList.remove('hidden');
@@ -1337,16 +1337,15 @@ async function loadPeriods(){
     fetchAndRender();     setTimeout(()=>{checkFeedbackBadge();checkFeedbackPopup();checkDuyuruPopup();checkDuyuruAlarm();},3000);
 }
 
-let _uretimLoaded = false; const _CACHE_TTL = 60*60*1000;
-    async function fetchAndRender(){
-    const _uretimCacheKey='uretim_'+document.getElementById('periodFilter').value;const _uretimCache=localStorage.getItem(_uretimCacheKey);if(_uretimCache){const _uc=JSON.parse(_uretimCache);if(Date.now()-_uc.time<_CACHE_TTL){rawUsers=_uc.rawUsers;cwtAllData=_uc.cwtAllData;dailyAllData=_uc.dailyAllData;summaryAllData=_uc.summaryAllData;_uretimLoaded=true;const _uretimSaveKey='uretim_'+period;localStorage.setItem(_uretimSaveKey,JSON.stringify({time:Date.now(),rawUsers,cwtAllData,dailyAllData,summaryAllData}));applyFilters();return;}}if(_uretimLoaded){return;}toggleLoading(true);const period=document.getElementById('periodFilter').value;
+async function fetchAndRender(){
+    toggleLoading(true);const period=document.getElementById('periodFilter').value;
     try{
         const cwtFetch=fetch(`${SUPABASE_URL}/rest/v1/cwt_data?period=eq.${encodeURIComponent(period)}&select=user_name,cwt,date`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}}).then(r=>r.json());
         const dvsFetch=fetch(`${SUPABASE_URL}/rest/v1/dvs_data?period=eq.${encodeURIComponent(period)}&select=planned_hc,actual_hc`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}}).then(r=>r.json());
         const[dailyRes,summaryRes,userRes,cwtData,dvsData]=await Promise.all([
             _cachedSupabase.from('daily_data').select('*').eq('period',period).limit(10000),
             _cachedSupabase.from('period_summary').select('*').eq('period',period).limit(10000),
-            _supabase.from('users').select('*').limit(10000),cwtFetch,dvsFetch]);
+            _cachedSupabase.from('users').select('*').limit(10000),cwtFetch,dvsFetch]);
         rawUsers=userRes.data||[];cwtAllData=Array.isArray(cwtData)?cwtData:[];dailyAllData=dailyRes.data||[];
         const dvsArr=Array.isArray(dvsData)?dvsData:[];
         const tp=dvsArr.reduce((s,d)=>s+(parseFloat(d.planned_hc)||0),0);
@@ -1371,7 +1370,7 @@ let _uretimLoaded = false; const _CACHE_TTL = 60*60*1000;
         const tls=[...new Set(fullData.map(d=>d.team_leader).filter(t=>t&&t!=='-'))].sort();
         document.getElementById('tlFilter').innerHTML='<option value="all">Tüm Liderler</option>'+tls.map(t=>`<option value="${t}">${t}</option>`).join('');
         if(currentUser.role==='agent'){const userTeam=rawUsers.find(u=>u.user_name?.toLowerCase().trim()===currentUser.user_name?.toLowerCase().trim())?.team||'';if(userTeam){fullData=fullData.filter(d=>d.team===userTeam);}}
-        _uretimLoaded=true;const _uretimSaveKey='uretim_'+period;localStorage.setItem(_uretimSaveKey,JSON.stringify({time:Date.now(),rawUsers,cwtAllData,dailyAllData,summaryAllData}));applyFilters();
+        applyFilters();
     }catch(err){console.error(err);}finally{toggleLoading(false);}
 }
 
@@ -1485,7 +1484,7 @@ function exportUretimOzel(){
 }
 
 // ════ PERFORMANS ════════════════════════════════════════════════
-   let _goalpexLoaded=false;async function loadGoalpex(){const _goalpexCacheKey='goalpex_'+(document.getElementById('goalpexPeriodFilter')?.value||'');const _goalpexCache=localStorage.getItem(_goalpexCacheKey);if(_goalpexCache){const _gc=JSON.parse(_goalpexCache);if(Date.now()-_gc.time<_CACHE_TTL){window._goalpexAllData=_gc.goalpexAllData;_goalpexLoaded=true;applyGoalpexFilter();return;}}if(_goalpexLoaded){return;}
+   async function loadGoalpex(){
     toggleLoading(true);
     try{
         const{data:periods}=await _cachedSupabase.from('goalpex_data').select('period').order('period',{ascending:false}).limit(10000);
@@ -1500,7 +1499,7 @@ function exportUretimOzel(){
         if(error||!data||data.length===0){document.getElementById('goalpexTableBody').innerHTML=`<tr><td colspan="10" class="px-5 py-16 text-center"><div class="flex flex-col items-center gap-3"><div class="w-14 h-14 rounded-2xl bg-violet-500/10 flex items-center justify-center"><i class="fa-solid fa-bullseye text-violet-500 text-2xl"></i></div><p class="text-slate-400 font-bold text-sm">Bu dönem için Goalpex verisi bulunamadı</p></div></td></tr>`;return;}
 
         // Ekip ve lider filtrelerini doldur
-        const{data:users}=await _supabase.from('users').select('user_name,team,team_leader').limit(10000);
+        const{data:users}=await _cachedSupabase.from('users').select('user_name,team,team_leader').limit(10000);
         const userMap={};(users||[]).forEach(u=>{userMap[u.user_name]={team:u.team||'-',tl:u.team_leader||'-'};});
         const allData=data.map(row=>({...row,team:userMap[row.user_name]?.team||'-',tl:userMap[row.user_name]?.tl||'-'}));
         const teams=[...new Set(allData.map(d=>d.team).filter(t=>t&&t!=='-'))].sort();
@@ -1512,7 +1511,7 @@ function exportUretimOzel(){
         if(curTeam&&teams.includes(curTeam))teamSel.value=curTeam;
         if(curTl&&tls.includes(curTl))tlSel.value=curTl;
 
-        window._goalpexAllData=allData;_goalpexLoaded=true;const _goalpexSaveKey='goalpex_'+(document.getElementById('goalpexPeriodFilter')?.value||'');localStorage.setItem(_goalpexSaveKey,JSON.stringify({time:Date.now(),goalpexAllData:allData}));
+        window._goalpexAllData=allData;
         applyGoalpexFilter();
     }catch(e){console.error(e);}finally{toggleLoading(false);}
 }
@@ -1615,8 +1614,8 @@ function exportGoalpexExcel(){
     XLSX.utils.book_append_sheet(wb,ws,"Goalpex");
     XLSX.writeFile(wb,`Goalpex_${document.getElementById('goalpexPeriodFilter').value}.xlsx`);
 }
-let _performansLoaded=false;async function loadPerformans(){const{data}=await _cachedSupabase.from('performance_data').select('period').order('period',{ascending:false}).limit(10000);const unique=[...new Set((data||[]).map(d=>d.period))];document.getElementById('perfPeriodFilter').innerHTML=unique.map(p=>`<option value="${p}">${formatPeriodText(p)}</option>`).join('');if(unique.length>0)fetchPerformans();}
-async function fetchPerformans(){const _perfCacheKey='performans_'+document.getElementById('perfPeriodFilter').value;const _perfCache=localStorage.getItem(_perfCacheKey);if(_perfCache){const _pc=JSON.parse(_perfCache);if(Date.now()-_pc.time<_CACHE_TTL){perfAllData=_pc.perfAllData;const dd=[...new Set(perfAllData.map(d=>d.date).filter(d=>d!==null&&d!==undefined))].sort((a,b)=>b.localeCompare(a));document.getElementById('perfDateFilter').innerHTML='<option value="all">Tümü (Kümülatif)</option>'+dd.map(d=>`<option value="${d}">${formatDateTR(d)}</option>`).join('');_performansLoaded=true;localStorage.setItem('performans_'+period,JSON.stringify({time:Date.now(),perfAllData}));applyPerfFilter();return;}}if(_performansLoaded){return;}toggleLoading(true);const period=document.getElementById('perfPeriodFilter').value;try{const{data}=await _cachedSupabase.from('performance_data').select('*').eq('period',period).limit(10000);perfAllData=data||[];const dd=[...new Set(perfAllData.map(d=>d.date).filter(d=>d!==null&&d!==undefined))].sort((a,b)=>b.localeCompare(a));document.getElementById('perfDateFilter').innerHTML='<option value="all">Tümü (Kümülatif)</option>'+dd.map(d=>`<option value="${d}">${formatDateTR(d)}</option>`).join('');_performansLoaded=true;localStorage.setItem('performans_'+period,JSON.stringify({time:Date.now(),perfAllData}));applyPerfFilter();}catch(err){console.error(err);}finally{toggleLoading(false);}}
+async function loadPerformans(){const{data}=await _cachedSupabase.from('performance_data').select('period').order('period',{ascending:false}).limit(10000);const unique=[...new Set((data||[]).map(d=>d.period))];document.getElementById('perfPeriodFilter').innerHTML=unique.map(p=>`<option value="${p}">${formatPeriodText(p)}</option>`).join('');if(unique.length>0)fetchPerformans();}
+async function fetchPerformans(){toggleLoading(true);const period=document.getElementById('perfPeriodFilter').value;try{const{data}=await _cachedSupabase.from('performance_data').select('*').eq('period',period).limit(10000);perfAllData=data||[];const dd=[...new Set(perfAllData.map(d=>d.date).filter(d=>d!==null&&d!==undefined))].sort((a,b)=>b.localeCompare(a));document.getElementById('perfDateFilter').innerHTML='<option value="all">Tümü (Kümülatif)</option>'+dd.map(d=>`<option value="${d}">${formatDateTR(d)}</option>`).join('');applyPerfFilter();}catch(err){console.error(err);}finally{toggleLoading(false);}}
 function applyPerfFilter(){const sd=document.getElementById('perfDateFilter').value,s=document.getElementById('perfSearchInput').value.toLowerCase();let f=sd==='all'?perfAllData.filter(d=>d.date===null):perfAllData.filter(d=>d.date===sd);document.getElementById('perfTableSubtitle').innerText=sd==='all'?'Kümülatif Veriler':formatDateTR(sd)+' Verileri';if(s)f=f.filter(d=>d.user_name.toLowerCase().includes(s));renderPerfTables(f);}
 function renderPerfTables(data){const sorted=[...data].sort((a,b)=>(parseFloat(b.performance_pct)||0)-(parseFloat(a.performance_pct)||0));const maxA=Math.max(...sorted.map(d=>parseFloat(d.transaction_count)||0),1);const t10=document.getElementById('top10List');t10.innerHTML='';sorted.slice(0,10).forEach((row,i)=>{const rank=i+1,pct=parseFloat(row.performance_pct)||0,actual=parseFloat(row.transaction_count)||0;let bc='bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300';if(rank===1)bc='rank-1 text-white';if(rank===2)bc='rank-2 text-white';if(rank===3)bc='rank-3 text-white';t10.innerHTML+=`<div class="perf-row flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all" style="animation-delay:${i*0.05}s"><div class="w-7 h-7 shrink-0 rounded-lg flex items-center justify-center text-xs font-black ${bc}">${rank}</div><div class="flex-1 min-w-0"><p class="text-xs font-bold truncate">${row.user_name}</p><div class="mt-1 h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden"><div class="bar-fill h-full rounded-full ${pct>=100?'bg-emerald-500':'bg-rose-400'}" style="width:${Math.min((actual/maxA)*100,100)}%"></div></div></div><span class="text-[11px] font-black ${pct>=100?'text-emerald-500':'text-rose-500'} shrink-0">%${pct.toFixed(1)}</span></div>`;});const tbody=document.getElementById('perfTableBody');tbody.innerHTML='';sorted.forEach((row,i)=>{const pct=parseFloat(row.performance_pct)||0,actual=parseFloat(row.transaction_count)||0,avg=parseFloat(row.pool_average)||0,dist=actual-avg;tbody.innerHTML+=`<tr class="perf-row hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all" style="animation-delay:${i*0.03}s"><td class="px-5 py-3.5"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600 font-black text-[10px]">${row.user_name[0].toUpperCase()}</div><span class="font-bold text-sm truncate">${row.user_name}</span></div></td><td class="px-5 py-3.5 text-center text-slate-500 font-medium text-sm">${avg>0?avg.toFixed(0):'-'}</td><td class="px-5 py-3.5 text-center font-black text-sm">${actual>0?actual:'-'}</td><td class="px-5 py-3.5 text-center font-black text-sm ${pct>=100?'text-emerald-500':'text-rose-500'}">%${pct.toFixed(1)}</td><td class="px-5 py-3.5 text-center font-black text-sm ${dist>=0?'text-emerald-500':'text-rose-500'}">${avg>0?(dist>=0?'+':'')+dist.toFixed(0):'-'}</td></tr>`;});if(sorted.length===0){tbody.innerHTML=`<tr><td colspan="5" class="px-5 py-12 text-center text-slate-400 font-bold text-sm">Bu dönem için veri bulunamadı.</td></tr>`;t10.innerHTML=`<p class="p-4 text-center text-slate-400 text-xs font-bold">Veri yok</p>`;}}
 
@@ -1666,12 +1665,12 @@ function closeImageLightbox() {
 }
     function closeAlarmPopup(goTo) {   const popup = document.getElementById('duyuruAlarmPopup');   const id = popup.dataset.alarmId;   popup.classList.add('hidden');   popup.classList.remove('flex');   if (goTo && id) {     showPage('duyurular');     setTimeout(() => {       const d = duyurularData.find(x => x.id === id);       if (d) { switchDuyuruTab(d.category); setTimeout(() => openDuyuruDetay(id), 300); }     }, 500);   } }  async function checkDuyuruAlarm() {
   if (currentUser.role !== 'agent') return;
-  const { data: userRow } = await _supabase.from('users').select('team').eq('user_name', currentUser.user_name).maybeSingle();
+  const { data: userRow } = await _cachedSupabase.from('users').select('team').eq('user_name', currentUser.user_name).maybeSingle();
   const userTeam = userRow?.team || 'all';
-  const { data: allD } = await _supabase.from('announcements').select('id,title,category,team,alarm_minutes,created_at').eq('is_archived', false);
+  const { data: allD } = await _cachedSupabase.from('announcements').select('id,title,category,team,alarm_minutes,created_at').eq('is_archived', false);
   if (!allD || !allD.length) return;
   const filtered = allD.filter(d => d.team === userTeam || d.team === 'all');
-  const { data: reads } = await _supabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);
+  const { data: reads } = await _cachedSupabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);
   const readIds = (reads || []).map(r => r.announcement_id);
   const alarmKey = 'shownDuyuruAlarms';
   const shownAlarms = JSON.parse(localStorage.getItem(alarmKey) || '[]');
@@ -1696,10 +1695,10 @@ const catLabel = d.category === 'surec' ? 'Süreç' : 'Operasyon';
     async function checkDuyuruPopup() {
   try {
     const userTeam = (rawUsers.find(u => u.user_name === currentUser.user_name) || {}).team || 'all';
-    const { data: allD } = await _supabase.from('announcements').select('id,title,category,team,is_archived').eq('is_archived', false);
+    const { data: allD } = await _cachedSupabase.from('announcements').select('id,title,category,team,is_archived').eq('is_archived', false);
     if (!allD || !allD.length) return;
     const filtered = currentUser.role === 'admin' ? allD : allD.filter(d => d.team === userTeam || d.team === 'all');
-    const { data: reads } = await _supabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);
+    const { data: reads } = await _cachedSupabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);
     const readIds = (reads || []).map(r => r.announcement_id);
     const unread = filtered.filter(d => !readIds.includes(d.id) && d.created_by !== currentUser.user_name);
     const surecUnread = unread.filter(d => d.category === 'surec').length;
@@ -1714,13 +1713,13 @@ const catLabel = d.category === 'surec' ? 'Süreç' : 'Operasyon';
 
     async function loadDuyurular() {
   const userTeam = (rawUsers.find(u => u.user_name === currentUser.user_name) || {}).team || 'all';
-  let query = _supabase.from('announcements').select('*').order('created_at', { ascending: false });
+  let query = _cachedSupabase.from('announcements').select('*').order('created_at', { ascending: false });
   if (currentUser.role !== 'admin') {
     query = query.eq('is_archived', false).in('team', [userTeam, 'all']);
   }
   const { data, error } = await query;
   if (error) { console.error(error); return; }
-  duyurularData = data || [];   if (currentUser.role === 'admin' && duyurularData.length > 0) {     const { data: reads } = await _supabase.from('announcement_reads').select('announcement_id, user_name');     const { data: allUsers } = await _supabase.from('users').select('user_name,team,role').limit(10000);     const aktifUsers = (allUsers||[]).filter(u => u.role !== 'admin' && !['bahriye.ozertas','muhammet.memis','beyza.yurtseven'].includes(u.user_name));     duyurularData.forEach(d => {       const hedef = d.team === 'all' ? aktifUsers.length : aktifUsers.filter(u => u.team === d.team).length;       const aktifUserNames = aktifUsers.map(u => u.user_name); const okuyan = [...new Set((reads||[]).filter(r => r.announcement_id === d.id && aktifUserNames.includes(r.user_name)).map(r => r.user_name))].length;       duyuruOkumaOranlari[d.id] = hedef > 0 ? Math.round((okuyan / hedef) * 100) : 0;     });   }
+  duyurularData = data || [];   if (currentUser.role === 'admin' && duyurularData.length > 0) {     const { data: reads } = await _cachedSupabase.from('announcement_reads').select('announcement_id');     const { data: allUsers } = await _cachedSupabase.from('users').select('user_name,team').limit(10000);     duyurularData.forEach(d => {       const hedef = d.team === 'all' ? (allUsers||[]).filter(u => u.role !== 'admin').length : (allUsers||[]).filter(u => u.team === d.team && u.role !== 'admin').length;       const okuyan = (reads||[]).filter(r => r.announcement_id === d.id).length;       duyuruOkumaOranlari[d.id] = hedef > 0 ? Math.round((okuyan / hedef) * 100) : 0;     });   }
   if (currentUser.role === 'admin') {
     document.getElementById('duyuru-export-btns').classList.remove('hidden');
     document.getElementById('duyuru-export-btns').classList.add('flex');
@@ -1734,7 +1733,7 @@ async function updateDuyuruBadge() {
     document.getElementById('duyuru-badge-operasyon')?.classList.add('hidden');
     return;
   }
-  const { data: reads } = await _supabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);
+  const { data: reads } = await _cachedSupabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);
   const readIds = (reads || []).map(r => r.announcement_id);
   const userTeam = (rawUsers.find(u => u.user_name === currentUser.user_name) || {}).team || 'all';
   const unread = duyurularData.filter(d => !d.is_archived && !readIds.includes(d.id) && d.created_by !== currentUser.user_name && (currentUser.role === 'admin' || d.team === userTeam || d.team === 'all'));
@@ -1770,7 +1769,7 @@ function closeDuyuruPopup(goTo) {
   if (goTo) {
     showPage('duyurular');
     setTimeout(async () => {
-      const { data: reads } = await _supabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);
+      const { data: reads } = await _cachedSupabase.from('announcement_reads').select('announcement_id').eq('user_name', currentUser.user_name);
       const readIds = (reads || []).map(r => r.announcement_id);
       const unread = duyurularData.filter(d => !d.is_archived && !readIds.includes(d.id));
       if (unread.length > 0) {
@@ -1893,7 +1892,7 @@ async function openDuyuruDetay(id) {
     okuBtn.innerHTML = `<button onclick="duyuruOkuyanlarExcel('${id}')" class="flex items-center gap-2 px-4 py-2 bg-blue-500/10 text-blue-500 text-xs font-black rounded-xl border border-blue-500/20 hover:bg-blue-500/20 transition-all"><i class="fa-solid fa-chart-bar"></i> Okuyanlar Raporu</button>`;
   } else {
     adminBtns.classList.add('hidden'); adminBtns.classList.remove('flex');
-    const { data: existing } = await _supabase.from('announcement_reads').select('id').eq('announcement_id', id).eq('user_name', currentUser.user_name).maybeSingle();
+    const { data: existing } = await _cachedSupabase.from('announcement_reads').select('id').eq('announcement_id', id).eq('user_name', currentUser.user_name).maybeSingle();
     if (existing) {
       okuBtn.innerHTML = '<div class="flex items-center gap-2 text-emerald-500 text-sm font-black"><i class="fa-solid fa-circle-check"></i> Okundu & Onaylandı</div>';
     } else {
@@ -1906,7 +1905,7 @@ async function openDuyuruDetay(id) {
   document.getElementById('duyuru-detail-content').classList.add('flex');
 
 if (currentUser.role !== 'admin') {
-    const { data: existingRead } = await _supabase.from('announcement_reads').select('id').eq('announcement_id', id).eq('user_name', currentUser.user_name).maybeSingle();
+    const { data: existingRead } = await _cachedSupabase.from('announcement_reads').select('id').eq('announcement_id', id).eq('user_name', currentUser.user_name).maybeSingle();
     if (!existingRead) {
       okuBtn.innerHTML = `<div class="flex items-center gap-3 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl"><div class="flex-1"><p class="text-xs font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-0.5">Onay Gerekli</p><p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Bu duyuruyu okuduğunuzu onaylayın.</p></div><button onclick="okuduOnay('${id}')" class="shrink-0 flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-xl shadow-lg transition-all uppercase tracking-widest"><i class="fa-solid fa-circle-check"></i> Okudum & Onayladım</button></div>`;
     }
@@ -1927,7 +1926,7 @@ function closeDuyuruModal() {
 }
 
 async function okuduOnay(id) {
-  const{data:existCheck}=await _supabase.from('announcement_reads').select('id').eq('announcement_id',id).eq('user_name',currentUser.user_name).maybeSingle();if(!existCheck){await _supabase.from('announcement_reads').insert({ announcement_id: id, user_name: currentUser.user_name });}
+  await _cachedSupabase.from('announcement_reads').insert({ announcement_id: id, user_name: currentUser.user_name });
   const okuBtn = document.getElementById('ddet-okuyanlar-btn');
   if (okuBtn) okuBtn.innerHTML = '<div class="flex items-center gap-2 text-emerald-500 text-sm font-black"><i class="fa-solid fa-circle-check"></i> Okundu & Onaylandı</div>';
   _addShownPopup(id);
@@ -1970,7 +1969,7 @@ async function uploadGorsel(file) {
   const errEl = document.getElementById('duyuruModalError');
   if (!title || !body) { errEl.textContent = 'Başlık ve metin zorunludur.'; errEl.classList.remove('hidden'); return; }
   errEl.classList.add('hidden');
-  const { error } = await _supabase.from('announcements').insert({
+  const { error } = await _cachedSupabase.from('announcements').insert({
     title, body, team, category: cat,
     image_url_1: img1 || null, image_url_2: img2 || null,
     created_by: currentUser.user_name,     alarm_minutes: alarmDakika
@@ -1985,7 +1984,7 @@ async function uploadGorsel(file) {
 async function arsivleDuyuruDetay() {
   if (!activeDuyuruId) return;
   const d = duyurularData.find(x => x.id === activeDuyuruId);
-  await _supabase.from('announcements').update({ is_archived: !d.is_archived }).eq('id', activeDuyuruId);
+  await _cachedSupabase.from('announcements').update({ is_archived: !d.is_archived }).eq('id', activeDuyuruId);
   document.getElementById('duyuru-detail-empty').classList.remove('hidden');
   document.getElementById('duyuru-detail-content').classList.add('hidden');
   document.getElementById('duyuru-detail-content').classList.remove('flex');
@@ -1996,7 +1995,7 @@ async function arsivleDuyuruDetay() {
 async function silDuyuruDetay() {
   if (!activeDuyuruId) return;
   if (!confirm('Bu duyuruyu silmek istediğinize emin misiniz?')) return;
-  await _supabase.from('announcements').delete().eq('id', activeDuyuruId);
+  await _cachedSupabase.from('announcements').delete().eq('id', activeDuyuruId);
   document.getElementById('duyuru-detail-empty').classList.remove('hidden');
   document.getElementById('duyuru-detail-content').classList.add('hidden');
   document.getElementById('duyuru-detail-content').classList.remove('flex');
@@ -2006,10 +2005,10 @@ async function silDuyuruDetay() {
 
 async function duyuruOkuyanlarExcel(id) {
   const d = duyurularData.find(x => x.id === id);
-  const { data: reads } = await _supabase.from('announcement_reads').select('user_name, read_at').eq('announcement_id', id).order('read_at', { ascending: true });
-  const { data: allUsers } = await _supabase.from('users').select('user_name, team, role').limit(10000);
+  const { data: reads } = await _cachedSupabase.from('announcement_reads').select('user_name, read_at').eq('announcement_id', id).order('read_at', { ascending: true });
+  const { data: allUsers } = await _cachedSupabase.from('users').select('user_name, team').limit(10000);
   const userTeam = d.team === 'all' ? null : d.team;
-  const hedef = userTeam ? (allUsers||[]).filter(u => u.team === userTeam && u.role !== 'admin' && !['bahriye.ozertas','muhammet.memis','beyza.yurtseven'].includes(u.user_name)) : (allUsers||[]).filter(u => u.role !== 'admin' && !['bahriye.ozertas','muhammet.memis','beyza.yurtseven'].includes(u.user_name));
+  const hedef = userTeam ? (allUsers||[]).filter(u => u.team === userTeam) : (allUsers||[]);
   const readMap = {};
   (reads||[]).forEach(r => { readMap[r.user_name] = r.read_at; });
   const rows = hedef.map(u => {
@@ -2107,15 +2106,15 @@ async function runDuyuruExport() {
 }
 
 async function exportDuyuruOkunduExcelFiltered(filteredDuyurular) {
-  const { data: allReads } = await _supabase.from('announcement_reads').select('announcement_id, user_name, read_at');
-  const { data: allUsersRaw } = await _supabase.from('users').select('user_name, team, role').limit(10000); const allUsers = (allUsersRaw||[]).filter(u => u.role !== 'admin' && !['bahriye.ozertas','muhammet.memis','beyza.yurtseven'].includes(u.user_name));
+  const { data: allReads } = await _cachedSupabase.from('announcement_reads').select('announcement_id, user_name, read_at');
+  const { data: allUsers } = await _cachedSupabase.from('users').select('user_name, team, role').limit(10000);
   const aktifDuyurular = filteredDuyurular.filter(d => !d.is_archived);
   let allRows = [];
   aktifDuyurular.forEach(d => {
     const reads = (allReads||[]).filter(r => r.announcement_id === d.id);
     const readMap = {};
     reads.forEach(r => { readMap[r.user_name] = r.read_at; });
-    const hedef = d.team === 'all' ? (allUsers||[]).filter(u => u.role !== 'admin' && !['bahriye.ozertas','muhammet.memis','beyza.yurtseven'].includes(u.user_name)) : (allUsers||[]).filter(u => u.team === d.team && u.role !== 'admin' && !['bahriye.ozertas','muhammet.memis','beyza.yurtseven'].includes(u.user_name));
+    const hedef = d.team === 'all' ? (allUsers||[]).filter(u => u.role !== 'admin') : (allUsers||[]).filter(u => u.team === d.team && u.role !== 'admin');
     const okuyanSayi = hedef.filter(u => readMap[u.user_name]).length;
     hedef.forEach(u => {
       const okumaZamani = readMap[u.user_name];
@@ -2167,15 +2166,15 @@ async function exportDuyurularExcel() {
 
 async function exportDuyuruOkunduExcel() {
   if (duyurularData.length === 0) { alert('Duyuru bulunamadı.'); return; }
-  const { data: allReads } = await _supabase.from('announcement_reads').select('announcement_id, user_name, read_at');
-  const { data: allUsersRaw } = await _supabase.from('users').select('user_name, team, role').limit(10000); const allUsers = (allUsersRaw||[]).filter(u => u.role !== 'admin' && !['bahriye.ozertas','muhammet.memis','beyza.yurtseven'].includes(u.user_name));
+  const { data: allReads } = await _cachedSupabase.from('announcement_reads').select('announcement_id, user_name, read_at');
+  const { data: allUsers } = await _cachedSupabase.from('users').select('user_name, team, role').limit(10000);
   const aktifDuyurular = duyurularData.filter(d => !d.is_archived);
   let allRows = [];
   for (const d of aktifDuyurular) {
     const reads = (allReads||[]).filter(r => r.announcement_id === d.id);
     const readMap = {};
     reads.forEach(r => { readMap[r.user_name] = r.read_at; });
-    const hedef = d.team === 'all' ? (allUsers||[]).filter(u => u.role !== 'admin' && !['bahriye.ozertas','muhammet.memis','beyza.yurtseven'].includes(u.user_name)) : (allUsers||[]).filter(u => u.team === d.team && u.role !== 'admin' && !['bahriye.ozertas','muhammet.memis','beyza.yurtseven'].includes(u.user_name));
+    const hedef = d.team === 'all' ? (allUsers||[]).filter(u => u.role !== 'admin') : (allUsers||[]).filter(u => u.team === d.team && u.role !== 'admin');
     const okuyanSayi = hedef.filter(u => readMap[u.user_name]).length;
     for (const u of hedef) {
       const okumaZamani = readMap[u.user_name];
