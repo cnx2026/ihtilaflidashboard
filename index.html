@@ -222,7 +222,7 @@
                     <div class="filter-container">
                         <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2">
                             <i class="fa-solid fa-calendar-day absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 text-xs pointer-events-none"></i>
-                            <select id="periodFilter" onchange="fetchAndRender()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[160px] text-slate-800 dark:text-slate-100"></select>
+                            <select id="periodFilter" onchange="_uretimLoaded=false;fetchAndRender()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[160px] text-slate-800 dark:text-slate-100"></select>
                         </div>
                         <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2">
                             <i class="fa-solid fa-layer-group absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
@@ -287,7 +287,7 @@
                     <div class="filter-container">
                         <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2">
                             <i class="fa-solid fa-calendar-day absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 text-xs pointer-events-none"></i>
-                            <select id="perfPeriodFilter" onchange="fetchPerformans()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[150px] text-slate-800 dark:text-slate-100"></select>
+                            <select id="perfPeriodFilter" onchange="_performansLoaded=false;fetchPerformans()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[150px] text-slate-800 dark:text-slate-100"></select>
                         </div>
                         <div class="relative">
                             <i class="fa-solid fa-calendar-check absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
@@ -340,7 +340,7 @@
             <div class="flex flex-col xl:flex-row items-center justify-between gap-4">
                 <div><h2 class="text-xl font-black tracking-tighter uppercase">Goalpex</h2><p class="text-xs text-slate-400 font-medium">Temsilci bazlı prim ve performans değerlendirmesi.</p></div>
                 <div class="filter-container">
-                        <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2"><i class="fa-solid fa-calendar-day absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 text-xs pointer-events-none"></i><select id="goalpexPeriodFilter" onchange="loadGoalpex()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[160px] text-slate-800 dark:text-slate-100"></select></div>
+                        <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2"><i class="fa-solid fa-calendar-day absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 text-xs pointer-events-none"></i><select id="goalpexPeriodFilter" onchange="_goalpexLoaded=false;loadGoalpex()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[160px] text-slate-800 dark:text-slate-100"></select></div>
                         <div class="relative border-r border-slate-200 dark:border-slate-800 pr-2"><i class="fa-solid fa-layer-group absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i><select id="goalpexTeamFilter" onchange="applyGoalpexFilter()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[130px] text-slate-800 dark:text-slate-100"><option value="all">Tüm Ekipler</option></select></div>
                         <div class="relative"><i class="fa-solid fa-user-tie absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i><select id="goalpexTlFilter" onchange="applyGoalpexFilter()" class="pl-9 pr-8 py-2 bg-transparent border-none text-sm font-bold cursor-pointer outline-none min-w-[140px] text-slate-800 dark:text-slate-100"><option value="all">Tüm Liderler</option></select></div>
                     </div>
