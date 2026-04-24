@@ -1069,7 +1069,7 @@ function closeFeedbackPopup(goTo) {
 }
     async function checkFeedbackBadge(){
     if(currentUser.role!=='agent')return;
-    const{data}=await _cachedSupabase.from('feedback').select('id,type,to_user').eq('is_read',false);
+    const{data}=await _supabase.from('feedback').select('id,type,to_user').eq('is_read',false);
     const tumUnread=(data||[]);
     const olumluOp=tumUnread.filter(fb=>fb.type==='Olumlu'&&fb.to_user!==currentUser.user_name);
     const banaOlumluVeBilgi=tumUnread.filter(fb=>fb.to_user===currentUser.user_name&&(fb.type==='Olumlu'||fb.type==='Bilgilendirme'));
@@ -1086,7 +1086,7 @@ function closeFeedbackPopup(goTo) {
 async function loadFeedback(){
     toggleLoading(true);
     try{
-        let q=_cachedSupabase.from('feedback').select('*, feedback_messages(*)').order('created_at',{ascending:false});
+        let q=_supabase.from('feedback').select('*, feedback_messages(*)').order('created_at',{ascending:false});
         if(currentUser.role==='agent')q=q.or(`to_user.eq.${currentUser.user_name},type.eq.Olumlu`);
         const{data}=await q;fbAllData=data||[];
         if(currentUser.role==='agent'){             const tabs=document.getElementById('fb-agent-tabs');             if(tabs){tabs.classList.remove('hidden');tabs.classList.add('flex');}             document.getElementById('tab-bana-ait').classList.add('fb-tab-active');             const af=document.getElementById('fb-agent-filters');             if(af){af.classList.remove('hidden');af.classList.add('flex');}         }
@@ -1166,7 +1166,7 @@ function renderFbList(){
 async function openFbDetail(id){
     fbCurrentId=id;const fb=fbAllData.find(f=>f.id===id);if(!fb)return;
     if(currentUser.role==='agent'&&!fb.is_read){
-        await _cachedSupabase.from('feedback').update({is_read:true}).eq('id',id);fb.is_read=true;
+        await _supabase.from('feedback').update({is_read:true}).eq('id',id);fb.is_read=true;
         checkFeedbackBadge();
         const unread=fbAllData.filter(f=>!f.is_read);
         const banner=document.getElementById('fb-unread-banner');
@@ -1243,7 +1243,7 @@ async function sendFbReply(){
         const fb=fbAllData.find(f=>f.id===fbCurrentId);if(fb)await renderFbReplies(fb);
         const{data}=await _supabase.from('feedback_messages').select('*').eq('feedback_id',fbCurrentId).order('created_at',{ascending:true});
         const idx=fbAllData.findIndex(f=>f.id===fbCurrentId);if(idx!==-1)fbAllData[idx].feedback_messages=data||[];
-        const fbCur=fbAllData.find(f=>f.id===fbCurrentId);if(fbCur){const target=fbCur.from_user.toLowerCase().trim()===currentUser.user_name.toLowerCase().trim()?fbCur.to_user:fbCur.from_user;if(target.toLowerCase().trim()!==currentUser.user_name.toLowerCase().trim()){await _cachedSupabase.from('feedback').update({is_read:false}).eq('id',fbCurrentId);}}
+        const fbCur=fbAllData.find(f=>f.id===fbCurrentId);if(fbCur){const target=fbCur.from_user.toLowerCase().trim()===currentUser.user_name.toLowerCase().trim()?fbCur.to_user:fbCur.from_user;if(target.toLowerCase().trim()!==currentUser.user_name.toLowerCase().trim()){await _supabase.from('feedback').update({is_read:false}).eq('id',fbCurrentId);}}
         renderFbList();
     }
 }
@@ -1251,7 +1251,7 @@ async function sendFbReply(){
 async function deleteFeedback(){
     if(!fbCurrentId)return;if(!confirm('Bu geri bildirimi silmek istediğinize emin misiniz?'))return;
     await _supabase.from('feedback_messages').delete().eq('feedback_id',fbCurrentId);
-    await _cachedSupabase.from('feedback').delete().eq('id',fbCurrentId);
+    await _supabase.from('feedback').delete().eq('id',fbCurrentId);
     fbAllData=fbAllData.filter(f=>f.id!==fbCurrentId);fbCurrentId=null;
     document.getElementById('fb-detail-empty').classList.remove('hidden');
     document.getElementById('fb-detail-content').classList.add('hidden');document.getElementById('fb-detail-content').classList.remove('flex');
@@ -1283,7 +1283,7 @@ async function submitNewFeedback(){
     if(!description){alert('Açıklama boş olamaz.');return;}
     const dosya=document.getElementById('fbGorselDosya').files[0];
     const gorselUrl=dosya?await uploadGorsel(dosya):null;
-    const{error}=await _cachedSupabase.from('feedback').insert({from_user:currentUser.user_name,to_user:toUser,topic,type,title:title||topic,description,image_url:gorselUrl,is_read:false});
+    const{error}=await _supabase.from('feedback').insert({from_user:currentUser.user_name,to_user:toUser,topic,type,title:title||topic,description,image_url:gorselUrl,is_read:false});
     if(!error){
         document.getElementById('fbGorselDosya').value='';
         document.getElementById('fbGorselAdi').textContent='Dosya seçilmedi';
