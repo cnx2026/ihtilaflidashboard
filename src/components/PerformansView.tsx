@@ -38,8 +38,8 @@ interface OzelModalState {
 }
 
 export default function PerformansView() {
-  const { currentUser } = useUser();
-  const isAgent = currentUser?.role === "agent";
+  const { user } = useUser();
+  const isAgent = user?.role === "agent";
 
   const [periods, setPeriods] = useState<string[]>([]);
   const [selectedPeriod, setSelectedPeriod] = useState("");
@@ -88,14 +88,14 @@ export default function PerformansView() {
     let rows = selectedDate === "all"
       ? allData.filter((d) => d.date === null)
       : allData.filter((d) => d.date === selectedDate);
-    if (isAgent && currentUser?.user_name) {
-      rows = rows.filter((d) => String(d.user_name ?? "").toLowerCase().trim() === currentUser.user_name.toLowerCase().trim());
+    if (isAgent && user?.user_name) {
+      rows = rows.filter((d) => String(d.user_name ?? "").toLowerCase().trim() === user.user_name.toLowerCase().trim());
     }
     if (search) {
       rows = rows.filter((d) => d.user_name.toLowerCase().includes(search.toLowerCase()));
     }
     return [...rows].sort((a, b) => (parseFloat(String(b.performance_pct ?? 0)) || 0) - (parseFloat(String(a.performance_pct ?? 0)) || 0));
-  }, [allData, selectedDate, isAgent, currentUser, search]);
+  }, [allData, selectedDate, isAgent, user, search]);
 
   const rows = filtered();
   const maxActual = Math.max(...rows.map((d) => parseFloat(String(d.transaction_count ?? 0)) || 0), 1);

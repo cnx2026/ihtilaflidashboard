@@ -35,7 +35,7 @@ function KpiCard({ icon, iconBg, label, value, sub }: { icon: string; iconBg: st
         <div className={`p-2.5 rounded-xl ${iconBg}`}><i className={`fa-solid ${icon}`} /></div>
         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</span>
       </div>
-      <h3 className="text-3xl font-black tracking-tighter">{value}</h3>
+      <h3 className="text-3xl font-black tracking-tighter text-slate-900 dark:text-slate-100">{value}</h3>
       <p className="text-[10px] font-bold text-slate-400 mt-1.5 uppercase tracking-tight">{sub}</p>
     </div>
   );
@@ -242,8 +242,8 @@ export default function UretimView() {
       <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 px-6 py-5 z-20">
         <div className="flex flex-col xl:flex-row items-center justify-between gap-4">
           <div>
-            <h2 className="text-xl font-black tracking-tighter uppercase">Üretim Takip</h2>
-            <p className="text-xs text-slate-400 font-medium">Operasyonel veriler ve gerçekleşme analizi.</p>
+            <h2 className="text-xl font-black tracking-tighter uppercase text-slate-900 dark:text-slate-100">Üretim Takip</h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Operasyonel veriler ve gerçekleşme analizi.</p>
           </div>
           <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
             {/* Filtreler */}
