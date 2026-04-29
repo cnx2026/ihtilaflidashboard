@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useUser } from "@/context/UserContext";
 import Sidebar from "@/components/Sidebar";
 import UretimView from "@/components/UretimView";
+import PerformansView from "@/components/PerformansView";
 import type { Page } from "@/types";
 
 function Placeholder({ title, desc, icon }: { title: string; desc: string; icon: string }) {
@@ -50,7 +51,7 @@ export default function Dashboard() {
       <Sidebar activePage={activePage} onNavigate={setActivePage} feedbackBadge={feedbackBadge} duyuruBadge={duyuruBadge} />
 
       {activePage === "uretim"     && <UretimView />}
-      {activePage === "performans" && <Placeholder title="Performans" desc="Temsilci bazlı işlem performansı ve sıralama." icon="fa-gauge-high" />}
+      {activePage === "performans" && <PerformansView />}
       {activePage === "goalpex"    && <Placeholder title="Goalpex" desc="Temsilci bazlı prim ve performans değerlendirmesi." icon="fa-bullseye" />}
       {activePage === "feedback"   && <Placeholder title="Geri Bildirim" desc="Ekip içi geri bildirim sistemi." icon="fa-envelope" />}
       {activePage === "duyurular"  && <Placeholder title="Duyurular" desc="Ekip duyuruları ve bilgilendirmeler." icon="fa-bullhorn" />}
