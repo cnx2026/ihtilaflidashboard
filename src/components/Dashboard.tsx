@@ -6,6 +6,7 @@ import Sidebar from "@/components/Sidebar";
 import UretimView from "@/components/UretimView";
 import PerformansView from "@/components/PerformansView";
 import GoalpexView from "@/components/GoalpexView";
+import FeedbackPanel from "@/components/FeedbackPanel";
 import type { Page } from "@/types";
 
 function Placeholder({ title, desc, icon }: { title: string; desc: string; icon: string }) {
@@ -54,7 +55,7 @@ export default function Dashboard() {
       {activePage === "uretim"     && <UretimView />}
       {activePage === "performans" && <PerformansView />}
       {activePage === "goalpex"    && <GoalpexView />}
-      {activePage === "feedback"   && <Placeholder title="Geri Bildirim" desc="Ekip içi geri bildirim sistemi." icon="fa-envelope" />}
+      {activePage === "feedback"   && <FeedbackPanel />}
       {activePage === "duyurular"  && <Placeholder title="Duyurular" desc="Ekip duyuruları ve bilgilendirmeler." icon="fa-bullhorn" />}
     </div>
   );
