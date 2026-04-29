@@ -113,3 +113,4 @@ Topics: `Kalite`, `KPI`, `Operasyonel` — each topic has a fixed title list in 
 ## Announcements (Duyurular)
 
 Announcements have categories and optional team targeting (`team` field, or `'all'`). Images stored in Supabase Storage bucket `duyuru-gorseller`. Read tracking via `announcement_reads` table. Admins see read-rate percentages. Popup shown on login for unread announcements with `alarm_minutes` set.
+
