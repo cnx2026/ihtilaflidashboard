@@ -23,7 +23,8 @@ interface DvsRow { planned_hc: number; actual_hc: number }
 interface FullRow extends SummaryRow {
   team: string; team_leader: string;
   total_login: number; total_break: number; total_cwt_min: number;
-  capped_fte: number; break_rate: number; missing_time: number;
+  capped_fte: number;
+  // break_rate ve missing_time period_summary'dan string olarak gelebilir, number'a cast edilir
 }
 
 // ── KPI Card ─────────────────────────────────────────────────────
@@ -105,14 +106,15 @@ export default function UretimView() {
           const total_break = dr.reduce((acc, x) => acc + (parseFloat(String(x.break_total)) || 0), 0);
           return {
             ...s,
+            // break_rate ve missing_time period_summary'dan geliyor — orijinal değerleri koru
+            break_rate: parseFloat(String(s.break_rate)) || 0,
+            missing_time: parseFloat(String(s.missing_time)) || 0,
             team: um.team ?? "-",
             team_leader: um.team_leader ?? "-",
             total_login,
             total_break,
             total_cwt_min: cr.reduce((acc, x) => acc + (parseFloat(String(x.cwt)) || 0), 0),
             capped_fte: Math.min(1.0, parseFloat(String(s.fte)) || 0),
-            break_rate: total_login > 0 ? total_break / total_login : 0,
-            missing_time: parseFloat(String(s.missing_time)) || 0,
           };
         });
 
@@ -159,14 +161,14 @@ export default function UretimView() {
   const sumLogin = filtered.reduce((s, d) => s + d.total_login, 0);
   const sumBreak = filtered.reduce((s, d) => s + d.total_break, 0);
   const kpiBreak = sumLogin > 0 ? (sumBreak / sumLogin) * 100 : 0;
-  const kpiMissing = filtered.reduce((s, d) => s + d.missing_time, 0);
+  const kpiMissing = filtered.reduce((s, d) => s + (parseFloat(String(d.missing_time)) || 0), 0);
 
   // Export
   function exportSummary() {
     const rows = filtered.map(d => ({
       "Temsilci": d.user_name, "Ekip": d.team, "Lider": d.team_leader,
-      "FTE (Cap)": toTr(d.capped_fte, 2), "Mola Oranı": toTr(d.break_rate * 100, 2) + "%",
-      "Eksik Süre (dk)": toTr(d.missing_time),
+      "FTE (Cap)": toTr(d.capped_fte, 2), "Mola Oranı": toTr((parseFloat(String(d.break_rate)) || 0) * 100, 2) + "%",
+      "Eksik Süre (dk)": toTr(parseFloat(String(d.missing_time)) || 0),
     }));
     const csv = [Object.keys(rows[0]).join(";"), ...rows.map(r => Object.values(r).join(";"))].join("\n");
     const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
@@ -339,8 +341,8 @@ export default function UretimView() {
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-sm font-bold text-slate-700 dark:text-slate-300">
                     {filtered.map(row => {
-                      const m = Math.round(row.missing_time);
-                      const bR = row.break_rate * 100;
+                      const m = Math.round(parseFloat(String(row.missing_time)) || 0);
+                      const bR = (parseFloat(String(row.break_rate)) || 0) * 100;
                       let statusClass = "text-emerald-500 bg-emerald-500/10 border-emerald-500/20";
                       let statusText = "HEDEFTE";
                       if (m > 60 || row.capped_fte < 0.85) { statusClass = "text-rose-500 bg-rose-500/10 border-rose-500/20"; statusText = "KRİTİK"; }

@@ -18,10 +18,10 @@ export interface UserRow {
 export interface SummaryRow {
   user_name: string;
   period: string;
-  cwt_total?: number;
+  working_days?: number;
   fte?: number;
-  break_ratio?: number;
-  missing_time?: number;
+  break_rate?: number;
+  missing_time?: number | string;
   dvs?: string;
   [key: string]: unknown;
 }
