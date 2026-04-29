@@ -6,16 +6,20 @@ const fetchKPI = (period: string) =>
   unstable_cache(
     async () => {
       const supabase = createServerClient();
-      const [summaryRes, dailyRes, usersRes] = await Promise.all([
+      const [summaryRes, dailyRes, usersRes, cwtRes, dvsRes] = await Promise.all([
         supabase.from("period_summary").select("*").eq("period", period).limit(10000),
         supabase.from("daily_data").select("*").eq("period", period).limit(10000),
         supabase.from("users").select("user_name,team,team_leader,role").limit(10000),
+        supabase.from("cwt_data").select("user_name,cwt,date").eq("period", period).limit(10000),
+        supabase.from("dvs_data").select("planned_hc,actual_hc").eq("period", period).limit(10000),
       ]);
       if (summaryRes.error || dailyRes.error || usersRes.error) return null;
       return {
         summary: summaryRes.data ?? [],
         daily: dailyRes.data ?? [],
         users: usersRes.data ?? [],
+        cwt: cwtRes.data ?? [],
+        dvs: dvsRes.data ?? [],
       };
     },
     [`kpi-${period}`],
