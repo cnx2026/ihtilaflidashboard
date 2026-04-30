@@ -84,11 +84,12 @@ export interface MessageRow {
 export interface AnnouncementRow {
   id: string;
   title: string;
-  content?: string;
+  body?: string;
   category: string;
-  team: string;
   alarm_minutes?: number;
-  image_url?: string;
+  image_url1?: string;
+  image_url2?: string;
+  created_by?: string;
   is_archived: boolean;
   created_at: string;
 }

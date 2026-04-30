@@ -18,7 +18,7 @@ const fmtDateTime = (ts: string) => `${fmtDate(ts)} · ${fmtTime(ts)}`;
 interface ReadRate { [id: string]: number }
 
 interface NewDuyuruState {
-  title: string; content: string; category: string; team: string;
+  title: string; body: string; category: string;
   alarm_minutes: number; imageFile: File | null; imagePreview: string; submitting: boolean;
 }
 
@@ -47,11 +47,9 @@ export default function DuyurularPanel({ onBadgeChange }: Props) {
   const [showNew, setShowNew] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [newD, setNewD] = useState<NewDuyuruState>({
-    title: "", content: "", category: "surec", team: "all",
+    title: "", body: "", category: "surec",
     alarm_minutes: 15, imageFile: null, imagePreview: "", submitting: false,
   });
-
-  const teams = useMemo(() => [...new Set(allUsers.filter(u => u.role === "agent").map(u => u.team).filter(Boolean))].sort(), [allUsers]);
 
   // ── Load announcements ─────────────────────────────────────────
   const load = useCallback(async () => {
@@ -83,7 +81,7 @@ export default function DuyurularPanel({ onBadgeChange }: Props) {
       const agentUsers = users.filter(u => u.role === "agent");
       const rates: ReadRate = {};
       anns.forEach(d => {
-        const targets = d.team === "all" ? agentUsers : agentUsers.filter(u => u.team === d.team);
+        const targets = agentUsers; // team kolonu yok, tüm agentler hedef
         const targetNames = new Set(targets.map(u => u.user_name));
         const readers = new Set(allReads.filter(r =>
           r.announcement_id === d.id && targetNames.has(r.user_name)).map(r => r.user_name));
@@ -102,12 +100,10 @@ export default function DuyurularPanel({ onBadgeChange }: Props) {
     function checkAlarm() {
       const shownKey = "shownDuyuruAlarms";
       const shown: string[] = JSON.parse(localStorage.getItem(shownKey) ?? "[]");
-      const userTeam = allUsers.find(u => u.user_name === user?.user_name)?.team ?? "all";
       const now = new Date();
       announcements.filter(d => !d.is_archived).forEach(d => {
         if (readIds.has(d.id)) return;
         if (shown.includes(d.id)) return;
-        if (d.team !== "all" && d.team !== userTeam) return;
         if (!d.alarm_minutes) return;
         const mins = Math.floor((now.getTime() - new Date(d.created_at).getTime()) / 60000);
         if (mins >= d.alarm_minutes) {
@@ -119,17 +115,15 @@ export default function DuyurularPanel({ onBadgeChange }: Props) {
     }
     const t = setInterval(checkAlarm, 5000);
     return () => clearInterval(t);
-  }, [announcements, readIds, allUsers, user]);
+  }, [announcements, readIds]);
 
   // ── Popup on load for unread ───────────────────────────────────
   useEffect(() => {
     if (loading) return;
     const shownKey = "shownDuyuruPopups";
     const shown: string[] = JSON.parse(localStorage.getItem(shownKey) ?? "[]");
-    const userTeam = allUsers.find(u => u.user_name === user?.user_name)?.team ?? "all";
     const unread = announcements.filter(d =>
-      !d.is_archived && !readIds.has(d.id) && !shown.includes(d.id) &&
-      (isAdmin || d.team === "all" || d.team === userTeam));
+      !d.is_archived && !readIds.has(d.id) && !shown.includes(d.id));
     if (unread.length > 0) {
       setPopup(unread);
       const newShown = [...shown, ...unread.map(d => d.id)];
@@ -138,27 +132,25 @@ export default function DuyurularPanel({ onBadgeChange }: Props) {
   }, [loading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Filtered list ──────────────────────────────────────────────
-  const userTeam = useMemo(() => allUsers.find(u => u.user_name === user?.user_name)?.team ?? "all", [allUsers, user]);
   const filtered = useMemo(() => {
     return announcements.filter(d => {
       if (activeTab === "arsiv") return d.is_archived;
       if (d.is_archived) return false;
       if (d.category !== activeTab) return false;
-      if (!isAdmin && d.team !== "all" && d.team !== userTeam) return false;
-      if (search && !d.title.toLowerCase().includes(search.toLowerCase()) && !(d.content ?? "").toLowerCase().includes(search.toLowerCase())) return false;
+      if (search && !d.title.toLowerCase().includes(search.toLowerCase()) && !(d.body ?? "").toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     });
-  }, [announcements, activeTab, isAdmin, userTeam, search]);
+  }, [announcements, activeTab, search]);
 
   const selected = announcements.find(d => d.id === selectedId) ?? null;
 
   // Unread badge counts
   const unreadSurec = useMemo(() =>
-    announcements.filter(d => !d.is_archived && d.category === "surec" && !readIds.has(d.id) && (d.team === "all" || d.team === userTeam)).length,
-    [announcements, readIds, userTeam]);
+    announcements.filter(d => !d.is_archived && d.category === "surec" && !readIds.has(d.id)).length,
+    [announcements, readIds]);
   const unreadOp = useMemo(() =>
-    announcements.filter(d => !d.is_archived && d.category === "operasyon" && !readIds.has(d.id) && (d.team === "all" || d.team === userTeam)).length,
-    [announcements, readIds, userTeam]);
+    announcements.filter(d => !d.is_archived && d.category === "operasyon" && !readIds.has(d.id)).length,
+    [announcements, readIds]);
 
   // Report sidebar badge counts
   useEffect(() => {
@@ -228,8 +220,8 @@ export default function DuyurularPanel({ onBadgeChange }: Props) {
       const res = await fetch("/api/announcements", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title: newD.title, content: newD.content, category: newD.category,
-          team: newD.team, alarm_minutes: newD.alarm_minutes, image_url: imageUrl,
+          title: newD.title, content: newD.body, category: newD.category,
+          alarm_minutes: newD.alarm_minutes, image_url: imageUrl,
         }),
       });
 
@@ -237,7 +229,7 @@ export default function DuyurularPanel({ onBadgeChange }: Props) {
         await load();
         setShowNew(false);
         setSubmitError("");
-        setNewD({ title: "", content: "", category: "surec", team: "all", alarm_minutes: 15, imageFile: null, imagePreview: "", submitting: false });
+        setNewD({ title: "", body: "", category: "surec", alarm_minutes: 15, imageFile: null, imagePreview: "", submitting: false });
       } else {
         const errData = await res.json().catch(() => ({}));
         setSubmitError((errData as { error?: string }).error ?? "Duyuru yayınlanamadı. Lütfen tekrar deneyin.");
@@ -253,8 +245,8 @@ export default function DuyurularPanel({ onBadgeChange }: Props) {
   async function exportAll() {
     const XLSX = await import("xlsx");
     const rows = filtered.map(d => ({
-      "Başlık": d.title, "İçerik": d.content ?? "", "Kategori": catLabel(d.category),
-      "Ekip": d.team, "Alarm (dk)": d.alarm_minutes ?? "",
+      "Başlık": d.title, "İçerik": d.body ?? "", "Kategori": catLabel(d.category),
+      "Alarm (dk)": d.alarm_minutes ?? "",
       "Tarih": fmtDateTime(d.created_at),
       "Arşiv": d.is_archived ? "Evet" : "Hayır",
       "Okunma Oranı": isAdmin ? `%${readRates[d.id] ?? 0}` : "",
@@ -352,11 +344,10 @@ export default function DuyurularPanel({ onBadgeChange }: Props) {
                           {d.title}
                         </p>
                         <p className="text-xs text-slate-400 dark:text-slate-500 truncate leading-relaxed">
-                          {(d.content ?? "").substring(0, 60)}
+                          {(d.body ?? "").substring(0, 60)}
                         </p>
                         {isAdmin && (
-                          <div className="flex items-center justify-between mt-1.5">
-                            <span className="text-[10px] text-slate-400">{d.team === "all" ? "Tüm Ekipler" : d.team}</span>
+                          <div className="flex items-center justify-end mt-1.5">
                             <span className={`text-[10px] font-black ${(readRates[d.id] ?? 0) >= 80 ? "text-emerald-500" : (readRates[d.id] ?? 0) >= 50 ? "text-amber-500" : "text-rose-500"}`}>
                               %{readRates[d.id] ?? 0}
                             </span>
@@ -400,7 +391,6 @@ export default function DuyurularPanel({ onBadgeChange }: Props) {
                     <h3 className="font-black text-lg tracking-tight leading-tight mb-2 text-slate-900 dark:text-slate-100">{selected.title}</h3>
                     <div className="flex items-center gap-3 flex-wrap">
                       <span className="text-[10px] text-slate-400">{fmtDateTime(selected.created_at)}</span>
-                      <span className="text-[10px] text-slate-400">Ekip: {selected.team === "all" ? "Tüm Ekipler" : selected.team}</span>
                     </div>
                     {/* Admin read rate bar */}
                     {isAdmin && (
@@ -440,15 +430,15 @@ export default function DuyurularPanel({ onBadgeChange }: Props) {
               <div className="flex-1 overflow-y-auto px-8 py-6">
                 <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm mb-4 max-w-2xl">
                   <p className="text-sm text-slate-700 dark:text-slate-300 font-medium leading-relaxed whitespace-pre-wrap">
-                    {selected.content || <span className="text-slate-400 italic">İçerik yok</span>}
+                    {selected.body || <span className="text-slate-400 italic">İçerik yok</span>}
                   </p>
                 </div>
                 {/* Image */}
-                {selected.image_url && (
+                {selected.image_url1 && (
                   <div className="max-w-2xl rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm cursor-zoom-in"
-                    onClick={() => window.open(selected.image_url, "_blank")}>
+                    onClick={() => window.open(selected.image_url1, "_blank")}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={selected.image_url} alt="Görsel" className="w-full max-h-80 object-cover hover:scale-105 transition-transform" />
+                    <img src={selected.image_url1} alt="Görsel" className="w-full max-h-80 object-cover hover:scale-105 transition-transform" />
                   </div>
                 )}
               </div>
@@ -475,20 +465,13 @@ export default function DuyurularPanel({ onBadgeChange }: Props) {
                   <option value="operasyon">📣 Operasyon</option>
                 </select>
               )},
-              { label: "Ekip", content: (
-                <select value={newD.team} onChange={e => setNewD(s => ({ ...s, team: e.target.value }))}
-                  className="w-full px-3 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100 cursor-pointer">
-                  <option value="all">Tüm Ekipler</option>
-                  {teams.map(t => <option key={t} value={t}>{t}</option>)}
-                </select>
-              )},
               { label: "Başlık", content: (
                 <input type="text" value={newD.title} onChange={e => setNewD(s => ({ ...s, title: e.target.value }))}
                   placeholder="Duyuru başlığı..."
                   className="w-full px-3 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100" />
               )},
               { label: "Duyuru Metni", content: (
-                <textarea value={newD.content} onChange={e => setNewD(s => ({ ...s, content: e.target.value }))}
+                <textarea value={newD.body} onChange={e => setNewD(s => ({ ...s, body: e.target.value }))}
                   rows={4} placeholder="Duyuru içeriği..."
                   className="w-full px-3 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium resize-none outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100" />
               )},

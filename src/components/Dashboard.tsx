@@ -78,8 +78,7 @@ export default function Dashboard() {
         ? (await readsRes.json() as { announcement_id: string }[]).map(r => r.announcement_id)
         : []
     );
-    const userTeam = user.team ?? "all";
-    const active = anns.filter(d => !d.is_archived && (d.team === "all" || d.team === userTeam));
+    const active = anns.filter(d => !d.is_archived);
 
     setDuyuruBadge({
       surec: active.filter(d => d.category === "surec" && !readIds.has(d.id)).length,
@@ -100,7 +99,7 @@ export default function Dashboard() {
         break;
       }
     }
-  }, [user?.user_name, user?.role, user?.team]);
+  }, [user?.user_name, user?.role]);
 
   useEffect(() => {
     checkDuyuru();

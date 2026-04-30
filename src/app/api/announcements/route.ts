@@ -15,8 +15,8 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const body = await request.json();
-  const { title, content, category, team, alarm_minutes, image_url } = body;
+  const payload = await request.json();
+  const { title, content, category, alarm_minutes, image_url } = payload;
 
   if (!title || !category) {
     return NextResponse.json({ error: "Eksik alan" }, { status: 400 });
@@ -24,9 +24,17 @@ export async function POST(request: NextRequest) {
 
   const supabase = createServerClient();
 
+  // DB kolon isimleri: body (içerik), image_url1 (görsel), team kolonu yok
   const { data, error } = await supabase
     .from("announcements")
-    .insert({ title, content, category, team: team ?? "all", alarm_minutes, image_url, is_archived: false })
+    .insert({
+      title,
+      body: content || null,
+      category,
+      alarm_minutes: alarm_minutes || null,
+      image_url1: image_url || null,
+      is_archived: false,
+    })
     .select()
     .single();
 
