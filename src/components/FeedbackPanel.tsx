@@ -48,7 +48,11 @@ interface NewFbState {
   submitting: boolean;
 }
 
-export default function FeedbackPanel() {
+interface Props {
+  onBadgeChange?: (badge: { blue: number; green: number; red: number }) => void;
+}
+
+export default function FeedbackPanel({ onBadgeChange }: Props) {
   const { user } = useUser();
   const isAdmin = user?.role === "admin";
 
@@ -130,6 +134,17 @@ export default function FeedbackPanel() {
   const unreadOlumlu = useMemo(() =>
     feedbacks.filter(f => f.type === "Olumlu" && f.to_user !== user?.user_name && !f.is_read).length,
     [feedbacks, user]);
+
+  // Report sidebar badge counts
+  useEffect(() => {
+    if (!onBadgeChange || !user?.user_name) return;
+    const mine = feedbacks.filter(f => f.to_user === user.user_name && !f.is_read);
+    onBadgeChange({
+      blue: mine.filter(f => f.type === "Bilgilendirme").length,
+      green: mine.filter(f => f.type === "Olumlu").length,
+      red: mine.filter(f => f.type === "Olumsuz").length,
+    });
+  }, [feedbacks, user, onBadgeChange]);
 
   const selectedFb = feedbacks.find(f => f.id === selectedId) ?? null;
 

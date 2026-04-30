@@ -13,8 +13,8 @@ import type { Page } from "@/types";
 export default function Dashboard() {
   const { loading } = useUser();
   const [activePage, setActivePage] = useState<Page>("uretim");
-  const feedbackBadge = { blue: 0, green: 0, red: 0 };
-  const duyuruBadge = { surec: 0, operasyon: 0 };
+  const [feedbackBadge, setFeedbackBadge] = useState({ blue: 0, green: 0, red: 0 });
+  const [duyuruBadge, setDuyuruBadge] = useState({ surec: 0, operasyon: 0 });
 
   useEffect(() => {
     const saved = localStorage.getItem("theme") ?? "dark";
@@ -37,8 +37,8 @@ export default function Dashboard() {
       {activePage === "uretim"     && <UretimView />}
       {activePage === "performans" && <PerformansView />}
       {activePage === "goalpex"    && <GoalpexView />}
-      {activePage === "feedback"   && <FeedbackPanel />}
-      {activePage === "duyurular"  && <DuyurularPanel />}
+      {activePage === "feedback"   && <FeedbackPanel onBadgeChange={setFeedbackBadge} />}
+      {activePage === "duyurular"  && <DuyurularPanel onBadgeChange={setDuyuruBadge} />}
     </div>
   );
 }

@@ -11,8 +11,6 @@ const catStyle = (cat: string) =>
   cat === "surec" ? "bg-blue-500/10 text-blue-500" : "bg-amber-500/10 text-amber-600 dark:text-amber-400";
 const catLabel = (cat: string) => cat === "surec" ? "📋 Süreç" : "📣 Operasyon";
 const catIcon = (cat: string) => cat === "surec" ? "fa-clipboard-list" : "fa-bullhorn";
-const mkIni = (name: string) => (name || "?").split(" ").map((n: string) => n[0]).join("").substring(0, 2).toUpperCase();
-
 const fmtDate = (ts: string) => new Date(ts).toLocaleDateString("tr-TR", { day: "2-digit", month: "2-digit", year: "numeric" });
 const fmtTime = (ts: string) => new Date(ts).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
 const fmtDateTime = (ts: string) => `${fmtDate(ts)} · ${fmtTime(ts)}`;
@@ -24,7 +22,11 @@ interface NewDuyuruState {
   alarm_minutes: number; imageFile: File | null; imagePreview: string; submitting: boolean;
 }
 
-export default function DuyurularPanel() {
+interface Props {
+  onBadgeChange?: (badge: { surec: number; operasyon: number }) => void;
+}
+
+export default function DuyurularPanel({ onBadgeChange }: Props) {
   const { user } = useUser();
   const isAdmin = user?.role === "admin";
 
@@ -52,33 +54,38 @@ export default function DuyurularPanel() {
 
   // ── Load announcements ─────────────────────────────────────────
   const load = useCallback(async () => {
-    const [annRes, usersRes] = await Promise.all([
-      fetch("/api/announcements"), fetch("/api/users"),
+    const basePromises: [Promise<Response>, Promise<Response>] = [
+      fetch("/api/announcements"),
+      fetch("/api/users"),
+    ];
+    const myReadsPromise = user?.user_name
+      ? fetch(`/api/announcement-reads?user_name=${encodeURIComponent(user.user_name)}`)
+      : Promise.resolve(null);
+    const allReadsPromise = isAdmin ? fetch("/api/announcement-reads") : Promise.resolve(null);
+
+    const [annRes, usersRes, myReadsRes, allReadsRes] = await Promise.all([
+      ...basePromises, myReadsPromise, allReadsPromise,
     ]);
+
     const anns: AnnouncementRow[] = annRes.ok ? await annRes.json() : [];
     const users: UserRow[] = usersRes.ok ? await usersRes.json() : [];
     setAllUsers(users);
     setAnnouncements(anns);
 
-    // Get user's reads
-    const supabase = createSupabaseBrowser();
-    if (user?.user_name) {
-      const { data: reads } = await supabase
-        .from("announcement_reads").select("announcement_id")
-        .eq("user_name", user.user_name);
-      setReadIds(new Set((reads ?? []).map((r: { announcement_id: string }) => r.announcement_id)));
+    if (myReadsRes?.ok) {
+      const reads: { announcement_id: string }[] = await myReadsRes.json();
+      setReadIds(new Set(reads.map(r => r.announcement_id)));
     }
 
-    // Admin: compute read rates
-    if (isAdmin) {
-      const { data: allReads } = await supabase.from("announcement_reads").select("announcement_id, user_name");
+    if (allReadsRes?.ok) {
+      const allReads: { announcement_id: string; user_name: string }[] = await allReadsRes.json();
       const agentUsers = users.filter(u => u.role === "agent");
       const rates: ReadRate = {};
       anns.forEach(d => {
         const targets = d.team === "all" ? agentUsers : agentUsers.filter(u => u.team === d.team);
         const targetNames = new Set(targets.map(u => u.user_name));
-        const readers = new Set((allReads ?? []).filter((r: { announcement_id: string; user_name: string }) =>
-          r.announcement_id === d.id && targetNames.has(r.user_name)).map((r: { user_name: string }) => r.user_name));
+        const readers = new Set(allReads.filter(r =>
+          r.announcement_id === d.id && targetNames.has(r.user_name)).map(r => r.user_name));
         rates[d.id] = targets.length > 0 ? Math.round((readers.size / targets.length) * 100) : 0;
       });
       setReadRates(rates);
@@ -151,6 +158,12 @@ export default function DuyurularPanel() {
   const unreadOp = useMemo(() =>
     announcements.filter(d => !d.is_archived && d.category === "operasyon" && !readIds.has(d.id) && (d.team === "all" || d.team === userTeam)).length,
     [announcements, readIds, userTeam]);
+
+  // Report sidebar badge counts
+  useEffect(() => {
+    if (!onBadgeChange || isAdmin) return;
+    onBadgeChange({ surec: unreadSurec, operasyon: unreadOp });
+  }, [unreadSurec, unreadOp, onBadgeChange, isAdmin]);
 
   // ── Open detail ────────────────────────────────────────────────
   async function openDetail(id: string) {
