@@ -7,26 +7,8 @@ import UretimView from "@/components/UretimView";
 import PerformansView from "@/components/PerformansView";
 import GoalpexView from "@/components/GoalpexView";
 import FeedbackPanel from "@/components/FeedbackPanel";
+import DuyurularPanel from "@/components/DuyurularPanel";
 import type { Page } from "@/types";
-
-function Placeholder({ title, desc, icon }: { title: string; desc: string; icon: string }) {
-  return (
-    <main className="flex-1 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 min-w-0">
-      <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 px-6 py-5 z-20">
-        <div>
-          <h2 className="text-xl font-black tracking-tighter uppercase">{title}</h2>
-          <p className="text-xs text-slate-400 font-medium">{desc}</p>
-        </div>
-      </header>
-      <div className="flex-1 flex items-center justify-center">
-        <div className="text-center space-y-3">
-          <i className={`fa-solid ${icon} text-4xl text-slate-300 dark:text-slate-700`} />
-          <p className="text-slate-400 font-bold text-sm">Yakında...</p>
-        </div>
-      </div>
-    </main>
-  );
-}
 
 export default function Dashboard() {
   const { loading } = useUser();
@@ -56,7 +38,7 @@ export default function Dashboard() {
       {activePage === "performans" && <PerformansView />}
       {activePage === "goalpex"    && <GoalpexView />}
       {activePage === "feedback"   && <FeedbackPanel />}
-      {activePage === "duyurular"  && <Placeholder title="Duyurular" desc="Ekip duyuruları ve bilgilendirmeler." icon="fa-bullhorn" />}
+      {activePage === "duyurular"  && <DuyurularPanel />}
     </div>
   );
 }
