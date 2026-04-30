@@ -19,21 +19,18 @@ export function UserProvider({ children }: { children: ReactNode }) {
     const supabase = createSupabaseBrowser();
 
     async function load() {
-      const { data: { user: authUser } } = await supabase.auth.getUser();
-      if (!authUser) { setLoading(false); return; }
+      // Sadece auth session — anon key ile tablo sorgusu yok
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { setLoading(false); return; }
 
-      const { data: rows } = await supabase
-        .from("users")
-        .select("user_name,role")
-        .eq("user_mail", authUser.email)
-        .limit(1);
-
-      const r = rows?.[0];
-      setUser({
-        role: r?.role ?? "agent",
-        user_name: r?.user_name ?? authUser.email!.split("@")[0].replace(".", " "),
-        email: authUser.email!,
+      // Profil bilgisi server-side /api/me üzerinden gelir
+      const res = await fetch("/api/me", {
+        headers: { Authorization: `Bearer ${session.access_token}` },
       });
+      if (!res.ok) { setLoading(false); return; }
+
+      const profile: CurrentUser = await res.json();
+      setUser(profile);
       setLoading(false);
     }
 
