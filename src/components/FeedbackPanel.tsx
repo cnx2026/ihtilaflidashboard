@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useUser } from "@/context/UserContext";
 import { createSupabaseBrowser } from "@/lib/supabase-browser";
 import type { FeedbackRow, MessageRow, UserRow } from "@/types";
@@ -50,11 +50,14 @@ interface NewFbState {
 
 interface Props {
   onBadgeChange?: (badge: { blue: number; green: number; red: number }) => void;
+  initialOpenId?: string | null;
+  onInitialOpen?: () => void;
 }
 
-export default function FeedbackPanel({ onBadgeChange }: Props) {
+export default function FeedbackPanel({ onBadgeChange, initialOpenId, onInitialOpen }: Props) {
   const { user } = useUser();
   const isAdmin = user?.role === "admin";
+  const initialOpenDone = useRef<string | null>(null);
 
   const [feedbacks, setFeedbacks] = useState<FeedbackRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -100,6 +103,23 @@ export default function FeedbackPanel({ onBadgeChange }: Props) {
     const t = setInterval(loadFeedback, 30000);
     return () => clearInterval(t);
   }, [isAdmin, loadFeedback]);
+
+  // Auto-open specific feedback when navigated from popup
+  useEffect(() => {
+    if (!initialOpenId || !feedbacks.length || initialOpenDone.current === initialOpenId) return;
+    const fb = feedbacks.find(f => f.id === initialOpenId);
+    if (!fb) return;
+    initialOpenDone.current = initialOpenId;
+    setSelectedId(initialOpenId);
+    if (!fb.is_read && fb.to_user === user?.user_name) {
+      fetch(`/api/feedback/${initialOpenId}`, {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_read: true }),
+      }).then(() => setFeedbacks(prev => prev.map(f => f.id === initialOpenId ? { ...f, is_read: true } : f)));
+    }
+    fetch(`/api/feedback/${initialOpenId}/messages`).then(r => r.ok ? r.json() : []).then(setMessages);
+    onInitialOpen?.();
+  }, [initialOpenId, feedbacks]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Load users for new feedback modal
   useEffect(() => {
@@ -147,6 +167,8 @@ export default function FeedbackPanel({ onBadgeChange }: Props) {
   }, [feedbacks, user, onBadgeChange]);
 
   const selectedFb = feedbacks.find(f => f.id === selectedId) ?? null;
+  // Agent sadece kendine gelen geri bildirimlere yanıt verebilir
+  const canReply = isAdmin || (selectedFb?.to_user === user?.user_name);
 
   // unique users/senders for admin filters
   const uniqueUsers = useMemo(() => [...new Set(feedbacks.map(f => f.to_user).filter(Boolean))].sort(), [feedbacks]);
@@ -518,6 +540,7 @@ export default function FeedbackPanel({ onBadgeChange }: Props) {
               </div>
 
               {/* Reply box */}
+              {canReply ? (
               <div className="px-8 py-5 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shrink-0">
                 <div className="flex gap-3 items-end">
                   <div className="w-8 h-8 shrink-0 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-xs mb-0.5">
@@ -538,6 +561,13 @@ export default function FeedbackPanel({ onBadgeChange }: Props) {
                   </div>
                 </div>
               </div>
+              ) : (
+              <div className="px-8 py-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shrink-0 text-center">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                  <i className="fa-solid fa-lock mr-1.5" /> Bu geri bildirime yanıt veremezsiniz
+                </p>
+              </div>
+              )}
             </div>
           )}
         </div>

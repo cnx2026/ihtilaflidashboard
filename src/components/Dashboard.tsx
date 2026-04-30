@@ -19,8 +19,11 @@ export default function Dashboard() {
   const [duyuruBadge, setDuyuruBadge] = useState({ surec: 0, operasyon: 0 });
   const [globalAlarm, setGlobalAlarm] = useState<{ id: string; title: string; cat: string } | null>(null);
   const [feedbackPopup, setFeedbackPopup] = useState(false);
+  const [pendingFeedbackId, setPendingFeedbackId] = useState<string | null>(null);
+
   const activePageRef = useRef(activePage);
   const prevFeedbackTotal = useRef<number | null>(null);
+  const prevFeedbackIds = useRef<Set<string>>(new Set());
 
   useEffect(() => { activePageRef.current = activePage; }, [activePage]);
 
@@ -38,11 +41,15 @@ export default function Dashboard() {
     const mine = data.filter(f => f.to_user === user.user_name && !f.is_read);
     const total = mine.length;
 
-    // Show popup when new unread feedback arrives (not on first load)
     if (prevFeedbackTotal.current !== null && total > prevFeedbackTotal.current && activePageRef.current !== "feedback") {
-      setFeedbackPopup(true);
+      const newItems = mine.filter(f => !prevFeedbackIds.current.has(f.id));
+      if (newItems.length > 0) {
+        setPendingFeedbackId(newItems[0].id);
+        setFeedbackPopup(true);
+      }
     }
     prevFeedbackTotal.current = total;
+    prevFeedbackIds.current = new Set(mine.map(f => f.id));
 
     setFeedbackBadge({
       blue: mine.filter(f => f.type === "Bilgilendirme").length,
@@ -79,7 +86,6 @@ export default function Dashboard() {
       operasyon: active.filter(d => d.category === "operasyon" && !readIds.has(d.id)).length,
     });
 
-    // Alarm — only show when not on duyurular page (DuyurularPanel handles it there)
     if (activePageRef.current === "duyurular") return;
     const shownKey = "shownDuyuruAlarms";
     const shown: string[] = JSON.parse(localStorage.getItem(shownKey) ?? "[]");
@@ -118,10 +124,16 @@ export default function Dashboard() {
       {activePage === "uretim"     && <UretimView />}
       {activePage === "performans" && <PerformansView />}
       {activePage === "goalpex"    && <GoalpexView />}
-      {activePage === "feedback"   && <FeedbackPanel onBadgeChange={setFeedbackBadge} />}
+      {activePage === "feedback"   && (
+        <FeedbackPanel
+          onBadgeChange={setFeedbackBadge}
+          initialOpenId={pendingFeedbackId}
+          onInitialOpen={() => setPendingFeedbackId(null)}
+        />
+      )}
       {activePage === "duyurular"  && <DuyurularPanel onBadgeChange={setDuyuruBadge} />}
 
-      {/* Geri bildirim popup — her sayfada görünür */}
+      {/* Geri bildirim popup */}
       {feedbackPopup && (
         <div className="fixed inset-0 z-[310] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl w-full max-w-sm p-8 border-2 border-blue-500/40 text-center space-y-4"
@@ -147,14 +159,14 @@ export default function Dashboard() {
                 onClick={() => { setFeedbackPopup(false); setActivePage("feedback"); }}
                 className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black rounded-2xl transition-all"
               >
-                Görüntüle
+                Hemen Oku
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Global duyuru alarm popup — her sayfada görünür */}
+      {/* Global duyuru alarm popup */}
       {globalAlarm && (
         <div className="fixed inset-0 z-[310] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
           <div
@@ -171,7 +183,7 @@ export default function Dashboard() {
             <p className="text-sm text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
               <strong className="text-slate-700 dark:text-slate-200">{catLabel(globalAlarm.cat)}</strong>{" "}
               kategorisindeki <strong className="text-rose-500">&quot;{globalAlarm.title}&quot;</strong> başlıklı
-              duyuruyu henüz okumadınız. Lütfen en kısa sürede okuyunuz.
+              duyuruyu henüz okumadınız.
             </p>
             <div className="flex gap-3">
               <button
