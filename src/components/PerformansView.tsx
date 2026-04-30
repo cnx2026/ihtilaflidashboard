@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useUser } from "@/context/UserContext";
 import * as XLSX from "xlsx";
-import type { PerformanceRow } from "@/types";
+import type { PerformanceRow, UserRow } from "@/types";
 
 const MONTHS = ["", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
 
@@ -44,6 +44,7 @@ export default function PerformansView() {
   const [periods, setPeriods] = useState<string[]>([]);
   const [selectedPeriod, setSelectedPeriod] = useState("");
   const [allData, setAllData] = useState<PerfRow[]>([]);
+  const [teamUserNames, setTeamUserNames] = useState<Set<string>>(new Set());
   const [selectedDate, setSelectedDate] = useState("all");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
@@ -62,6 +63,19 @@ export default function PerformansView() {
         if (ps.length > 0) setSelectedPeriod(ps[0]);
       });
   }, []);
+
+  // Agent için aynı ekipteki kullanıcı listesini çek
+  useEffect(() => {
+    if (!isAgent || !user?.team) return;
+    fetch("/api/users")
+      .then(r => r.json())
+      .then((data: UserRow[]) => {
+        const names = new Set(
+          data.filter(u => u.team === user!.team).map(u => u.user_name.toLowerCase().trim())
+        );
+        setTeamUserNames(names);
+      });
+  }, [isAgent, user?.team]);
 
   useEffect(() => {
     if (!selectedPeriod) return;
@@ -89,13 +103,17 @@ export default function PerformansView() {
       ? allData.filter((d) => d.date === null)
       : allData.filter((d) => d.date === selectedDate);
     if (isAgent && user?.user_name) {
-      rows = rows.filter((d) => String(d.user_name ?? "").toLowerCase().trim() === user.user_name.toLowerCase().trim());
+      if (teamUserNames.size > 0) {
+        rows = rows.filter((d) => teamUserNames.has(String(d.user_name ?? "").toLowerCase().trim()));
+      } else {
+        rows = rows.filter((d) => String(d.user_name ?? "").toLowerCase().trim() === user.user_name.toLowerCase().trim());
+      }
     }
     if (search) {
       rows = rows.filter((d) => d.user_name.toLowerCase().includes(search.toLowerCase()));
     }
     return [...rows].sort((a, b) => (parseFloat(String(b.performance_pct ?? 0)) || 0) - (parseFloat(String(a.performance_pct ?? 0)) || 0));
-  }, [allData, selectedDate, isAgent, user, search]);
+  }, [allData, selectedDate, isAgent, user, search, teamUserNames]);
 
   const rows = filtered();
   const maxActual = Math.max(...rows.map((d) => parseFloat(String(d.transaction_count ?? 0)) || 0), 1);

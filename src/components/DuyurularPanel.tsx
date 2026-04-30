@@ -440,7 +440,7 @@ export default function DuyurularPanel({ onBadgeChange }: Props) {
               <div className="flex-1 overflow-y-auto px-8 py-6">
                 <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm mb-4 max-w-2xl">
                   <p className="text-sm text-slate-700 dark:text-slate-300 font-medium leading-relaxed whitespace-pre-wrap">
-                    {selected.content ?? <span className="text-slate-400 italic">İçerik yok</span>}
+                    {selected.content || <span className="text-slate-400 italic">İçerik yok</span>}
                   </p>
                 </div>
                 {/* Image */}

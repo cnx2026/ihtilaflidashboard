@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: "Duyuru oluşturulamadı" }, { status: 500 });
+  if (error) return NextResponse.json({ error: error.message ?? "Duyuru oluşturulamadı" }, { status: 500 });
 
   return NextResponse.json(data, { status: 201 });
 }

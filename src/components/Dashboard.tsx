@@ -18,7 +18,9 @@ export default function Dashboard() {
   const [feedbackBadge, setFeedbackBadge] = useState({ blue: 0, green: 0, red: 0 });
   const [duyuruBadge, setDuyuruBadge] = useState({ surec: 0, operasyon: 0 });
   const [globalAlarm, setGlobalAlarm] = useState<{ id: string; title: string; cat: string } | null>(null);
+  const [feedbackPopup, setFeedbackPopup] = useState(false);
   const activePageRef = useRef(activePage);
+  const prevFeedbackTotal = useRef<number | null>(null);
 
   useEffect(() => { activePageRef.current = activePage; }, [activePage]);
 
@@ -27,13 +29,21 @@ export default function Dashboard() {
     document.documentElement.classList.toggle("dark", saved === "dark");
   }, []);
 
-  // Global feedback badge poll (30s — agent only; FeedbackPanel supplements when active)
+  // Global feedback badge poll (10s — agent only)
   const checkFeedbackBadge = useCallback(async () => {
     if (!user?.user_name || user.role === "admin") return;
     const res = await fetch("/api/feedback");
     if (!res.ok) return;
     const data: FeedbackRow[] = await res.json();
     const mine = data.filter(f => f.to_user === user.user_name && !f.is_read);
+    const total = mine.length;
+
+    // Show popup when new unread feedback arrives (not on first load)
+    if (prevFeedbackTotal.current !== null && total > prevFeedbackTotal.current && activePageRef.current !== "feedback") {
+      setFeedbackPopup(true);
+    }
+    prevFeedbackTotal.current = total;
+
     setFeedbackBadge({
       blue: mine.filter(f => f.type === "Bilgilendirme").length,
       green: mine.filter(f => f.type === "Olumlu").length,
@@ -43,7 +53,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     checkFeedbackBadge();
-    const t = setInterval(checkFeedbackBadge, 30000);
+    const t = setInterval(checkFeedbackBadge, 10000);
     return () => clearInterval(t);
   }, [checkFeedbackBadge]);
 
@@ -111,7 +121,40 @@ export default function Dashboard() {
       {activePage === "feedback"   && <FeedbackPanel onBadgeChange={setFeedbackBadge} />}
       {activePage === "duyurular"  && <DuyurularPanel onBadgeChange={setDuyuruBadge} />}
 
-      {/* Global alarm popup — visible from any page */}
+      {/* Geri bildirim popup — her sayfada görünür */}
+      {feedbackPopup && (
+        <div className="fixed inset-0 z-[310] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl w-full max-w-sm p-8 border-2 border-blue-500/40 text-center space-y-4"
+            style={{ boxShadow: "0 0 40px rgba(59,130,246,0.15)" }}>
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto bg-blue-500/10">
+              <i className="fa-solid fa-envelope text-3xl text-blue-500" />
+            </div>
+            <div>
+              <h3 className="text-lg font-black tracking-tight text-blue-500 mb-1">Yeni Geri Bildirim!</h3>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Bildirim</p>
+            </div>
+            <p className="text-sm text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
+              Okunmamış yeni bir geri bildiriminiz var. Lütfen kontrol ediniz.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setFeedbackPopup(false)}
+                className="flex-1 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-black rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+              >
+                Sonra Gör
+              </button>
+              <button
+                onClick={() => { setFeedbackPopup(false); setActivePage("feedback"); }}
+                className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black rounded-2xl transition-all"
+              >
+                Görüntüle
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Global duyuru alarm popup — her sayfada görünür */}
       {globalAlarm && (
         <div className="fixed inset-0 z-[310] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
           <div

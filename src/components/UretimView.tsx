@@ -118,13 +118,16 @@ export default function UretimView() {
           };
         });
 
-        setFullData(rows);
+        const viewRows = !isAdmin && user?.team
+          ? rows.filter(r => r.team === user.team)
+          : rows;
+        setFullData(viewRows);
         setTeamFilter("all");
         setTlFilter("all");
         setSearch("");
       })
       .finally(() => setLoading(false));
-  }, [period, isAdmin, user?.user_name]);
+  }, [period, isAdmin, user?.user_name, user?.team]);
 
   // Filtreli veri
   const filtered = useMemo(() => {
