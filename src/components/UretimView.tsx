@@ -118,15 +118,7 @@ export default function UretimView() {
           };
         });
 
-        // Agent sadece kendi ekibini görür
-        const filtered = !isAdmin
-          ? (() => {
-              const myTeam = users.find(u => u.user_name?.toLowerCase().trim() === user?.user_name?.toLowerCase().trim())?.team ?? "";
-              return myTeam ? rows.filter(r => r.team === myTeam) : rows;
-            })()
-          : rows;
-
-        setFullData(filtered);
+        setFullData(rows);
         setTeamFilter("all");
         setTlFilter("all");
         setSearch("");
@@ -273,22 +265,24 @@ export default function UretimView() {
               <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none" />
               <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Hızlı Temsilci Ara..." className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-blue-500 outline-none shadow-sm transition-all text-slate-800 dark:text-slate-100" />
             </div>
-            {/* Export */}
-            <div className="relative" ref={exportRef}>
-              <button onClick={() => setShowExportMenu(v => !v)} className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-2xl shadow-lg transition-all uppercase tracking-widest">
-                <i className="fa-solid fa-file-export" /> Excel Export <i className="fa-solid fa-chevron-down text-[10px]" />
-              </button>
-              {showExportMenu && (
-                <div className="absolute right-0 top-[calc(100%+6px)] z-50 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl min-w-[180px] overflow-hidden">
-                  <button onClick={exportSummary} className="flex items-center gap-2 w-full px-4 py-2.5 text-xs font-black uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                    <i className="fa-solid fa-layer-group text-purple-500" /> Özet
-                  </button>
-                  <button onClick={openOzelModal} className="flex items-center gap-2 w-full px-4 py-2.5 text-xs font-black uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                    <i className="fa-solid fa-sliders text-amber-500" /> Özel
-                  </button>
-                </div>
-              )}
-            </div>
+            {/* Export — admin only */}
+            {isAdmin && (
+              <div className="relative" ref={exportRef}>
+                <button onClick={() => setShowExportMenu(v => !v)} className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-2xl shadow-lg transition-all uppercase tracking-widest">
+                  <i className="fa-solid fa-file-export" /> Excel Export <i className="fa-solid fa-chevron-down text-[10px]" />
+                </button>
+                {showExportMenu && (
+                  <div className="absolute right-0 top-[calc(100%+6px)] z-50 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl min-w-[180px] overflow-hidden">
+                    <button onClick={exportSummary} className="flex items-center gap-2 w-full px-4 py-2.5 text-xs font-black uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                      <i className="fa-solid fa-layer-group text-purple-500" /> Özet
+                    </button>
+                    <button onClick={openOzelModal} className="flex items-center gap-2 w-full px-4 py-2.5 text-xs font-black uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                      <i className="fa-solid fa-sliders text-amber-500" /> Özel
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </header>
@@ -304,7 +298,7 @@ export default function UretimView() {
         {!loading && (
           <>
             {/* KPI Kartları */}
-            <div className={`grid gap-4 ${isAdmin ? "grid-cols-2 lg:grid-cols-5" : "flex flex-wrap justify-center"}`}>
+            <div className={`grid gap-4 ${isAdmin ? "grid-cols-2 lg:grid-cols-5" : "grid-cols-3"}`}>
               {isAdmin && (
                 <KpiCard icon="fa-stopwatch" iconBg="bg-blue-500/10 text-blue-500" label="NET SAAT" value={toTr(kpiCWT)} sub="Toplam Net Çalışma" />
               )}

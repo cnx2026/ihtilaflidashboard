@@ -45,6 +45,7 @@ export default function DuyurularPanel({ onBadgeChange }: Props) {
 
   // New announcement modal
   const [showNew, setShowNew] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const [newD, setNewD] = useState<NewDuyuruState>({
     title: "", content: "", category: "surec", team: "all",
     alarm_minutes: 15, imageFile: null, imagePreview: "", submitting: false,
@@ -202,32 +203,48 @@ export default function DuyurularPanel({ onBadgeChange }: Props) {
   async function submitNew() {
     if (!newD.title) return;
     setNewD(s => ({ ...s, submitting: true }));
+    setSubmitError("");
 
     let imageUrl: string | undefined;
     if (newD.imageFile) {
-      const supabase = createSupabaseBrowser();
-      const ext = newD.imageFile.name.split(".").pop();
-      const path = `duyuru/${Date.now()}.${ext}`;
-      const { data: up } = await supabase.storage.from("duyuru-gorseller").upload(path, newD.imageFile);
-      if (up) {
-        const { data: { publicUrl } } = supabase.storage.from("duyuru-gorseller").getPublicUrl(path);
-        imageUrl = publicUrl;
+      try {
+        const supabase = createSupabaseBrowser();
+        const ext = newD.imageFile.name.split(".").pop();
+        const path = `duyuru/${Date.now()}.${ext}`;
+        const { data: up, error: upErr } = await supabase.storage.from("duyuru-gorseller").upload(path, newD.imageFile);
+        if (upErr) throw upErr;
+        if (up) {
+          const { data: { publicUrl } } = supabase.storage.from("duyuru-gorseller").getPublicUrl(path);
+          imageUrl = publicUrl;
+        }
+      } catch (e) {
+        setSubmitError("Görsel yüklenemedi: " + (e instanceof Error ? e.message : String(e)));
+        setNewD(s => ({ ...s, submitting: false }));
+        return;
       }
     }
 
-    const res = await fetch("/api/announcements", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: newD.title, content: newD.content, category: newD.category,
-        team: newD.team, alarm_minutes: newD.alarm_minutes, image_url: imageUrl,
-      }),
-    });
+    try {
+      const res = await fetch("/api/announcements", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newD.title, content: newD.content, category: newD.category,
+          team: newD.team, alarm_minutes: newD.alarm_minutes, image_url: imageUrl,
+        }),
+      });
 
-    if (res.ok) {
-      await load();
-      setShowNew(false);
-      setNewD({ title: "", content: "", category: "surec", team: "all", alarm_minutes: 15, imageFile: null, imagePreview: "", submitting: false });
-    } else {
+      if (res.ok) {
+        await load();
+        setShowNew(false);
+        setSubmitError("");
+        setNewD({ title: "", content: "", category: "surec", team: "all", alarm_minutes: 15, imageFile: null, imagePreview: "", submitting: false });
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        setSubmitError((errData as { error?: string }).error ?? "Duyuru yayınlanamadı. Lütfen tekrar deneyin.");
+        setNewD(s => ({ ...s, submitting: false }));
+      }
+    } catch {
+      setSubmitError("Ağ hatası. Lütfen bağlantınızı kontrol edin.");
       setNewD(s => ({ ...s, submitting: false }));
     }
   }
@@ -446,7 +463,7 @@ export default function DuyurularPanel({ onBadgeChange }: Props) {
           <div className="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl w-full max-w-lg p-8 space-y-5 border border-slate-200 dark:border-slate-800 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-black tracking-tight text-slate-900 dark:text-slate-100">Yeni Duyuru</h3>
-              <button onClick={() => setShowNew(false)} className="w-8 h-8 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-rose-500 transition-colors">
+              <button onClick={() => { setShowNew(false); setSubmitError(""); }} className="w-8 h-8 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-rose-500 transition-colors">
                 <i className="fa-solid fa-xmark" />
               </button>
             </div>
@@ -512,6 +529,11 @@ export default function DuyurularPanel({ onBadgeChange }: Props) {
                 <span className="text-xs text-slate-400 font-medium">dakika içinde okunmazsa alarm gönderilir</span>
               </div>
             </div>
+            {submitError && (
+              <div className="flex items-center gap-2 px-4 py-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs font-bold text-rose-500">
+                <i className="fa-solid fa-circle-exclamation" /> {submitError}
+              </div>
+            )}
             <button onClick={submitNew} disabled={newD.submitting || !newD.title}
               className="w-full py-3 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-black rounded-2xl transition-all">
               {newD.submitting ? "Yayınlanıyor..." : "Duyuru Yayınla"}

@@ -5,6 +5,7 @@ export interface CurrentUser {
   role: Role;
   user_name: string;
   email: string;
+  team?: string;
 }
 
 export interface UserRow {

@@ -29,5 +29,6 @@ export async function GET(request: NextRequest) {
     role: r?.role ?? "agent",
     user_name: r?.user_name ?? user.email.split("@")[0].replace(".", " "),
     email: user.email,
+    team: r?.team ?? "",
   });
 }
